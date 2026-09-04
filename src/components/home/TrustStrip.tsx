@@ -20,7 +20,7 @@ export function TrustStrip() {
             >
               <Icon size={26} className="shrink-0 text-navy-light" strokeWidth={1.5} />
               <div>
-                <p className="text-xs font-semibold text-[#0f1111]">{item.label}</p>
+                <p className="text-xs font-semibold text-foreground">{item.label}</p>
                 <p className="text-[11px] text-neutral-500">{item.desc}</p>
               </div>
             </div>

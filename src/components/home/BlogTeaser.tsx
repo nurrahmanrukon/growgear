@@ -7,7 +7,7 @@ export function BlogTeaser({ posts }: { posts: BlogPost[] }) {
     <section className="container-page py-6">
       <div className="rounded-lg border border-border bg-surface p-4 sm:p-5">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="flex items-center gap-2 text-lg font-bold text-[#0f1111]">
+          <h2 className="flex items-center gap-2 text-lg font-bold text-foreground">
             <Newspaper size={20} className="text-navy-light" /> ব্লগ থেকে
           </h2>
           <Link href="/blog" className="text-sm text-link hover:text-link-hover hover:underline">
@@ -27,7 +27,7 @@ export function BlogTeaser({ posts }: { posts: BlogPost[] }) {
               >
                 {post.category}
               </div>
-              <p className="mt-2 line-clamp-2 text-sm font-medium text-[#0f1111] group-hover:text-link-hover">
+              <p className="mt-2 line-clamp-2 text-sm font-medium text-foreground group-hover:text-link-hover">
                 {post.title}
               </p>
               <p className="mt-1 line-clamp-2 text-xs text-neutral-500">{post.excerpt}</p>

@@ -70,7 +70,7 @@ export default function CheckoutPage() {
   if (items.length === 0) {
     return (
       <div className="container-page flex flex-col items-center gap-4 py-20 text-center">
-        <h1 className="text-lg font-semibold text-[#0f1111]">আপনার কার্ট খালি</h1>
+        <h1 className="text-lg font-semibold text-foreground">আপনার কার্ট খালি</h1>
         <Link href="/">
           <Button variant="primary">কেনাকাটা শুরু করুন</Button>
         </Link>
@@ -80,12 +80,12 @@ export default function CheckoutPage() {
 
   return (
     <div className="container-page py-6">
-      <h1 className="text-xl font-bold text-[#0f1111] sm:text-2xl">চেকআউট</h1>
+      <h1 className="text-xl font-bold text-foreground sm:text-2xl">চেকআউট</h1>
 
       <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-5 lg:flex-row">
         <div className="flex-1 space-y-5">
           <div className="rounded-lg border border-border bg-surface p-4">
-            <h2 className="mb-3 text-sm font-bold text-[#0f1111]">ডেলিভারির তথ্য</h2>
+            <h2 className="mb-3 text-sm font-bold text-foreground">ডেলিভারির তথ্য</h2>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <input
                 required
@@ -124,7 +124,7 @@ export default function CheckoutPage() {
           </div>
 
           <div className="rounded-lg border border-border bg-surface p-4">
-            <h2 className="mb-3 text-sm font-bold text-[#0f1111]">পেমেন্ট পদ্ধতি</h2>
+            <h2 className="mb-3 text-sm font-bold text-foreground">পেমেন্ট পদ্ধতি</h2>
             <div className="space-y-2">
               <label className="flex cursor-pointer items-center gap-3 rounded border border-border p-3 has-[:checked]:border-orange has-[:checked]:bg-orange/5">
                 <input
@@ -135,7 +135,7 @@ export default function CheckoutPage() {
                 />
                 <Banknote size={18} className="text-navy-light" />
                 <div>
-                  <p className="text-sm font-medium text-[#0f1111]">ক্যাশ অন ডেলিভারি</p>
+                  <p className="text-sm font-medium text-foreground">ক্যাশ অন ডেলিভারি</p>
                   <p className="text-xs text-neutral-500">পণ্য হাতে পেয়ে টাকা পরিশোধ করুন</p>
                 </div>
               </label>
@@ -144,7 +144,7 @@ export default function CheckoutPage() {
                 <input type="radio" name="payment" disabled />
                 <Smartphone size={18} className="text-navy-light" />
                 <div>
-                  <p className="text-sm font-medium text-[#0f1111]">bKash / Nagad</p>
+                  <p className="text-sm font-medium text-foreground">bKash / Nagad</p>
                   <p className="text-xs text-neutral-500">পেমেন্ট গেটওয়ে শীঘ্রই যুক্ত হবে</p>
                 </div>
               </label>
@@ -153,7 +153,7 @@ export default function CheckoutPage() {
                 <input type="radio" name="payment" disabled />
                 <CreditCard size={18} className="text-navy-light" />
                 <div>
-                  <p className="text-sm font-medium text-[#0f1111]">ডেবিট / ক্রেডিট কার্ড</p>
+                  <p className="text-sm font-medium text-foreground">ডেবিট / ক্রেডিট কার্ড</p>
                   <p className="text-xs text-neutral-500">পেমেন্ট গেটওয়ে শীঘ্রই যুক্ত হবে</p>
                 </div>
               </label>
@@ -162,7 +162,7 @@ export default function CheckoutPage() {
         </div>
 
         <div className="h-fit w-full space-y-3 rounded-lg border border-border bg-surface p-4 lg:w-80">
-          <h2 className="text-sm font-bold text-[#0f1111]">অর্ডার সামারি</h2>
+          <h2 className="text-sm font-bold text-foreground">অর্ডার সামারি</h2>
           <div className="max-h-48 space-y-1.5 overflow-y-auto text-xs text-neutral-600">
             {items.map((i) => (
               <div key={i.productId} className="flex justify-between gap-2">

@@ -10,18 +10,18 @@ export const metadata: Metadata = { title: "অনলাইন কোর্স �
 export default function CoursePage() {
   return (
     <div className="container-page py-6">
-      <div className="rounded-lg bg-gradient-to-r from-navy-light to-navy p-5 text-white sm:p-6">
-        <h1 className="flex items-center gap-2 text-xl font-bold sm:text-2xl">
-          <GraduationCap size={26} /> অনলাইন কোর্স
+      <div className="rounded-lg border border-border bg-surface-muted p-5 sm:p-6">
+        <h1 className="flex items-center gap-2 font-display text-xl font-bold text-foreground sm:text-2xl">
+          <GraduationCap size={26} className="text-primary" /> অনলাইন কোর্স
         </h1>
-        <p className="mt-2 max-w-2xl text-sm text-neutral-300">
+        <p className="mt-2 max-w-2xl text-sm text-ink-soft">
           GrowGear-এর সব কোর্স পরিচালিত ও এনরোলমেন্ট সম্পন্ন হয় আমাদের পার্টনার লার্নিং
           প্ল্যাটফর্ম{" "}
           <a
             href="https://enrich.com.bd"
             target="_blank"
             rel="noopener noreferrer"
-            className="font-semibold text-orange hover:underline"
+            className="font-semibold text-primary hover:underline"
           >
             enrich.com.bd
           </a>{" "}
@@ -46,7 +46,7 @@ export default function CoursePage() {
                 <GraduationCap size={40} strokeWidth={1.5} />
               </div>
 
-              <h2 className="mt-3 text-sm font-semibold text-[#0f1111]">{course.title}</h2>
+              <h2 className="mt-3 text-sm font-semibold text-foreground">{course.title}</h2>
               <p className="text-xs text-neutral-500">{course.instructor}</p>
 
               <div className="mt-1.5">

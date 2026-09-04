@@ -30,104 +30,94 @@ export function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-40">
-      <div className="bg-navy text-white">
-        <div className="container-page flex items-center gap-3 py-2.5">
-          <button
-            className="lg:hidden -ml-1 rounded p-1.5 hover:bg-navy-light"
-            aria-label="মেনু খুলুন"
-            onClick={() => setMobileOpen((v) => !v)}
-          >
-            {mobileOpen ? <X size={22} /> : <Menu size={22} />}
-          </button>
+    <header className="sticky top-0 z-40 border-b border-border bg-surface/95 backdrop-blur">
+      <div className="border-b border-border/70 bg-primary-light/60 py-1.5 text-center text-[11px] text-primary-dark">
+        সারাদেশে ক্যাশ অন ডেলিভারি — অর্ডারের পর হাতে পেয়ে মূল্য পরিশোধ করুন
+      </div>
 
-          <Link href="/" className="flex shrink-0 items-baseline gap-1 rounded p-1 hover:outline hover:outline-1 hover:outline-white">
-            <span className="text-xl font-extrabold tracking-tight">Grow<span className="text-orange">Gear</span></span>
-          </Link>
+      <div className="container-page flex items-center gap-4 py-3.5">
+        <button
+          className="-ml-1 rounded p-1.5 text-foreground hover:bg-surface-muted lg:hidden"
+          aria-label="মেনু খুলুন"
+          onClick={() => setMobileOpen((v) => !v)}
+        >
+          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
 
-          <form onSubmit={handleSearch} className="hidden flex-1 items-stretch sm:flex">
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="বই, ইবুক বা গিয়ার খুঁজুন..."
-              className="w-full min-w-0 rounded-l-md border-0 px-3 py-2 text-sm text-[#0f1111] outline-none focus:ring-2 focus:ring-orange"
-            />
-            <button
-              type="submit"
-              aria-label="খুঁজুন"
-              className="flex items-center justify-center rounded-r-md bg-orange px-3.5 text-navy hover:bg-orange-light"
-            >
-              <Search size={18} />
-            </button>
-          </form>
+        <Link href="/" className="shrink-0 font-display text-xl font-bold text-foreground">
+          Grow<span className="text-primary">Gear</span>
+        </Link>
 
-          <div className="ml-auto flex items-center gap-4 sm:ml-0">
-            <Link
-              href="/course"
-              className="hidden rounded p-1.5 text-sm hover:outline hover:outline-1 hover:outline-white md:block"
-            >
-              <span className="block text-[11px] text-neutral-300">অনলাইন</span>
-              <span className="font-bold">কোর্স</span>
+        <nav className="hidden items-center gap-6 pl-4 text-sm text-ink-soft lg:flex">
+          {navLinks.map((link) => (
+            <Link key={link.href} href={link.href} className="hover:text-foreground">
+              {link.label}
             </Link>
-            <Link
-              href="/cart"
-              className="relative flex items-center gap-1 rounded p-1.5 hover:outline hover:outline-1 hover:outline-white"
-            >
-              <span className="relative">
-                <ShoppingCart size={26} />
-                {hydrated && totalItems > 0 && (
-                  <span className="absolute -top-1.5 -right-2 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-orange px-1 text-[11px] font-bold text-navy">
-                    {toBengaliNumber(totalItems)}
-                  </span>
-                )}
-              </span>
-              <span className="hidden text-sm font-bold sm:block">কার্ট</span>
-            </Link>
-          </div>
-        </div>
+          ))}
+        </nav>
 
-        <form onSubmit={handleSearch} className="flex items-stretch px-3 pb-2.5 sm:hidden">
+        <form onSubmit={handleSearch} className="ml-auto hidden max-w-xs flex-1 items-stretch sm:flex">
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="বই, ইবুক বা গিয়ার খুঁজুন..."
-            className="w-full min-w-0 rounded-l-md border-0 px-3 py-2 text-sm text-[#0f1111] outline-none"
+            className="w-full min-w-0 rounded-l-md border border-r-0 border-border bg-surface-muted px-3 py-1.5 text-sm text-foreground outline-none focus:ring-1 focus:ring-primary"
           />
           <button
             type="submit"
             aria-label="খুঁজুন"
-            className="flex items-center justify-center rounded-r-md bg-orange px-3.5 text-navy"
+            className="flex items-center justify-center rounded-r-md border border-border bg-surface-muted px-3 text-ink-soft hover:text-primary"
           >
-            <Search size={18} />
+            <Search size={16} />
           </button>
         </form>
+
+        <Link
+          href="/cart"
+          className="relative ml-auto flex items-center gap-1.5 rounded p-1.5 text-foreground hover:bg-surface-muted sm:ml-0"
+        >
+          <span className="relative">
+            <ShoppingCart size={22} />
+            {hydrated && totalItems > 0 && (
+              <span className="absolute -top-1.5 -right-2 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-white">
+                {toBengaliNumber(totalItems)}
+              </span>
+            )}
+          </span>
+          <span className="hidden text-sm font-medium sm:block">কার্ট</span>
+        </Link>
       </div>
 
-      <nav className="hidden bg-navy-light text-sm text-white lg:block">
-        <div className="container-page flex items-center gap-5 py-2">
-          {navLinks.map((link) => (
-            <Link key={link.href} href={link.href} className="rounded px-1 py-0.5 hover:outline hover:outline-1 hover:outline-white">
-              {link.label}
-            </Link>
-          ))}
-        </div>
-      </nav>
+      <form onSubmit={handleSearch} className="flex items-stretch px-3 pb-3 sm:hidden">
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="বই, ইবুক বা গিয়ার খুঁজুন..."
+          className="w-full min-w-0 rounded-l-md border border-r-0 border-border bg-surface-muted px-3 py-2 text-sm outline-none"
+        />
+        <button
+          type="submit"
+          className="flex items-center justify-center rounded-r-md border border-border bg-surface-muted px-3.5 text-ink-soft"
+        >
+          <Search size={16} />
+        </button>
+      </form>
 
       <nav
         className={clsx(
-          "bg-navy-light text-white lg:hidden",
+          "border-t border-border bg-surface lg:hidden",
           mobileOpen ? "block" : "hidden"
         )}
       >
-        <div className="container-page flex flex-col py-2">
+        <div className="container-page flex flex-col py-1">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               onClick={() => setMobileOpen(false)}
-              className="border-b border-navy-lighter/60 py-2.5 text-sm last:border-none"
+              className="border-b border-border/70 py-2.5 text-sm text-ink-soft last:border-none hover:text-foreground"
             >
               {link.label}
             </Link>

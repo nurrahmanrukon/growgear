@@ -31,7 +31,7 @@ export function ProductCard({ product }: { product: Product }) {
         )}
       </Link>
 
-      <Link href={href} className="mt-2.5 line-clamp-2 text-sm font-medium text-[#0f1111] hover:text-link-hover">
+      <Link href={href} className="mt-2.5 line-clamp-2 text-sm font-medium text-foreground hover:text-link-hover">
         {product.title}
       </Link>
       {product.author && (
@@ -59,7 +59,7 @@ export function ProductCard({ product }: { product: Product }) {
       ) : (
         <button
           onClick={() => addItem(product)}
-          className="mt-3 flex items-center justify-center gap-1.5 rounded-lg border border-orange-dark bg-gradient-to-b from-orange-light to-orange px-3 py-1.5 text-xs font-semibold text-[#0f1111] hover:brightness-95"
+          className="mt-3 flex items-center justify-center gap-1.5 rounded-md border border-primary bg-surface px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary-light"
         >
           <Plus size={14} /> কার্টে যোগ করুন
         </button>

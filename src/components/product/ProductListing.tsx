@@ -52,13 +52,13 @@ export function ProductListing({
 
   return (
     <div className="container-page py-5">
-      <h1 className="text-xl font-bold text-[#0f1111] sm:text-2xl">{title}</h1>
+      <h1 className="text-xl font-bold text-foreground sm:text-2xl">{title}</h1>
       <p className="mt-1 text-sm text-neutral-600">{description}</p>
 
       <div className="mt-4 flex flex-col gap-5 lg:flex-row">
         <aside className="w-full shrink-0 lg:w-56">
           <div className="rounded-lg border border-border bg-surface p-4">
-            <h2 className="text-sm font-bold text-[#0f1111]">দাম</h2>
+            <h2 className="text-sm font-bold text-foreground">দাম</h2>
             <ul className="mt-2 space-y-1.5">
               {priceBands.map((band, i) => (
                 <li key={band.label}>
@@ -76,7 +76,7 @@ export function ProductListing({
               ))}
             </ul>
 
-            <h2 className="mt-5 text-sm font-bold text-[#0f1111]">রেটিং</h2>
+            <h2 className="mt-5 text-sm font-bold text-foreground">রেটিং</h2>
             <ul className="mt-2 space-y-1.5">
               {[0, 4, 4.5].map((r) => (
                 <li key={r}>
@@ -111,7 +111,7 @@ export function ProductListing({
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortKey)}
-              className="rounded border border-border bg-white px-2 py-1 text-xs outline-none"
+              className="rounded border border-border bg-surface px-2 py-1 text-xs outline-none"
             >
               <option value="featured">সাজান: ফিচার্ড</option>
               <option value="price-asc">দাম: কম থেকে বেশি</option>

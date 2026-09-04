@@ -15,7 +15,7 @@ export function ProductRail({
     <section className="container-page py-6">
       <div className="rounded-lg border border-border bg-surface p-4 sm:p-5">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-[#0f1111]">{title}</h2>
+          <h2 className="text-lg font-bold text-foreground">{title}</h2>
           <Link href={viewAllHref} className="text-sm text-link hover:text-link-hover hover:underline">
             সব দেখুন →
           </Link>

@@ -9,7 +9,7 @@ export function CourseTeaser({ courses }: { courses: Course[] }) {
     <section className="container-page py-6">
       <div className="rounded-lg border border-border bg-surface p-4 sm:p-5">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="flex items-center gap-2 text-lg font-bold text-[#0f1111]">
+          <h2 className="flex items-center gap-2 text-lg font-bold text-foreground">
             <GraduationCap size={20} className="text-navy-light" /> অনলাইন কোর্স
           </h2>
           <Link href="/course" className="text-sm text-link hover:text-link-hover hover:underline">
@@ -35,7 +35,7 @@ export function CourseTeaser({ courses }: { courses: Course[] }) {
               >
                 <GraduationCap size={32} strokeWidth={1.5} />
               </div>
-              <p className="mt-2 line-clamp-2 text-sm font-medium text-[#0f1111]">{course.title}</p>
+              <p className="mt-2 line-clamp-2 text-sm font-medium text-foreground">{course.title}</p>
               <p className="text-xs text-neutral-500">{course.instructor}</p>
               <div className="mt-1">
                 <StarRating rating={course.rating} reviewCount={course.reviewCount} size={12} />

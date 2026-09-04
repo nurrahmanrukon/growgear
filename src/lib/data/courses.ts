@@ -1,4 +1,5 @@
 import { Course } from "@/lib/types";
+import { MUTED_GRADIENTS as gradients } from "./palette";
 
 const raw: Omit<Course, "id" | "slug" | "enrollUrl" | "colorFrom" | "colorTo">[] = [
   {
@@ -86,13 +87,6 @@ const raw: Omit<Course, "id" | "slug" | "enrollUrl" | "colorFrom" | "colorTo">[]
     shortDescription: "সোশ্যাল মিডিয়ায় কনটেন্ট তৈরি, গ্রোথ ও মনিটাইজেশনের কৌশল।",
     bullets: ["কনটেন্ট ক্যালেন্ডার টেমপ্লেট", "গ্রোথ হ্যাকস", "মনিটাইজেশন গাইড"],
   },
-];
-
-const gradients: [string, string][] = [
-  ["#232f3e", "#37475a"],
-  ["#0f4c5c", "#146b7e"],
-  ["#5c1f0f", "#8a3b1f"],
-  ["#1f3a5c", "#2f5a8a"],
 ];
 
 export const courses: Course[] = raw.map((c, i) => ({

@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: "ব্লগ — GrowGear" };
 export default function BlogPage() {
   return (
     <div className="container-page py-6">
-      <h1 className="text-xl font-bold text-[#0f1111] sm:text-2xl">ব্লগ</h1>
+      <h1 className="text-xl font-bold text-foreground sm:text-2xl">ব্লগ</h1>
       <p className="mt-1 text-sm text-neutral-600">
         মাইন্ডসেট, প্রোডাক্টিভিটি ও ক্যারিয়ার নিয়ে নিয়মিত লেখা
       </p>
@@ -26,7 +26,7 @@ export default function BlogPage() {
             >
               {post.category}
             </div>
-            <h2 className="mt-2.5 line-clamp-2 text-sm font-semibold text-[#0f1111] group-hover:text-link-hover">
+            <h2 className="mt-2.5 line-clamp-2 text-sm font-semibold text-foreground group-hover:text-link-hover">
               {post.title}
             </h2>
             <p className="mt-1 line-clamp-2 text-xs text-neutral-500">{post.excerpt}</p>

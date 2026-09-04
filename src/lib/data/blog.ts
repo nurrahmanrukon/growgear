@@ -1,4 +1,5 @@
 import { BlogPost } from "@/lib/types";
+import { MUTED_GRADIENTS as gradients } from "./palette";
 
 const raw: Omit<BlogPost, "id" | "slug" | "colorFrom" | "colorTo">[] = [
   {
@@ -79,15 +80,6 @@ const raw: Omit<BlogPost, "id" | "slug" | "colorFrom" | "colorTo">[] = [
     category: "ক্যারিয়ার",
     readMinutes: 5,
   },
-];
-
-const gradients: [string, string][] = [
-  ["#232f3e", "#37475a"],
-  ["#0f4c5c", "#146b7e"],
-  ["#5c1f0f", "#8a3b1f"],
-  ["#1f3a5c", "#2f5a8a"],
-  ["#3a1f5c", "#5a2f8a"],
-  ["#1f5c3a", "#2f8a5a"],
 ];
 
 export const blogPosts: BlogPost[] = raw.map((p, i) => ({

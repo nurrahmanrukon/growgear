@@ -12,7 +12,7 @@ export default async function OrderSuccessPage({
   return (
     <div className="container-page flex flex-col items-center gap-3 py-20 text-center">
       <CheckCircle2 size={56} className="text-success" />
-      <h1 className="text-xl font-bold text-[#0f1111]">অর্ডার সফলভাবে সম্পন্ন হয়েছে!</h1>
+      <h1 className="text-xl font-bold text-foreground">অর্ডার সফলভাবে সম্পন্ন হয়েছে!</h1>
       {orderId && (
         <p className="text-sm text-neutral-600">
           আপনার অর্ডার আইডি: <span className="font-semibold text-navy-light">{orderId}</span>

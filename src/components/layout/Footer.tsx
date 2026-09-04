@@ -39,24 +39,24 @@ const columns: { title: string; links: { label: string; href: string }[] }[] = [
 
 export function Footer() {
   return (
-    <footer className="mt-10 bg-navy-light text-white">
+    <footer className="mt-16 bg-foreground text-background/90">
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        className="flex w-full items-center justify-center gap-2 bg-navy-lighter py-3.5 text-sm hover:bg-navy-lighter/80"
+        className="flex w-full items-center justify-center gap-2 border-b border-background/10 py-3 text-xs text-background/70 hover:text-background"
       >
-        <ArrowUp size={16} /> উপরে যান
+        <ArrowUp size={14} /> উপরে যান
       </button>
 
       <div className="container-page grid grid-cols-2 gap-8 py-10 sm:grid-cols-4">
         {columns.map((col) => (
           <div key={col.title}>
-            <h3 className="mb-3 text-sm font-bold">{col.title}</h3>
+            <h3 className="mb-3 text-sm font-semibold text-background">{col.title}</h3>
             <ul className="space-y-2">
               {col.links.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-xs text-neutral-300 hover:underline"
+                    className="text-xs text-background/60 hover:text-background hover:underline"
                     target={link.href.startsWith("http") ? "_blank" : undefined}
                   >
                     {link.label}
@@ -68,10 +68,12 @@ export function Footer() {
         ))}
       </div>
 
-      <div className="border-t border-navy-lighter">
+      <div className="border-t border-background/10">
         <div className="container-page flex flex-col items-center gap-1 py-5 text-center">
-          <span className="text-lg font-extrabold">Grow<span className="text-orange">Gear</span></span>
-          <p className="text-xs text-neutral-400">
+          <span className="font-display text-lg font-bold text-background">
+            Grow<span className="text-primary">Gear</span>
+          </span>
+          <p className="text-xs text-background/50">
             © ২০২৬ GrowGear. সর্বস্বত্ব সংরক্ষিত। সারাদেশে ক্যাশ অন ডেলিভারি সুবিধা।
           </p>
         </div>

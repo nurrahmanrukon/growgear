@@ -25,7 +25,7 @@ export default function CartPage() {
     return (
       <div className="container-page flex flex-col items-center justify-center gap-4 py-20 text-center">
         <ShoppingCart size={48} className="text-neutral-300" />
-        <h1 className="text-lg font-semibold text-[#0f1111]">আপনার কার্ট খালি</h1>
+        <h1 className="text-lg font-semibold text-foreground">আপনার কার্ট খালি</h1>
         <p className="text-sm text-neutral-500">
           বই, ইবুক বা প্রোডাক্টিভিটি গিয়ার যোগ করে কেনাকাটা শুরু করুন।
         </p>
@@ -38,7 +38,7 @@ export default function CartPage() {
 
   return (
     <div className="container-page py-6">
-      <h1 className="text-xl font-bold text-[#0f1111] sm:text-2xl">
+      <h1 className="text-xl font-bold text-foreground sm:text-2xl">
         শপিং কার্ট ({toBengaliNumber(totalItems)} টি আইটেম)
       </h1>
 
@@ -59,7 +59,7 @@ export default function CartPage() {
               <div className="flex flex-1 flex-col">
                 <Link
                   href={`${categoryMeta[item.category].path}/${item.slug}`}
-                  className="text-sm font-medium text-[#0f1111] hover:text-link-hover"
+                  className="text-sm font-medium text-foreground hover:text-link-hover"
                 >
                   {item.title}
                 </Link>

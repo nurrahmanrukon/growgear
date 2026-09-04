@@ -1,15 +1,5 @@
 import { Product, ProductCategory, ProductSpec } from "@/lib/types";
-
-const gradients: [string, string][] = [
-  ["#232f3e", "#37475a"],
-  ["#0f4c5c", "#146b7e"],
-  ["#5c1f0f", "#8a3b1f"],
-  ["#1f3a5c", "#2f5a8a"],
-  ["#3a1f5c", "#5a2f8a"],
-  ["#1f5c3a", "#2f8a5a"],
-  ["#5c4a1f", "#8a6f2f"],
-  ["#1f5c5c", "#2f8a8a"],
-];
+import { MUTED_GRADIENTS as gradients } from "./palette";
 
 interface RawItem {
   title: string;

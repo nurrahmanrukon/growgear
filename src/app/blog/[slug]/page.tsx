@@ -45,7 +45,7 @@ export default async function BlogPostPage({
         {post.category}
       </div>
 
-      <h1 className="mt-5 text-2xl font-bold text-[#0f1111] sm:text-3xl">{post.title}</h1>
+      <h1 className="mt-5 text-2xl font-bold text-foreground sm:text-3xl">{post.title}</h1>
       <p className="mt-2 text-sm text-neutral-500">
         {post.author} · {post.date} · {toBengaliNumber(post.readMinutes)} মিনিট পড়া
       </p>
