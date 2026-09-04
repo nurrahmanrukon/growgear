@@ -1,4 +1,5 @@
 import { Product } from "@/lib/types";
+import { PERSON_NAMES, BD_LOCATIONS, hashString } from "@/lib/data/social";
 
 export interface Review {
   name: string;
@@ -7,24 +8,8 @@ export interface Review {
   quote: string;
   daysAgo: number;
   verified: boolean;
+  hasPhoto: boolean;
 }
-
-const NAMES = [
-  "রাফিদ হাসান",
-  "তানজিলা ইসলাম",
-  "ইমরান হোসেন",
-  "নুসরাত জাহান",
-  "আরিফুল ইসলাম",
-  "সুমাইয়া আক্তার",
-  "মাহমুদুল হাসান",
-  "তাহমিনা সুলতানা",
-  "শাহরিয়ার কবির",
-  "ফারজানা ইয়াসমিন",
-  "রুবেল আহমেদ",
-  "মিথিলা রহমান",
-];
-
-const LOCATIONS = ["ঢাকা", "চট্টগ্রাম", "রাজশাহী", "সিলেট", "খুলনা", "বগুড়া", "রংপুর", "বরিশাল"];
 
 const QUOTE_TEMPLATES = [
   (t: string) => `${t} পড়ার পর আমার চিন্তাভাবনায় পুরোপুরি পরিবর্তন এসেছে। প্রতিটি অংশে নতুন কিছু শেখার আছে।`,
@@ -39,21 +24,18 @@ const QUOTE_TEMPLATES = [
   () => `শুরুতে ভেবেছিলাম আর দশটা প্রোডাক্টের মতোই হবে, কিন্তু ব্যবহার করে বুঝলাম এটা সত্যিই আলাদা।`,
   () => `রেজাল্ট দেখতে বেশি সময় লাগেনি, প্রথম সপ্তাহেই পার্থক্য বুঝতে পেরেছি।`,
   (t: string) => `${t} — অফিসের সহকর্মীদের মধ্যে এখন বেশ আলোচনায়, সবাই একটা করে চাইছে।`,
+  () => `হাতে পেয়ে প্রথমেই মনে হয়েছে দাম উসুল। প্যাকেজিং থেকে শুরু করে সবকিছুই যত্ন করে করা।`,
+  (t: string) => `"${t}" নিয়ে বন্ধুদের গ্রুপে শেয়ার করেছিলাম, এখন আরও তিনজন অর্ডার করে ফেলেছে।`,
+  () => `রিভিউ পড়ে অর্ডার করেছিলাম, নিজে ব্যবহার করেও একই কথা বলবো — সত্যিই কাজের।`,
 ];
 
-function hashString(input: string): number {
-  let h = 0;
-  for (let i = 0; i < input.length; i++) h = (h * 31 + input.charCodeAt(i)) >>> 0;
-  return h;
-}
-
-export function getReviewsForProduct(product: Product, count = 4): Review[] {
+export function getReviewsForProduct(product: Product, count = 9): Review[] {
   const base = hashString(product.id);
   const reviews: Review[] = [];
   for (let i = 0; i < count; i++) {
     const seed = base + i * 97;
-    const name = NAMES[seed % NAMES.length];
-    const location = LOCATIONS[Math.floor(seed / 7) % LOCATIONS.length];
+    const name = PERSON_NAMES[seed % PERSON_NAMES.length];
+    const location = BD_LOCATIONS[Math.floor(seed / 7) % BD_LOCATIONS.length];
     const quote = QUOTE_TEMPLATES[Math.floor(seed / 13) % QUOTE_TEMPLATES.length](product.title);
     const rating = 4 + (Math.floor(seed / 29) % 2 === 0 ? 1 : 0.5 * (Math.floor(seed / 53) % 2));
     reviews.push({
@@ -63,6 +45,7 @@ export function getReviewsForProduct(product: Product, count = 4): Review[] {
       quote,
       daysAgo: 2 + (seed % 40),
       verified: seed % 5 !== 0,
+      hasPhoto: seed % 3 !== 0,
     });
   }
   return reviews;

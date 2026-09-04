@@ -15,6 +15,7 @@ export function ProductImage({
   colorTo,
   className,
   iconSize = 40,
+  hideLabel = false,
 }: {
   title: string;
   category: ProductCategory;
@@ -22,6 +23,7 @@ export function ProductImage({
   colorTo: string;
   className?: string;
   iconSize?: number;
+  hideLabel?: boolean;
 }) {
   const Icon = categoryIcon[category];
   return (
@@ -35,9 +37,9 @@ export function ProductImage({
       }}
     >
       <Icon size={iconSize} className="text-white/90" strokeWidth={1.5} />
-      <span className="line-clamp-2 text-xs font-medium text-white/90">
-        {title}
-      </span>
+      {!hideLabel && (
+        <span className="line-clamp-2 text-xs font-medium text-white/90">{title}</span>
+      )}
     </div>
   );
 }
