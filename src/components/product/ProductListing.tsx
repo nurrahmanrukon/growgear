@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { SlidersHorizontal, X } from "lucide-react";
 import { Product } from "@/lib/types";
 import { ProductGrid } from "./ProductGrid";
 import { StarRating } from "@/components/ui/StarRating";
@@ -28,6 +29,7 @@ export function ProductListing({
   const [sortBy, setSortBy] = useState<SortKey>("featured");
   const [priceBandIndex, setPriceBandIndex] = useState(0);
   const [minRating, setMinRating] = useState(0);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const filtered = useMemo(() => {
     const band = priceBands[priceBandIndex];
@@ -50,15 +52,52 @@ export function ProductListing({
     return list;
   }, [products, sortBy, priceBandIndex, minRating]);
 
+  const activeFilterCount = (priceBandIndex > 0 ? 1 : 0) + (minRating > 0 ? 1 : 0);
+
   return (
     <div className="container-page py-5">
       <h1 className="text-xl font-bold text-foreground sm:text-2xl">{title}</h1>
-      <p className="mt-1 text-sm text-neutral-600">{description}</p>
+      <p className="mt-1 text-sm text-ink-soft">{description}</p>
 
-      <div className="mt-4 flex flex-col gap-5 lg:flex-row">
-        <aside className="w-full shrink-0 lg:w-56">
+      <div className="mt-4 flex items-center justify-between gap-2 rounded-lg border border-border bg-surface px-3 py-2">
+        <span className="text-xs text-ink-soft">{toBengaliNumber(filtered.length)} টি ফলাফল</span>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setFiltersOpen((v) => !v)}
+            className="flex items-center gap-1.5 rounded border border-border px-2.5 py-1.5 text-xs font-medium text-foreground lg:hidden"
+          >
+            <SlidersHorizontal size={13} />
+            ফিল্টার
+            {activeFilterCount > 0 && (
+              <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-white">
+                {toBengaliNumber(activeFilterCount)}
+              </span>
+            )}
+          </button>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as SortKey)}
+            className="rounded border border-border bg-surface px-2 py-1 text-xs outline-none"
+          >
+            <option value="featured">সাজান: ফিচার্ড</option>
+            <option value="price-asc">দাম: কম থেকে বেশি</option>
+            <option value="price-desc">দাম: বেশি থেকে কম</option>
+            <option value="rating">রেটিং</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="mt-3 flex flex-col gap-5 lg:mt-4 lg:flex-row">
+        <aside className={`w-full shrink-0 lg:block lg:w-56 ${filtersOpen ? "block" : "hidden"}`}>
           <div className="rounded-lg border border-border bg-surface p-4">
-            <h2 className="text-sm font-bold text-foreground">দাম</h2>
+            <div className="flex items-center justify-between lg:hidden">
+              <h2 className="text-sm font-bold text-foreground">ফিল্টার</h2>
+              <button onClick={() => setFiltersOpen(false)} aria-label="বন্ধ করুন" className="text-ink-soft">
+                <X size={16} />
+              </button>
+            </div>
+
+            <h2 className="hidden text-sm font-bold text-foreground lg:block">দাম</h2>
             <ul className="mt-2 space-y-1.5">
               {priceBands.map((band, i) => (
                 <li key={band.label}>
@@ -93,33 +132,24 @@ export function ProductListing({
                     ) : (
                       <>
                         <StarRating rating={r} size={12} />
-                        <span className="text-xs text-neutral-600">ও তার বেশি</span>
+                        <span className="text-xs text-ink-soft">ও তার বেশি</span>
                       </>
                     )}
                   </button>
                 </li>
               ))}
             </ul>
+
+            <button
+              onClick={() => setFiltersOpen(false)}
+              className="mt-4 w-full rounded-md bg-primary py-2 text-xs font-semibold text-white lg:hidden"
+            >
+              ফলাফল দেখুন ({toBengaliNumber(filtered.length)})
+            </button>
           </div>
         </aside>
 
         <div className="flex-1">
-          <div className="mb-3 flex items-center justify-between rounded-lg border border-border bg-surface px-3 py-2">
-            <span className="text-xs text-neutral-600">
-              {toBengaliNumber(filtered.length)} টি ফলাফল
-            </span>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as SortKey)}
-              className="rounded border border-border bg-surface px-2 py-1 text-xs outline-none"
-            >
-              <option value="featured">সাজান: ফিচার্ড</option>
-              <option value="price-asc">দাম: কম থেকে বেশি</option>
-              <option value="price-desc">দাম: বেশি থেকে কম</option>
-              <option value="rating">রেটিং</option>
-            </select>
-          </div>
-
           <ProductGrid products={filtered} />
         </div>
       </div>
