@@ -2,12 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { CheckCircle2, ShieldCheck, Truck, Users } from "lucide-react";
+import { BookOpen, CheckCircle2, ShieldCheck, Truck, Users } from "lucide-react";
 import { Product } from "@/lib/types";
 import { formatTaka, discountPercent } from "@/lib/format";
 import { StarRating } from "@/components/ui/StarRating";
 import { QuantityStepper } from "@/components/ui/QuantityStepper";
 import { Button } from "@/components/ui/Button";
+import { SampleReadModal } from "@/components/product/SampleReadModal";
 import { useCartStore } from "@/store/cart";
 
 function weeklyBuyers(id: string): number {
@@ -21,7 +22,9 @@ export function BuyBox({ product }: { product: Product }) {
   const addItem = useCartStore((s) => s.addItem);
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
+  const [showSample, setShowSample] = useState(false);
   const discount = discountPercent(product.price, product.oldPrice);
+  const isReadable = product.category === "book" || product.category === "ebook";
 
   function handleAddToCart() {
     addItem(product, quantity);
@@ -42,6 +45,15 @@ export function BuyBox({ product }: { product: Product }) {
       <h1 className="mt-1.5 font-display text-2xl font-bold text-foreground">{product.title}</h1>
       {product.author && <p className="mt-1 text-sm text-ink-soft">{product.author}</p>}
       <p className="mt-2.5 text-sm leading-relaxed text-ink-soft">{product.shortDescription}</p>
+
+      {isReadable && (
+        <button
+          onClick={() => setShowSample(true)}
+          className="mt-2 flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary-dark hover:underline"
+        >
+          <BookOpen size={13} /> একটু পড়ে দেখুন
+        </button>
+      )}
 
       <div className="mt-3 flex items-center gap-3">
         <StarRating rating={product.rating} reviewCount={product.reviewCount} />
@@ -107,6 +119,10 @@ export function BuyBox({ product }: { product: Product }) {
             </Button>
           </div>
         </>
+      )}
+
+      {isReadable && (
+        <SampleReadModal product={product} open={showSample} onClose={() => setShowSample(false)} />
       )}
     </div>
   );

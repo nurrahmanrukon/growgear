@@ -3,10 +3,12 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Banknote, CreditCard, Smartphone } from "lucide-react";
+import { Banknote, CreditCard, Smartphone, Tag, X } from "lucide-react";
 import { useCartStore, useHasHydrated } from "@/store/cart";
 import { Button } from "@/components/ui/Button";
 import { formatTaka, toBengaliNumber } from "@/lib/format";
+import { validatePromoCode, PromoCode } from "@/lib/data/promo";
+import { PromoGiftModal } from "@/components/checkout/PromoGiftModal";
 
 const areas = ["ঢাকার ভিতরে", "ঢাকার বাইরে"];
 const deliveryFees: Record<string, number> = { "ঢাকার ভিতরে": 70, "ঢাকার বাইরে": 130 };
@@ -26,8 +28,32 @@ export default function CheckoutPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [promoInput, setPromoInput] = useState("");
+  const [promo, setPromo] = useState<PromoCode | null>(null);
+  const [promoError, setPromoError] = useState<string | null>(null);
+  const [showGiftModal, setShowGiftModal] = useState(false);
+
   const deliveryFee = deliveryFees[area];
-  const grandTotal = totalPrice + deliveryFee;
+  const discount = promo ? Math.round((totalPrice * promo.discountPercent) / 100) : 0;
+  const grandTotal = totalPrice - discount + deliveryFee;
+
+  function handleApplyPromo(e: FormEvent) {
+    e.preventDefault();
+    const match = validatePromoCode(promoInput);
+    if (!match) {
+      setPromoError("সঠিক প্রোমো কোড নয়, আবার চেষ্টা করুন।");
+      return;
+    }
+    setPromo(match);
+    setPromoError(null);
+    setShowGiftModal(true);
+  }
+
+  function handleRemovePromo() {
+    setPromo(null);
+    setPromoInput("");
+    setPromoError(null);
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -43,6 +69,8 @@ export default function CheckoutPage() {
           address,
           area,
           paymentMethod,
+          promoCode: promo?.code ?? null,
+          discount,
           items: items.map((i) => ({
             productId: i.productId,
             title: i.title,
@@ -159,6 +187,46 @@ export default function CheckoutPage() {
               </label>
             </div>
           </div>
+
+          <div className="rounded-lg border border-border bg-surface p-4">
+            <h2 className="mb-3 flex items-center gap-1.5 text-sm font-bold text-foreground">
+              <Tag size={15} className="text-primary" /> প্রোমো কোড
+            </h2>
+            {promo ? (
+              <div className="flex items-center justify-between rounded-md bg-primary-light px-3 py-2">
+                <div>
+                  <p className="text-sm font-semibold text-primary-dark">{promo.code} প্রয়োগ হয়েছে</p>
+                  <p className="text-xs text-ink-soft">{promo.discountPercent}% ডিসকাউন্ট — {promo.source}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleRemovePromo}
+                  aria-label="প্রোমো কোড সরান"
+                  className="rounded p-1 text-ink-faint hover:text-foreground"
+                >
+                  <X size={15} />
+                </button>
+              </div>
+            ) : (
+              <div>
+                <div className="flex gap-2">
+                  <input
+                    value={promoInput}
+                    onChange={(e) => setPromoInput(e.target.value)}
+                    placeholder="প্রোমো কোড লিখুন"
+                    className="flex-1 rounded border border-border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange"
+                  />
+                  <Button type="button" variant="outline" onClick={handleApplyPromo}>
+                    প্রয়োগ করুন
+                  </Button>
+                </div>
+                {promoError && <p className="mt-1.5 text-xs text-price">{promoError}</p>}
+                <p className="mt-1.5 text-[11px] text-ink-faint">
+                  নূর রহমান পডকাস্ট বা Enrich Everyday-এর অডিয়েন্স? আপনার কোড দিয়ে ১০% ছাড় পান।
+                </p>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="h-fit w-full space-y-3 rounded-lg border border-border bg-surface p-4 lg:w-80">
@@ -178,6 +246,12 @@ export default function CheckoutPage() {
               <span>সাবটোটাল</span>
               <span>{formatTaka(totalPrice)}</span>
             </div>
+            {promo && (
+              <div className="flex justify-between text-success">
+                <span>প্রোমো ছাড় ({promo.discountPercent}%)</span>
+                <span>-{formatTaka(discount)}</span>
+              </div>
+            )}
             <div className="flex justify-between text-neutral-600">
               <span>ডেলিভারি চার্জ</span>
               <span>{formatTaka(deliveryFee)}</span>
@@ -195,6 +269,8 @@ export default function CheckoutPage() {
           </Button>
         </div>
       </form>
+
+      <PromoGiftModal open={showGiftModal} onClose={() => setShowGiftModal(false)} />
     </div>
   );
 }
