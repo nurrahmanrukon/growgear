@@ -44,6 +44,14 @@ export interface Course {
   colorTo: string;
 }
 
+export type BlogTopicSlug =
+  | "business"
+  | "productivity"
+  | "finance"
+  | "branding"
+  | "marketing"
+  | "sales";
+
 export interface BlogPost {
   id: string;
   slug: string;
@@ -53,6 +61,8 @@ export interface BlogPost {
   author: string;
   date: string;
   category: string;
+  topicSlug: BlogTopicSlug;
+  featured?: boolean;
   readMinutes: number;
   colorFrom: string;
   colorTo: string;
