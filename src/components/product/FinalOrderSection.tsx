@@ -1,10 +1,28 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { CheckCircle2 } from "lucide-react";
-import Link from "next/link";
 import { Product } from "@/lib/types";
 import { formatTaka, discountPercent } from "@/lib/format";
+import { useCartStore } from "@/store/cart";
 
 export function FinalOrderSection({ product }: { product: Product }) {
+  const router = useRouter();
+  const addItem = useCartStore((s) => s.addItem);
+  const [added, setAdded] = useState(false);
   const discount = discountPercent(product.price, product.oldPrice);
+
+  function handleBuyNow() {
+    addItem(product, 1);
+    router.push("/checkout");
+  }
+
+  function handleAddToCart() {
+    addItem(product, 1);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2000);
+  }
 
   return (
     <section className="bg-primary-dark py-12">
@@ -27,12 +45,26 @@ export function FinalOrderSection({ product }: { product: Product }) {
             )}
           </div>
 
-          <Link
-            href="#buy-box"
-            className="mt-6 inline-flex items-center justify-center gap-2 rounded-md bg-white px-8 py-3 text-sm font-semibold text-primary-dark shadow-sm transition hover:bg-white/90"
-          >
-            এখনই অর্ডার করুন
-          </Link>
+          <div className="mt-6 flex flex-col items-center justify-center gap-2 sm:flex-row">
+            <button
+              onClick={handleBuyNow}
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-white px-8 py-3 text-sm font-semibold text-primary-dark shadow-sm transition hover:bg-white/90"
+            >
+              এখনই কিনুন
+            </button>
+            <button
+              onClick={handleAddToCart}
+              className="inline-flex items-center justify-center gap-2 rounded-md border border-white/40 px-8 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+            >
+              {added ? (
+                <span className="flex items-center gap-1.5">
+                  <CheckCircle2 size={16} /> যোগ হয়েছে
+                </span>
+              ) : (
+                "কার্টে যোগ করুন"
+              )}
+            </button>
+          </div>
 
           <div className="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-white/70">
             <span className="flex items-center gap-1.5">
