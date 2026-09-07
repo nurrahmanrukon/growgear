@@ -1,23 +1,19 @@
 "use client";
 
-import { useRef } from "react";
-import { BadgeCheck, ChevronLeft, ChevronRight, ImageIcon } from "lucide-react";
+import { useState } from "react";
+import { BadgeCheck, ImageIcon } from "lucide-react";
 import { Product } from "@/lib/types";
 import { getExpertOpinions } from "@/lib/data/landingContent";
 import { toBengaliNumber } from "@/lib/format";
 import { StarRating } from "@/components/ui/StarRating";
 
+const PER_SEGMENT = 5;
+
 export function ExpertOpinionsSection({ product }: { product: Product }) {
   const experts = getExpertOpinions(product);
-  const trackRef = useRef<HTMLDivElement>(null);
-
-  function scrollByCard(direction: 1 | -1) {
-    const track = trackRef.current;
-    if (!track) return;
-    const card = track.querySelector<HTMLElement>("[data-expert-card]");
-    const step = (card?.offsetWidth ?? 260) + 16;
-    track.scrollBy({ left: direction * step, behavior: "smooth" });
-  }
+  const segments = Math.ceil(experts.length / PER_SEGMENT);
+  const [active, setActive] = useState(0);
+  const visible = experts.slice(active * PER_SEGMENT, active * PER_SEGMENT + PER_SEGMENT);
 
   return (
     <section className="border-y border-border bg-surface-muted py-10">
@@ -29,36 +25,25 @@ export function ExpertOpinionsSection({ product }: { product: Product }) {
           </h2>
         </div>
 
-        <div className="mt-8 flex items-center justify-between">
-          <p className="text-xs text-ink-faint">{toBengaliNumber(experts.length)} টি মতামত — স্লাইড করে দেখুন</p>
-          <div className="flex gap-1.5">
+        <div className="mt-6 flex items-center justify-center gap-2">
+          {Array.from({ length: segments }).map((_, i) => (
             <button
-              onClick={() => scrollByCard(-1)}
-              aria-label="আগের মতামত"
-              className="rounded-full border border-border bg-surface p-1.5 text-ink-soft hover:border-primary hover:text-primary"
+              key={i}
+              onClick={() => setActive(i)}
+              className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition ${
+                active === i
+                  ? "bg-primary text-white"
+                  : "border border-border bg-surface text-ink-soft hover:border-primary hover:text-primary"
+              }`}
             >
-              <ChevronLeft size={16} />
+              সেগমেন্ট {toBengaliNumber(i + 1)}
             </button>
-            <button
-              onClick={() => scrollByCard(1)}
-              aria-label="পরের মতামত"
-              className="rounded-full border border-border bg-surface p-1.5 text-ink-soft hover:border-primary hover:text-primary"
-            >
-              <ChevronRight size={16} />
-            </button>
-          </div>
+          ))}
         </div>
 
-        <div
-          ref={trackRef}
-          className="mt-3 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth pb-2 scrollbar-none"
-        >
-          {experts.map((e, i) => (
-            <div
-              key={i}
-              data-expert-card
-              className="w-64 shrink-0 snap-start overflow-hidden rounded-lg border border-border bg-surface sm:w-72"
-            >
+        <div className="mx-auto mt-6 flex max-w-md flex-col gap-4">
+          {visible.map((e, i) => (
+            <div key={i} className="overflow-hidden rounded-lg border border-border bg-surface">
               {e.hasPhoto && (
                 <div
                   className="flex h-28 items-center justify-center gap-1.5 text-white/80"
@@ -70,7 +55,7 @@ export function ExpertOpinionsSection({ product }: { product: Product }) {
               )}
               <div className="flex flex-1 flex-col p-4">
                 <StarRating rating={e.rating} size={13} />
-                <p className="mt-2 line-clamp-4 flex-1 text-sm text-ink-soft">&ldquo;{e.quote}&rdquo;</p>
+                <p className="mt-2 text-sm text-ink-soft">&ldquo;{e.quote}&rdquo;</p>
                 <div className="mt-3 flex items-center gap-2 border-t border-border pt-3">
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-light text-xs font-semibold text-primary-dark">
                     {e.name.charAt(0)}

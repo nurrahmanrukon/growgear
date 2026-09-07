@@ -1,3 +1,4 @@
+import { ImagePlus, Video } from "lucide-react";
 import { Product } from "@/lib/types";
 import { ProductImage } from "@/components/ui/ProductImage";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
@@ -12,12 +13,44 @@ import { KeyIdeasSection } from "@/components/product/KeyIdeasSection";
 import { TransformationSection } from "@/components/product/TransformationSection";
 import { ExpertOpinionsSection } from "@/components/product/ExpertOpinionsSection";
 import { LiveDemandSection } from "@/components/product/LiveDemandSection";
+import { EditorialVideoReviewSection } from "@/components/product/EditorialVideoReviewSection";
 import { FaqSection } from "@/components/product/FaqSection";
 import { QuoteBanner } from "@/components/product/QuoteBanner";
 import { FinalOrderSection } from "@/components/product/FinalOrderSection";
 import { StickyMobileCta } from "@/components/product/StickyMobileCta";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { categoryMeta } from "@/lib/data/products";
+
+function SpecsSection({ product }: { product: Product }) {
+  return (
+    <section className="container-page py-10">
+      <h2 className="font-display text-lg font-bold text-foreground">স্পেসিফিকেশন</h2>
+      <div className="mt-4 flex flex-col gap-6 lg:flex-row">
+        <table className="w-full max-w-xl text-sm lg:flex-1">
+          <tbody>
+            {product.specs.map((spec) => (
+              <tr key={spec.label} className="border-b border-border">
+                <td className="w-40 py-2.5 font-medium text-ink-soft">{spec.label}</td>
+                <td className="py-2.5 text-foreground">{spec.value}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <div className="flex w-full gap-3 lg:w-72 lg:shrink-0">
+          <div className="flex flex-1 flex-col items-center justify-center gap-1.5 rounded-md border border-dashed border-border bg-surface-muted p-4 text-center text-ink-faint">
+            <ImagePlus size={20} />
+            <span className="text-[11px]">প্রোডাক্টের আসল ছবি যোগ করুন</span>
+          </div>
+          <div className="flex flex-1 flex-col items-center justify-center gap-1.5 rounded-md border border-dashed border-border bg-surface-muted p-4 text-center text-ink-faint">
+            <Video size={20} />
+            <span className="text-[11px]">প্রোডাক্ট ভিডিও যোগ করুন</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 export function ProductDetailView({
   product,
@@ -86,33 +119,21 @@ export function ProductDetailView({
           />
 
           <TransformationSection product={product} />
-          <ReviewsSection product={product} />
           <FaqSection product={product} />
           <QuoteBanner product={product} />
           <FinalOrderSection product={product} />
+          <SpecsSection product={product} />
+          <EditorialVideoReviewSection product={product} />
+          <ReviewsSection product={product} />
         </>
       ) : (
         <>
           <VideoSection product={product} />
           <ReviewsSection product={product} />
           <StorySection product={product} />
+          <SpecsSection product={product} />
         </>
       )}
-
-      {/* Specifications */}
-      <section className="container-page py-10">
-        <h2 className="font-display text-lg font-bold text-foreground">স্পেসিফিকেশন</h2>
-        <table className="mt-4 w-full max-w-xl text-sm">
-          <tbody>
-            {product.specs.map((spec) => (
-              <tr key={spec.label} className="border-b border-border">
-                <td className="w-40 py-2.5 font-medium text-ink-soft">{spec.label}</td>
-                <td className="py-2.5 text-foreground">{spec.value}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
 
       {related.length > 0 && (
         <section className="container-page border-t border-border py-10">

@@ -5,11 +5,26 @@ export interface Review {
   name: string;
   location: string;
   rating: number;
+  title: string;
   quote: string;
   daysAgo: number;
   verified: boolean;
   hasPhoto: boolean;
+  helpfulCount: number;
 }
+
+const TITLE_POOL = [
+  "অসাধারণ অভিজ্ঞতা",
+  "যা আশা করেছিলাম তার চেয়ে বেশি পেয়েছি",
+  "মাস্ট হ্যাভ — দাম উসুল",
+  "প্রথমবার পড়েই মুগ্ধ",
+  "সবাইকে সাজেস্ট করবো",
+  "সত্যিই কাজের জিনিস",
+  "প্রত্যাশা ছাড়িয়ে গেছে",
+  "চমৎকার কোয়ালিটি ও কনটেন্ট",
+  "মনে রাখার মতো একটা অভিজ্ঞতা",
+  "টাকা নষ্ট হয়নি, বরং লাভই হয়েছে",
+];
 
 const QUOTE_TEMPLATES = [
   (t: string) => `${t} পড়ার পর আমার চিন্তাভাবনায় পুরোপুরি পরিবর্তন এসেছে। প্রতিটি অংশে নতুন কিছু শেখার আছে।`,
@@ -29,7 +44,7 @@ const QUOTE_TEMPLATES = [
   () => `রিভিউ পড়ে অর্ডার করেছিলাম, নিজে ব্যবহার করেও একই কথা বলবো — সত্যিই কাজের।`,
 ];
 
-export function getReviewsForProduct(product: Product, count = 9): Review[] {
+export function getReviewsForProduct(product: Product, count = 15): Review[] {
   const base = hashString(product.id);
   const reviews: Review[] = [];
   for (let i = 0; i < count; i++) {
@@ -42,10 +57,12 @@ export function getReviewsForProduct(product: Product, count = 9): Review[] {
       name,
       location,
       rating: Math.min(5, rating),
+      title: TITLE_POOL[Math.floor(seed / 17) % TITLE_POOL.length],
       quote,
       daysAgo: 2 + (seed % 40),
       verified: seed % 5 !== 0,
       hasPhoto: seed % 3 !== 0,
+      helpfulCount: 3 + (Math.floor(seed / 19) % 55),
     });
   }
   return reviews;

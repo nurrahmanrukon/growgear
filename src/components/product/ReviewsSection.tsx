@@ -1,23 +1,52 @@
 "use client";
 
-import { useRef } from "react";
-import { BadgeCheck, ChevronLeft, ChevronRight, ImageIcon, Star } from "lucide-react";
+import { useState } from "react";
+import { BadgeCheck, Star, ThumbsUp } from "lucide-react";
 import { Product } from "@/lib/types";
-import { getReviewsForProduct, getRatingBreakdown } from "@/lib/data/reviews";
+import { getReviewsForProduct, getRatingBreakdown, Review } from "@/lib/data/reviews";
 import { toBengaliNumber } from "@/lib/format";
 import { StarRating } from "@/components/ui/StarRating";
+import { Button } from "@/components/ui/Button";
+import { WriteReviewModal, SubmittedReview } from "@/components/product/WriteReviewModal";
+
+const PER_SEGMENT = 5;
 
 export function ReviewsSection({ product }: { product: Product }) {
-  const reviews = getReviewsForProduct(product);
+  const generated = getReviewsForProduct(product);
   const breakdown = getRatingBreakdown(product);
-  const trackRef = useRef<HTMLDivElement>(null);
+  const [userReviews, setUserReviews] = useState<Review[]>([]);
+  const [expanded, setExpanded] = useState<Set<number>>(new Set());
+  const [active, setActive] = useState(0);
+  const [showWriteReview, setShowWriteReview] = useState(false);
 
-  function scrollByCard(direction: 1 | -1) {
-    const track = trackRef.current;
-    if (!track) return;
-    const card = track.querySelector<HTMLElement>("[data-review-card]");
-    const step = (card?.offsetWidth ?? 260) + 16;
-    track.scrollBy({ left: direction * step, behavior: "smooth" });
+  const reviews = [...userReviews, ...generated];
+  const segments = Math.ceil(reviews.length / PER_SEGMENT);
+  const visible = reviews.slice(active * PER_SEGMENT, active * PER_SEGMENT + PER_SEGMENT);
+  const formatLabel = product.category === "ebook" ? "ইবুক" : product.category === "book" ? "হার্ডকভার" : "প্রোডাক্ট";
+
+  function handleSubmitReview(submitted: SubmittedReview) {
+    const newReview: Review = {
+      name: submitted.name,
+      location: "বাংলাদেশ",
+      rating: submitted.rating,
+      title: "আপনার রিভিউ",
+      quote: submitted.text,
+      daysAgo: 0,
+      verified: false,
+      hasPhoto: false,
+      helpfulCount: 0,
+    };
+    setUserReviews((prev) => [newReview, ...prev]);
+    setActive(0);
+  }
+
+  function toggleExpand(i: number) {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(i)) next.delete(i);
+      else next.add(i);
+      return next;
+    });
   }
 
   return (
@@ -30,14 +59,14 @@ export function ReviewsSection({ product }: { product: Product }) {
           </h2>
         </div>
 
-        <div className="mx-auto mt-6 flex max-w-md flex-col items-center gap-2 rounded-lg border border-border bg-surface p-5">
+        <div className="mx-auto mt-6 flex max-w-md flex-col items-center gap-3 rounded-lg border border-border bg-surface p-5">
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-bold text-foreground">{product.rating}</span>
             <StarRating rating={product.rating} size={16} />
           </div>
           <p className="text-xs text-ink-faint">{toBengaliNumber(product.reviewCount)} টি রিভিউয়ের ভিত্তিতে</p>
 
-          <div className="mt-2 w-full space-y-1">
+          <div className="mt-1 w-full space-y-1">
             {breakdown.map((b) => (
               <div key={b.star} className="flex items-center gap-2 text-xs text-ink-soft">
                 <span className="flex w-8 items-center gap-0.5">
@@ -50,71 +79,92 @@ export function ReviewsSection({ product }: { product: Product }) {
               </div>
             ))}
           </div>
+
+          <Button variant="secondary" onClick={() => setShowWriteReview(true)} className="mt-1">
+            রিভিউ লিখুন
+          </Button>
         </div>
 
-        <div className="mt-8 flex items-center justify-between">
-          <p className="text-xs text-ink-faint">{toBengaliNumber(reviews.length)} টি রিভিউ — স্লাইড করে দেখুন</p>
-          <div className="flex gap-1.5">
+        <div className="mt-8 flex items-center justify-center gap-2">
+          {Array.from({ length: segments }).map((_, i) => (
             <button
-              onClick={() => scrollByCard(-1)}
-              aria-label="আগের রিভিউ"
-              className="rounded-full border border-border bg-surface p-1.5 text-ink-soft hover:border-primary hover:text-primary"
-            >
-              <ChevronLeft size={16} />
-            </button>
-            <button
-              onClick={() => scrollByCard(1)}
-              aria-label="পরের রিভিউ"
-              className="rounded-full border border-border bg-surface p-1.5 text-ink-soft hover:border-primary hover:text-primary"
-            >
-              <ChevronRight size={16} />
-            </button>
-          </div>
-        </div>
-
-        <div
-          ref={trackRef}
-          className="mt-3 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth pb-2 scrollbar-none"
-        >
-          {reviews.map((r, i) => (
-            <div
               key={i}
-              data-review-card
-              className="w-64 shrink-0 snap-start overflow-hidden rounded-lg border border-border bg-surface sm:w-72"
+              onClick={() => setActive(i)}
+              className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition ${
+                active === i
+                  ? "bg-primary text-white"
+                  : "border border-border bg-surface text-ink-soft hover:border-primary hover:text-primary"
+              }`}
             >
-              {r.hasPhoto && (
-                <div
-                  className="flex h-28 items-center justify-center gap-1.5 text-white/80"
-                  style={{ background: `linear-gradient(135deg, ${product.colorFrom}, ${product.colorTo})` }}
-                >
-                  <ImageIcon size={16} />
-                  <span className="text-[11px]">রিভিউ ছবি</span>
-                </div>
-              )}
-              <div className="flex flex-1 flex-col p-4">
-                <StarRating rating={r.rating} size={13} />
-                <p className="mt-2 line-clamp-4 flex-1 text-sm text-ink-soft">&ldquo;{r.quote}&rdquo;</p>
-                <div className="mt-3 flex items-center gap-2 border-t border-border pt-3">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-light text-xs font-semibold text-primary-dark">
-                    {r.name.charAt(0)}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="truncate text-xs font-medium text-foreground">{r.name}</p>
-                    <p className="flex items-center gap-1 text-[11px] text-ink-faint">
-                      {r.location}
-                      {r.verified && (
-                        <span className="flex items-center gap-0.5 text-success">
-                          <BadgeCheck size={11} /> যাচাইকৃত ক্রেতা
-                        </span>
-                      )}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+              সেগমেন্ট {toBengaliNumber(i + 1)}
+            </button>
           ))}
         </div>
+
+        <div className="mx-auto mt-6 max-w-2xl divide-y divide-border rounded-lg border border-border bg-surface">
+          {visible.map((r, i) => {
+            const globalIndex = active * PER_SEGMENT + i;
+            const isExpanded = expanded.has(globalIndex);
+            const isLong = r.quote.length > 180;
+            return (
+              <div key={globalIndex} className="p-5">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-light text-sm font-semibold text-primary-dark">
+                    {r.name.charAt(0)}
+                  </div>
+                  <p className="text-sm font-medium text-foreground">{r.name}</p>
+                </div>
+
+                <div className="mt-3 flex items-center gap-2">
+                  <StarRating rating={r.rating} size={14} />
+                  <h3 className="font-display text-sm font-bold text-foreground">{r.title}</h3>
+                </div>
+
+                <p className="mt-1 text-xs text-ink-faint">
+                  {r.daysAgo === 0 ? "আজ" : `${toBengaliNumber(r.daysAgo)} দিন আগে`} — {r.location} থেকে রিভিউ করা হয়েছে
+                </p>
+                <p className="mt-0.5 text-xs text-ink-faint">
+                  ফরম্যাট: {formatLabel}
+                  {r.verified && (
+                    <span className="ml-1.5 inline-flex items-center gap-0.5 font-medium text-success">
+                      <BadgeCheck size={11} /> যাচাইকৃত ক্রয়
+                    </span>
+                  )}
+                </p>
+
+                <p className={`mt-2.5 text-sm leading-relaxed text-ink-soft ${!isExpanded && isLong ? "line-clamp-3" : ""}`}>
+                  {r.quote}
+                </p>
+                {isLong && (
+                  <button
+                    onClick={() => toggleExpand(globalIndex)}
+                    className="mt-1 text-xs font-medium text-primary hover:underline"
+                  >
+                    {isExpanded ? "কম দেখুন" : "আরও পড়ুন"}
+                  </button>
+                )}
+
+                <div className="mt-3 flex items-center gap-4 border-t border-border pt-3 text-xs text-ink-faint">
+                  <span>{toBengaliNumber(r.helpfulCount)} জনের কাছে এটি সহায়ক মনে হয়েছে</span>
+                  <span className="flex items-center gap-3">
+                    <button className="flex items-center gap-1 hover:text-primary">
+                      <ThumbsUp size={12} /> সহায়ক
+                    </button>
+                    <span className="text-border">|</span>
+                    <button className="hover:text-primary">রিপোর্ট করুন</button>
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
+
+      <WriteReviewModal
+        open={showWriteReview}
+        onClose={() => setShowWriteReview(false)}
+        onSubmit={handleSubmitReview}
+      />
     </section>
   );
 }
