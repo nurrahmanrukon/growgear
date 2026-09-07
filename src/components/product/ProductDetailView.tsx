@@ -5,6 +5,15 @@ import { BuyBox } from "@/components/product/BuyBox";
 import { VideoSection } from "@/components/product/VideoSection";
 import { ReviewsSection } from "@/components/product/ReviewsSection";
 import { StorySection } from "@/components/product/StorySection";
+import { CtaBanner } from "@/components/product/CtaBanner";
+import { PainPointsSection } from "@/components/product/PainPointsSection";
+import { AuthorBioSection } from "@/components/product/AuthorBioSection";
+import { KeyIdeasSection } from "@/components/product/KeyIdeasSection";
+import { TransformationSection } from "@/components/product/TransformationSection";
+import { ExpertOpinionsSection } from "@/components/product/ExpertOpinionsSection";
+import { FaqSection } from "@/components/product/FaqSection";
+import { QuoteBanner } from "@/components/product/QuoteBanner";
+import { FinalOrderSection } from "@/components/product/FinalOrderSection";
 import { StickyMobileCta } from "@/components/product/StickyMobileCta";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { categoryMeta } from "@/lib/data/products";
@@ -17,6 +26,7 @@ export function ProductDetailView({
   related: Product[];
 }) {
   const meta = categoryMeta[product.category];
+  const isLongForm = product.category === "book" || product.category === "ebook";
 
   return (
     <div className="pb-20 lg:pb-0">
@@ -45,9 +55,46 @@ export function ProductDetailView({
         </div>
       </section>
 
-      <VideoSection product={product} />
-      <ReviewsSection product={product} />
-      <StorySection product={product} />
+      {isLongForm ? (
+        <>
+          <CtaBanner
+            product={product}
+            heading="সিদ্ধান্ত নেওয়া হয়ে গেছে? আজই সংগ্রহ করুন"
+            sub="সীমিত স্টক — সারাদেশে হোম ডেলিভারি সুবিধা"
+          />
+
+          <VideoSection product={product} />
+          <PainPointsSection product={product} />
+
+          <CtaBanner
+            product={product}
+            heading={`"${product.title}" আপনার জন্যই তৈরি`}
+            sub="এখনই অর্ডার করে আজকের সিদ্ধান্তটা বদলে ফেলুন"
+          />
+
+          <AuthorBioSection product={product} />
+          <KeyIdeasSection product={product} />
+
+          <CtaBanner
+            product={product}
+            heading="এই আইডিয়াগুলো নিজের জীবনে প্রয়োগ করতে চান?"
+            sub="আজই সংগ্রহ করুন — পড়া শুরু করুন আজ থেকেই"
+          />
+
+          <TransformationSection product={product} />
+          <ExpertOpinionsSection product={product} />
+          <ReviewsSection product={product} />
+          <FaqSection product={product} />
+          <QuoteBanner product={product} />
+          <FinalOrderSection product={product} />
+        </>
+      ) : (
+        <>
+          <VideoSection product={product} />
+          <ReviewsSection product={product} />
+          <StorySection product={product} />
+        </>
+      )}
 
       {/* Specifications */}
       <section className="container-page py-10">
