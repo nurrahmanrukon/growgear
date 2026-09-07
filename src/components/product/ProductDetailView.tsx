@@ -11,6 +11,7 @@ import { AuthorBioSection } from "@/components/product/AuthorBioSection";
 import { KeyIdeasSection } from "@/components/product/KeyIdeasSection";
 import { TransformationSection } from "@/components/product/TransformationSection";
 import { ExpertOpinionsSection } from "@/components/product/ExpertOpinionsSection";
+import { LiveDemandSection } from "@/components/product/LiveDemandSection";
 import { FaqSection } from "@/components/product/FaqSection";
 import { QuoteBanner } from "@/components/product/QuoteBanner";
 import { FinalOrderSection } from "@/components/product/FinalOrderSection";
@@ -57,6 +58,9 @@ export function ProductDetailView({
 
       {isLongForm ? (
         <>
+          <ExpertOpinionsSection product={product} />
+          <LiveDemandSection product={product} />
+
           <CtaBanner
             product={product}
             heading="সিদ্ধান্ত নেওয়া হয়ে গেছে? আজই সংগ্রহ করুন"
@@ -82,7 +86,6 @@ export function ProductDetailView({
           />
 
           <TransformationSection product={product} />
-          <ExpertOpinionsSection product={product} />
           <ReviewsSection product={product} />
           <FaqSection product={product} />
           <QuoteBanner product={product} />

@@ -1,5 +1,5 @@
 import { Product } from "@/lib/types";
-import { hashString, PERSON_NAMES } from "@/lib/data/social";
+import { hashString, PERSON_NAMES, BD_LOCATIONS } from "@/lib/data/social";
 
 /** Deterministic long-form landing-page content generators for book/ebook product pages.
  *  Everything here is generic (no real third-party names/claims) and seeded from the
@@ -180,6 +180,10 @@ export interface ExpertOpinion {
   name: string;
   title: string;
   quote: string;
+  location: string;
+  rating: number;
+  hasPhoto: boolean;
+  verified: boolean;
 }
 
 const EXPERT_TITLE_POOL = [
@@ -189,6 +193,8 @@ const EXPERT_TITLE_POOL = [
   "সিনিয়র প্রোডাক্ট ম্যানেজার",
   "ক্যারিয়ার কোচ",
   "এইচআর হেড",
+  "বিজনেস অ্যানালিস্ট",
+  "টিম লিড, টেক কোম্পানি",
 ];
 
 const EXPERT_QUOTE_POOL = [
@@ -196,20 +202,50 @@ const EXPERT_QUOTE_POOL = [
   "আমি নিজে অনেক বই পড়েছি, কিন্তু এত সহজভাবে বাস্তব উদাহরণসহ কমই দেখেছি।",
   "টিমের সবাইকে এটা পড়তে বলেছি — কাজের জায়গায় প্রয়োগ করা যায় এমন কিছু আইডিয়া পেয়েছি।",
   "যা শেখানো হয়েছে তার প্রতিটাই বাস্তবসম্মত, কোনো অতিরঞ্জিত প্রতিশ্রুতি নেই।",
+  "প্রফেশনাল লাইফে যে সিদ্ধান্তগুলো নিতে সবচেয়ে বেশি সময় লাগে, সেগুলোর জন্য একটা স্পষ্ট কাঠামো পেয়েছি।",
+  "নতুনদের আমি সবসময় এই ধরনের রিসোর্স খুঁজতে বলি — থিওরি না, সরাসরি প্রয়োগযোগ্য কিছু।",
+  "কাজের চাপের মধ্যেও পড়া শেষ করা গেছে সহজেই — ভাষা ও উদাহরণ দুটোই সহজবোধ্য।",
+  "আমাদের ইন্ডাস্ট্রিতে এই ধরনের প্র্যাক্টিক্যাল কনটেন্ট সত্যিই বিরল।",
+  "রেফারেন্স হিসেবে বারবার ফিরে দেখার মতো একটা কনটেন্ট।",
+  "টিম মিটিংয়ে এখান থেকে নেওয়া কয়েকটা আইডিয়া নিয়ে আলোচনা করেছি, সবাই ইতিবাচক ফিডব্যাক দিয়েছে।",
 ];
 
-export function getExpertOpinions(product: Product, count = 3): ExpertOpinion[] {
-  const seed = hashString(product.id + ":experts");
+export function getExpertOpinions(product: Product, count = 15): ExpertOpinion[] {
+  const base = hashString(product.id + ":experts");
   const picked: ExpertOpinion[] = [];
   for (let i = 0; i < count; i++) {
-    const s = Math.floor(seed / (i + 3) ** 3);
+    const seed = base + i * 89;
     picked.push({
-      name: PERSON_NAMES[(seed + i * 5) % PERSON_NAMES.length],
-      title: EXPERT_TITLE_POOL[s % EXPERT_TITLE_POOL.length],
-      quote: EXPERT_QUOTE_POOL[(seed + i) % EXPERT_QUOTE_POOL.length],
+      name: PERSON_NAMES[seed % PERSON_NAMES.length],
+      title: EXPERT_TITLE_POOL[Math.floor(seed / 7) % EXPERT_TITLE_POOL.length],
+      quote: EXPERT_QUOTE_POOL[Math.floor(seed / 13) % EXPERT_QUOTE_POOL.length],
+      location: BD_LOCATIONS[Math.floor(seed / 17) % BD_LOCATIONS.length],
+      rating: 4.5 + (Math.floor(seed / 23) % 2) * 0.5,
+      hasPhoto: seed % 3 !== 0,
+      verified: seed % 4 !== 0,
     });
   }
   return picked;
+}
+
+export interface LiveDemand {
+  viewers: number;
+  copiesLeft: number;
+  stockSoldPercent: number;
+  ordersLast24h: number;
+  recentOrderInitials: string[];
+}
+
+export function getLiveDemand(product: Product): LiveDemand {
+  const seed = hashString(product.id + ":demand");
+  const viewers = 12 + (seed % 40);
+  const copiesLeft = 6 + (Math.floor(seed / 7) % 25);
+  const stockSoldPercent = 55 + (Math.floor(seed / 13) % 35);
+  const ordersLast24h = 18 + (Math.floor(seed / 19) % 55);
+  const recentOrderInitials = [0, 1, 2, 3, 4].map(
+    (i) => PERSON_NAMES[(seed + i * 31) % PERSON_NAMES.length].charAt(0)
+  );
+  return { viewers, copiesLeft, stockSoldPercent, ordersLast24h, recentOrderInitials };
 }
 
 export interface Faq {
