@@ -77,18 +77,10 @@ export function ProductDetailView({
               ]}
             />
           </div>
+          <LandingHero product={product} />
           <LandingHeroTitleBar product={product} />
-          <div className="-mt-px">
-            <LandingHero product={product} />
-          </div>
 
           <ExpertOpinionsSection product={product} />
-
-          <div className="container-page py-6">
-            <div className="mx-auto max-w-md">
-              <BuyBox product={product} compact />
-            </div>
-          </div>
 
           <VideoSection product={product} />
           <PainPointsSection product={product} />
