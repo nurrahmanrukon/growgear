@@ -30,86 +30,111 @@ export function Header() {
   }
 
   return (
-    <header id="site-header" className="sticky top-0 z-40 border-b border-border bg-surface/95 backdrop-blur">
+    <header id="site-header" className="sticky top-0 z-40">
       <div className="border-b border-border/70 bg-primary-light/60 py-1.5 text-center text-[11px] text-primary-dark">
         সারাদেশে ক্যাশ অন ডেলিভারি — অর্ডারের পর হাতে পেয়ে মূল্য পরিশোধ করুন
       </div>
 
-      <div className="container-page flex items-center gap-4 py-3.5">
-        <button
-          className="-ml-1 rounded p-1.5 text-foreground hover:bg-surface-muted lg:hidden"
-          aria-label="মেনু খুলুন"
-          onClick={() => setMobileOpen((v) => !v)}
-        >
-          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
+      {/* Top bar */}
+      <div style={{ background: "#131921" }} className="text-white">
+        <div className="container-page flex items-center gap-3 py-2.5">
+          <button
+            className="-ml-1 rounded p-1.5 hover:bg-white/10 lg:hidden"
+            aria-label="মেনু খুলুন"
+            onClick={() => setMobileOpen((v) => !v)}
+          >
+            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
 
-        <Link href="/" className="shrink-0 font-display text-xl font-bold text-foreground">
-          Grow<span className="text-primary">Gear</span>
-        </Link>
+          <Link href="/" className="shrink-0 rounded border border-transparent px-1 py-1 font-display text-lg font-bold hover:border-white/40 sm:text-xl">
+            Grow<span style={{ color: "#febd69" }}>Gear</span>
+          </Link>
 
-        <nav className="hidden items-center gap-6 pl-4 text-sm text-ink-soft lg:flex">
-          {navLinks.map((link) => (
-            <Link key={link.href} href={link.href} className="hover:text-foreground">
-              {link.label}
-            </Link>
-          ))}
-        </nav>
+          <form onSubmit={handleSearch} className="hidden max-w-2xl flex-1 items-stretch sm:flex">
+            <span className="hidden items-center rounded-l-md border-r border-border bg-surface-muted px-3 text-xs text-ink-soft md:flex">
+              সব বিভাগ
+            </span>
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="বই, ইবুক বা গিয়ার খুঁজুন..."
+              className="w-full min-w-0 border border-border bg-surface px-3 py-2 text-sm text-foreground outline-none md:rounded-none md:border-l-0"
+            />
+            <button
+              type="submit"
+              aria-label="খুঁজুন"
+              style={{ background: "#febd69" }}
+              className="flex items-center justify-center rounded-r-md px-3.5 text-foreground hover:brightness-95"
+            >
+              <Search size={17} />
+            </button>
+          </form>
 
-        <form onSubmit={handleSearch} className="ml-auto hidden max-w-xs flex-1 items-stretch sm:flex">
+          <Link
+            href="/cart"
+            className="relative ml-auto flex items-center gap-1.5 rounded p-1.5 hover:bg-white/10 sm:ml-2"
+          >
+            <span className="relative">
+              <ShoppingCart size={22} />
+              {hydrated && totalItems > 0 && (
+                <span
+                  style={{ background: "#febd69" }}
+                  className="absolute -top-1.5 -right-2 flex h-4.5 min-w-4.5 items-center justify-center rounded-full px-1 text-[10px] font-bold text-foreground"
+                >
+                  {toBengaliNumber(totalItems)}
+                </span>
+              )}
+            </span>
+            <span className="hidden text-sm font-medium sm:block">কার্ট</span>
+          </Link>
+        </div>
+
+        <form onSubmit={handleSearch} className="flex items-stretch px-3 pb-2.5 sm:hidden">
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="বই, ইবুক বা গিয়ার খুঁজুন..."
-            className="w-full min-w-0 rounded-l-md border border-r-0 border-border bg-surface-muted px-3 py-1.5 text-sm text-foreground outline-none focus:ring-1 focus:ring-primary"
+            className="w-full min-w-0 rounded-l-md border border-border bg-surface px-3 py-2 text-sm text-foreground outline-none"
           />
           <button
             type="submit"
-            aria-label="খুঁজুন"
-            className="flex items-center justify-center rounded-r-md border border-border bg-surface-muted px-3 text-ink-soft hover:text-primary"
+            style={{ background: "#febd69" }}
+            className="flex items-center justify-center rounded-r-md px-3.5 text-foreground"
           >
             <Search size={16} />
           </button>
         </form>
-
-        <Link
-          href="/cart"
-          className="relative ml-auto flex items-center gap-1.5 rounded p-1.5 text-foreground hover:bg-surface-muted sm:ml-0"
-        >
-          <span className="relative">
-            <ShoppingCart size={22} />
-            {hydrated && totalItems > 0 && (
-              <span className="absolute -top-1.5 -right-2 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-white">
-                {toBengaliNumber(totalItems)}
-              </span>
-            )}
-          </span>
-          <span className="hidden text-sm font-medium sm:block">কার্ট</span>
-        </Link>
       </div>
 
-      <form onSubmit={handleSearch} className="flex items-stretch px-3 pb-3 sm:hidden">
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="বই, ইবুক বা গিয়ার খুঁজুন..."
-          className="w-full min-w-0 rounded-l-md border border-r-0 border-border bg-surface-muted px-3 py-2 text-sm outline-none"
-        />
-        <button
-          type="submit"
-          className="flex items-center justify-center rounded-r-md border border-border bg-surface-muted px-3.5 text-ink-soft"
-        >
-          <Search size={16} />
-        </button>
-      </form>
+      {/* Secondary nav bar */}
+      <div style={{ background: "#232f3e" }} className="hidden text-white lg:block">
+        <div className="container-page flex items-center gap-5 py-2 text-sm">
+          <button
+            onClick={() => setMobileOpen((v) => !v)}
+            className="flex items-center gap-1.5 rounded border border-transparent px-1.5 py-1 font-medium hover:border-white/40"
+          >
+            <Menu size={16} /> সব
+          </button>
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="rounded border border-transparent px-1 py-1 text-white/90 hover:border-white/40 hover:text-white"
+            >
+              {link.label}
+            </Link>
+          ))}
+        </div>
+      </div>
 
       <nav
         className={clsx(
-          "border-t border-border bg-surface lg:hidden",
+          "border-t border-white/10 lg:hidden",
           mobileOpen ? "block" : "hidden"
         )}
+        style={{ background: "#232f3e" }}
       >
         <div className="container-page flex flex-col py-1">
           {navLinks.map((link) => (
@@ -117,7 +142,7 @@ export function Header() {
               key={link.href}
               href={link.href}
               onClick={() => setMobileOpen(false)}
-              className="border-b border-border/70 py-2.5 text-sm text-ink-soft last:border-none hover:text-foreground"
+              className="border-b border-white/10 py-2.5 text-sm text-white/90 last:border-none hover:text-white"
             >
               {link.label}
             </Link>
