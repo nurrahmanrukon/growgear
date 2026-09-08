@@ -228,6 +228,24 @@ export function getExpertOpinions(product: Product, count = 15): ExpertOpinion[]
   return picked;
 }
 
+export function getExpertVideoOpinions(product: Product, count = 7): ExpertOpinion[] {
+  const base = hashString(product.id + ":expertvideos");
+  const picked: ExpertOpinion[] = [];
+  for (let i = 0; i < count; i++) {
+    const seed = base + i * 97;
+    picked.push({
+      name: PERSON_NAMES[seed % PERSON_NAMES.length],
+      title: EXPERT_TITLE_POOL[Math.floor(seed / 7) % EXPERT_TITLE_POOL.length],
+      quote: EXPERT_QUOTE_POOL[Math.floor(seed / 13) % EXPERT_QUOTE_POOL.length],
+      location: BD_LOCATIONS[Math.floor(seed / 17) % BD_LOCATIONS.length],
+      rating: 4.5 + (Math.floor(seed / 23) % 2) * 0.5,
+      hasPhoto: true,
+      verified: seed % 4 !== 0,
+    });
+  }
+  return picked;
+}
+
 export interface LiveDemand {
   viewers: number;
   copiesLeft: number;

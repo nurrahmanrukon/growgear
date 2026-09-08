@@ -1,19 +1,87 @@
 "use client";
 
 import { useState } from "react";
-import { BadgeCheck, ImageIcon } from "lucide-react";
+import { BadgeCheck, ImageIcon, Play } from "lucide-react";
 import { Product } from "@/lib/types";
-import { getExpertOpinions } from "@/lib/data/landingContent";
+import { ExpertOpinion, getExpertOpinions, getExpertVideoOpinions } from "@/lib/data/landingContent";
 import { toBengaliNumber } from "@/lib/format";
 import { StarRating } from "@/components/ui/StarRating";
 
-const PER_SEGMENT = 5;
+type Tab = "text" | "video";
+
+const SEGMENT_COUNT = 7;
+const DEFAULT_PREVIEW_COUNT = 3;
+
+function ExpertCardShell({
+  expert,
+  children,
+}: {
+  expert: ExpertOpinion;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex gap-4 rounded-lg border border-border bg-surface p-4">
+      <div className="flex w-24 shrink-0 flex-col items-center gap-2 text-center sm:w-28">
+        {children}
+        <div>
+          <p className="text-xs font-medium text-foreground">{expert.name}</p>
+          <p className="text-[11px] text-ink-faint">{expert.title}</p>
+          {expert.verified && (
+            <p className="mt-0.5 flex items-center justify-center gap-0.5 text-[10px] text-success">
+              <BadgeCheck size={10} /> স্বীকৃত বিশেষজ্ঞ
+            </p>
+          )}
+        </div>
+      </div>
+      <div className="min-w-0 flex-1 border-l border-border pl-4">
+        <StarRating rating={expert.rating} size={13} />
+        <p className="mt-2 text-sm text-ink-soft">&ldquo;{expert.quote}&rdquo;</p>
+      </div>
+    </div>
+  );
+}
+
+function TextReviewCard({ expert, product }: { expert: ExpertOpinion; product: Product }) {
+  return (
+    <ExpertCardShell expert={expert}>
+      {expert.hasPhoto ? (
+        <div
+          className="flex aspect-square w-full items-center justify-center rounded-md text-white/80"
+          style={{ background: `linear-gradient(135deg, ${product.colorFrom}, ${product.colorTo})` }}
+        >
+          <ImageIcon size={20} />
+        </div>
+      ) : (
+        <div className="flex aspect-square w-full items-center justify-center rounded-full bg-primary-light text-lg font-semibold text-primary-dark">
+          {expert.name.charAt(0)}
+        </div>
+      )}
+    </ExpertCardShell>
+  );
+}
+
+function VideoReviewCard({ expert, product }: { expert: ExpertOpinion; product: Product }) {
+  return (
+    <ExpertCardShell expert={expert}>
+      <div
+        className="flex aspect-square w-full items-center justify-center rounded-md"
+        style={{ background: `linear-gradient(135deg, ${product.colorFrom}, ${product.colorTo})` }}
+      >
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface/90 shadow-sm">
+          <Play size={14} className="ml-0.5 text-foreground" fill="currentColor" />
+        </div>
+      </div>
+    </ExpertCardShell>
+  );
+}
 
 export function ExpertOpinionsSection({ product }: { product: Product }) {
-  const experts = getExpertOpinions(product);
-  const segments = Math.ceil(experts.length / PER_SEGMENT);
-  const [active, setActive] = useState(0);
-  const visible = experts.slice(active * PER_SEGMENT, active * PER_SEGMENT + PER_SEGMENT);
+  const textReviews = getExpertOpinions(product, SEGMENT_COUNT);
+  const videoReviews = getExpertVideoOpinions(product, SEGMENT_COUNT);
+  const [tab, setTab] = useState<Tab | null>(null);
+
+  const visibleText = tab === "video" ? [] : tab === "text" ? textReviews : textReviews.slice(0, DEFAULT_PREVIEW_COUNT);
+  const visibleVideo = tab === "text" ? [] : tab === "video" ? videoReviews : videoReviews.slice(0, DEFAULT_PREVIEW_COUNT);
 
   return (
     <section className="border-y border-border bg-surface-muted py-10">
@@ -26,52 +94,34 @@ export function ExpertOpinionsSection({ product }: { product: Product }) {
         </div>
 
         <div className="mt-6 flex items-center justify-center gap-2">
-          {Array.from({ length: segments }).map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setActive(i)}
-              className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition ${
-                active === i
-                  ? "bg-primary text-white"
-                  : "border border-border bg-surface text-ink-soft hover:border-primary hover:text-primary"
-              }`}
-            >
-              সেগমেন্ট {toBengaliNumber(i + 1)}
-            </button>
-          ))}
+          <button
+            onClick={() => setTab("text")}
+            className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition ${
+              tab === "text"
+                ? "bg-primary text-white"
+                : "border border-border bg-surface text-ink-soft hover:border-primary hover:text-primary"
+            }`}
+          >
+            টেক্সট রিভিউ ({toBengaliNumber(SEGMENT_COUNT)})
+          </button>
+          <button
+            onClick={() => setTab("video")}
+            className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition ${
+              tab === "video"
+                ? "bg-primary text-white"
+                : "border border-border bg-surface text-ink-soft hover:border-primary hover:text-primary"
+            }`}
+          >
+            ভিডিও রিভিউ ({toBengaliNumber(SEGMENT_COUNT)})
+          </button>
         </div>
 
         <div className="mx-auto mt-6 flex max-w-xl flex-col gap-4">
-          {visible.map((e, i) => (
-            <div key={i} className="flex gap-4 rounded-lg border border-border bg-surface p-4">
-              <div className="flex w-24 shrink-0 flex-col items-center gap-2 text-center sm:w-28">
-                {e.hasPhoto ? (
-                  <div
-                    className="flex aspect-square w-full items-center justify-center rounded-md text-white/80"
-                    style={{ background: `linear-gradient(135deg, ${product.colorFrom}, ${product.colorTo})` }}
-                  >
-                    <ImageIcon size={20} />
-                  </div>
-                ) : (
-                  <div className="flex aspect-square w-full items-center justify-center rounded-full bg-primary-light text-lg font-semibold text-primary-dark">
-                    {e.name.charAt(0)}
-                  </div>
-                )}
-                <div>
-                  <p className="text-xs font-medium text-foreground">{e.name}</p>
-                  <p className="text-[11px] text-ink-faint">{e.title}</p>
-                  {e.verified && (
-                    <p className="mt-0.5 flex items-center justify-center gap-0.5 text-[10px] text-success">
-                      <BadgeCheck size={10} /> স্বীকৃত বিশেষজ্ঞ
-                    </p>
-                  )}
-                </div>
-              </div>
-              <div className="min-w-0 flex-1 border-l border-border pl-4">
-                <StarRating rating={e.rating} size={13} />
-                <p className="mt-2 text-sm text-ink-soft">&ldquo;{e.quote}&rdquo;</p>
-              </div>
-            </div>
+          {visibleText.map((e, i) => (
+            <TextReviewCard key={`t-${i}`} expert={e} product={product} />
+          ))}
+          {visibleVideo.map((e, i) => (
+            <VideoReviewCard key={`v-${i}`} expert={e} product={product} />
           ))}
         </div>
       </div>
