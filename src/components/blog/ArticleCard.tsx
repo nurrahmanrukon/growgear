@@ -21,6 +21,7 @@ export function ArticleCard({
           colorTo={post.colorTo}
           className="aspect-video w-full"
           iconSize={26}
+          premium={post.premium}
         />
         <p className="mt-2.5 line-clamp-2 text-sm font-medium text-foreground group-hover:text-link-hover">
           {post.title}
@@ -40,6 +41,7 @@ export function ArticleCard({
         colorTo={post.colorTo}
         className="h-20 w-24 sm:h-24 sm:w-28"
         iconSize={22}
+        premium={post.premium}
       />
       <div className="min-w-0 flex-1">
         <p className="line-clamp-2 text-sm font-medium text-foreground group-hover:text-link-hover">

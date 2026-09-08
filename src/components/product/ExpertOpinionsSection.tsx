@@ -41,37 +41,35 @@ export function ExpertOpinionsSection({ product }: { product: Product }) {
           ))}
         </div>
 
-        <div className="mx-auto mt-6 flex max-w-md flex-col gap-4">
+        <div className="mx-auto mt-6 flex max-w-xl flex-col gap-4">
           {visible.map((e, i) => (
-            <div key={i} className="overflow-hidden rounded-lg border border-border bg-surface">
-              {e.hasPhoto && (
-                <div
-                  className="flex h-28 items-center justify-center gap-1.5 text-white/80"
-                  style={{ background: `linear-gradient(135deg, ${product.colorFrom}, ${product.colorTo})` }}
-                >
-                  <ImageIcon size={16} />
-                  <span className="text-[11px]">বিশেষজ্ঞের ছবি</span>
-                </div>
-              )}
-              <div className="flex flex-1 flex-col p-4">
-                <StarRating rating={e.rating} size={13} />
-                <p className="mt-2 text-sm text-ink-soft">&ldquo;{e.quote}&rdquo;</p>
-                <div className="mt-3 flex items-center gap-2 border-t border-border pt-3">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-light text-xs font-semibold text-primary-dark">
+            <div key={i} className="flex gap-4 rounded-lg border border-border bg-surface p-4">
+              <div className="flex w-24 shrink-0 flex-col items-center gap-2 text-center sm:w-28">
+                {e.hasPhoto ? (
+                  <div
+                    className="flex aspect-square w-full items-center justify-center rounded-md text-white/80"
+                    style={{ background: `linear-gradient(135deg, ${product.colorFrom}, ${product.colorTo})` }}
+                  >
+                    <ImageIcon size={20} />
+                  </div>
+                ) : (
+                  <div className="flex aspect-square w-full items-center justify-center rounded-full bg-primary-light text-lg font-semibold text-primary-dark">
                     {e.name.charAt(0)}
                   </div>
-                  <div className="min-w-0">
-                    <p className="truncate text-xs font-medium text-foreground">{e.name}</p>
-                    <p className="flex items-center gap-1 text-[11px] text-ink-faint">
-                      {e.title}
-                      {e.verified && (
-                        <span className="flex items-center gap-0.5 text-success">
-                          <BadgeCheck size={11} /> স্বীকৃত বিশেষজ্ঞ
-                        </span>
-                      )}
+                )}
+                <div>
+                  <p className="text-xs font-medium text-foreground">{e.name}</p>
+                  <p className="text-[11px] text-ink-faint">{e.title}</p>
+                  {e.verified && (
+                    <p className="mt-0.5 flex items-center justify-center gap-0.5 text-[10px] text-success">
+                      <BadgeCheck size={10} /> স্বীকৃত বিশেষজ্ঞ
                     </p>
-                  </div>
+                  )}
                 </div>
+              </div>
+              <div className="min-w-0 flex-1 border-l border-border pl-4">
+                <StarRating rating={e.rating} size={13} />
+                <p className="mt-2 text-sm text-ink-soft">&ldquo;{e.quote}&rdquo;</p>
               </div>
             </div>
           ))}

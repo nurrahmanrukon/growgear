@@ -1,11 +1,14 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import Link from "next/link";
+import { Lock } from "lucide-react";
 import { blogPosts, getBlogPostBySlug, getPostsByTopic, TOPICS } from "@/lib/data/blog";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { ArticleThumb } from "@/components/blog/ArticleThumb";
 import { ArticleCard } from "@/components/blog/ArticleCard";
 import { NewsletterSection } from "@/components/blog/NewsletterSection";
+import { PremiumGate } from "@/components/blog/PremiumGate";
+import { BlogReviewsSection } from "@/components/blog/BlogReviewsSection";
 import { TOPIC_ICONS } from "@/components/blog/topicIcons";
 import { toBengaliNumber } from "@/lib/format";
 
@@ -56,15 +59,23 @@ export default async function BlogPostPage({
           colorTo={post.colorTo}
           className="mt-4 h-40 w-full sm:h-56"
           iconSize={44}
+          premium={post.premium}
         />
 
-        <Link
-          href={`/blog?topic=${post.topicSlug}`}
-          className="mt-5 flex w-fit items-center gap-1.5 rounded-full bg-primary-light px-2.5 py-1 text-xs font-medium text-primary-dark"
-        >
-          <TopicIcon size={12} />
-          {post.category}
-        </Link>
+        <div className="mt-5 flex flex-wrap items-center gap-2">
+          <Link
+            href={`/blog?topic=${post.topicSlug}`}
+            className="flex w-fit items-center gap-1.5 rounded-full bg-primary-light px-2.5 py-1 text-xs font-medium text-primary-dark"
+          >
+            <TopicIcon size={12} />
+            {post.category}
+          </Link>
+          {post.premium && (
+            <span className="flex w-fit items-center gap-1.5 rounded-full bg-foreground px-2.5 py-1 text-xs font-medium text-background">
+              <Lock size={12} /> প্রিমিয়াম লেখা
+            </span>
+          )}
+        </div>
 
         <h1 className="mt-3 font-display text-2xl font-bold text-foreground sm:text-3xl">{post.title}</h1>
         <p className="mt-2 text-sm text-ink-faint">
@@ -72,9 +83,7 @@ export default async function BlogPostPage({
         </p>
 
         <div className="mt-5 space-y-4 text-sm leading-relaxed text-ink-soft sm:text-base">
-          {post.content.map((para, i) => (
-            <p key={i}>{para}</p>
-          ))}
+          <PremiumGate paragraphs={post.content} premium={post.premium} />
         </div>
 
         <Link
@@ -99,6 +108,7 @@ export default async function BlogPostPage({
       )}
 
       <NewsletterSection />
+      <BlogReviewsSection post={post} />
     </>
   );
 }

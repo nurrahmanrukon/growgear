@@ -78,6 +78,9 @@ export function NewsletterSection() {
             {subscribed ? "সাবস্ক্রাইব হয়েছে ✓" : "সাবস্ক্রাইব করুন"}
           </button>
         </div>
+        <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-xs font-medium text-primary">
+          🎁 এখনই সাবস্ক্রাইব করলে উপহার হিসেবে পাবেন একটি প্রিমিয়াম ব্লগ সম্পূর্ণ ফ্রি আনলক!
+        </p>
         <p className="mt-2 text-center text-[11px] text-ink-faint">
           সাবস্ক্রাইব করার মাধ্যমে আপনি আমাদের প্রাইভেসি নীতিতে সম্মত হচ্ছেন। যেকোনো সময় unsubscribe করা যাবে।
         </p>

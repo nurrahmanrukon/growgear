@@ -47,8 +47,8 @@ export function BlogHero({ featured }: { featured: BlogPost[] }) {
             {subscribed ? "সাবস্ক্রাইব হয়েছে ✓" : "সাবস্ক্রাইব করুন"}
           </button>
         </form>
-        <p className="mt-1.5 text-[11px] text-ink-faint">
-          সাবস্ক্রাইব করলে আপনি GrowGear-এর নিউজলেটার পাবেন। যেকোনো সময় unsubscribe করতে পারবেন।
+        <p className="mt-1.5 text-xs font-medium text-primary">
+          🎁 সাবস্ক্রাইব করলে উপহার হিসেবে একটি প্রিমিয়াম ব্লগ ফ্রি আনলক পাবেন!
         </p>
 
         {hero && (
@@ -60,6 +60,7 @@ export function BlogHero({ featured }: { featured: BlogPost[] }) {
                 colorTo={hero.colorTo}
                 className="aspect-[16/8] w-full"
                 iconSize={40}
+                premium={hero.premium}
               />
               <p className="mt-3 text-xs font-medium uppercase tracking-wide text-primary">{hero.category}</p>
               <h2 className="mt-1 text-xl font-bold text-foreground group-hover:text-link-hover sm:text-2xl">
@@ -82,6 +83,7 @@ export function BlogHero({ featured }: { featured: BlogPost[] }) {
                       colorTo={post.colorTo}
                       className="h-16 w-20 shrink-0"
                       iconSize={18}
+                      premium={post.premium}
                     />
                     <div className="min-w-0">
                       <p className="line-clamp-2 text-sm font-medium text-foreground group-hover:text-link-hover">

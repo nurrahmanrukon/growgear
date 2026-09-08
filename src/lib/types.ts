@@ -65,6 +65,7 @@ export interface BlogPost {
   category: string;
   topicSlug: BlogTopicSlug;
   featured?: boolean;
+  premium?: boolean;
   readMinutes: number;
   colorFrom: string;
   colorTo: string;

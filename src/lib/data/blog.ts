@@ -200,6 +200,7 @@ export const blogPosts: BlogPost[] = raw.map((p, i) => {
     ...p,
     id: `blog-${i + 1}`,
     slug: `blog-${i + 1}`,
+    premium: !p.featured && i % 2 === 0,
     colorFrom: g[0],
     colorTo: g[1],
   };
