@@ -17,11 +17,21 @@ const productSub = (basePath: string) => [
 ];
 
 const navLinks: { key: string; label: string; href: string; sub?: { label: string; href: string }[] }[] = [
-  { key: "home", label: "হোম", href: "/" },
+  {
+    key: "home",
+    label: "হোম",
+    href: "/",
+    sub: [
+      { label: "সব প্রোডাক্ট", href: "/" },
+      { label: "বেস্ট সেলার", href: `/search?badge=${encodeURIComponent("বেস্ট সেলার")}` },
+      { label: "নতুন", href: `/search?badge=${encodeURIComponent("নতুন")}` },
+      { label: "অফার", href: `/search?badge=${encodeURIComponent("লিমিটেড অফার")}` },
+    ],
+  },
   { key: "book", label: "বই", href: "/books", sub: productSub("/books") },
   { key: "ebook", label: "ইবুক", href: "/ebooks", sub: productSub("/ebooks") },
   { key: "gear", label: "গিয়ার", href: "/gear", sub: productSub("/gear") },
-  { key: "course", label: "কোর্স", href: "/course" },
+  { key: "course", label: "কোর্স", href: "/course", sub: [{ label: "সব কোর্স", href: "/course" }] },
   {
     key: "blog",
     label: "ব্লগ",
@@ -143,12 +153,12 @@ export function Header() {
         </form>
       </div>
 
-      {/* Secondary nav bar */}
-      <div style={{ background: "#232f3e" }} className="hidden text-white lg:block">
-        <div className="container-page flex flex-wrap items-center gap-x-5 gap-y-1.5 py-2 text-sm">
+      {/* Category nav bar (layer 1) — always visible, directly below the search box */}
+      <div style={{ background: "#232f3e" }} className="text-white">
+        <div className="container-page flex items-center gap-x-3 gap-y-1.5 overflow-x-auto py-2 text-sm scrollbar-none lg:flex-wrap lg:gap-x-5">
           <button
             onClick={() => setMobileOpen((v) => !v)}
-            className="flex items-center gap-1.5 rounded border border-transparent px-1.5 py-1 font-medium hover:border-white/40"
+            className="flex shrink-0 items-center gap-1.5 rounded border border-transparent px-1.5 py-1 font-medium hover:border-white/40"
           >
             <Menu size={16} /> সব
           </button>
@@ -157,20 +167,20 @@ export function Header() {
               key={link.href}
               href={link.href}
               className={clsx(
-                "rounded border px-1 py-1 hover:border-white/40 hover:text-white",
+                "shrink-0 rounded border px-1 py-1 hover:border-white/40 hover:text-white",
                 link.key === activeKey ? "border-white font-semibold text-white" : "border-transparent text-white/90"
               )}
             >
               {link.label}
             </Link>
           ))}
-          <span className="h-4 w-px bg-white/20" aria-hidden />
+          <span className="hidden h-4 w-px shrink-0 bg-white/20 lg:block" aria-hidden />
           {utilityLinks.map((link, i) => (
             <Link
               key={link.label}
               href={link.href}
               className={clsx(
-                "rounded border px-1.5 py-1 text-white/90 hover:border-white/40 hover:text-white",
+                "hidden shrink-0 rounded border px-1.5 py-1 text-white/90 hover:border-white/40 hover:text-white lg:inline-block",
                 i === 0 ? "border-white" : "border-transparent"
               )}
             >
@@ -178,6 +188,7 @@ export function Header() {
             </Link>
           ))}
         </div>
+        {/* Sub-category bar (layer 2) — subcategories of the currently active menu item */}
         {activeCategory?.sub && activeCategory.sub.length > 0 && (
           <div style={{ background: "#37475a" }}>
             <div className="container-page flex items-center gap-4 overflow-x-auto py-1.5 text-xs scrollbar-none">
@@ -191,6 +202,7 @@ export function Header() {
         )}
       </div>
 
+      {/* Mobile-only dropdown: utility links (categories are already always visible above) */}
       <nav
         className={clsx(
           "border-t border-white/10 lg:hidden",
@@ -199,34 +211,6 @@ export function Header() {
         style={{ background: "#232f3e" }}
       >
         <div className="container-page flex flex-col py-1">
-          {navLinks.map((link) => (
-            <div key={link.href} className="border-b border-white/10">
-              <Link
-                href={link.href}
-                onClick={() => setMobileOpen(false)}
-                className={clsx(
-                  "block py-2.5 text-sm hover:text-white",
-                  link.key === activeKey ? "font-semibold text-white" : "text-white/90"
-                )}
-              >
-                {link.label}
-              </Link>
-              {link.key === activeKey && link.sub && link.sub.length > 0 && (
-                <div className="flex flex-wrap gap-x-3 gap-y-1.5 pb-2.5 pl-3">
-                  {link.sub.map((s) => (
-                    <Link
-                      key={s.href}
-                      href={s.href}
-                      onClick={() => setMobileOpen(false)}
-                      className="text-xs text-white/70 hover:text-white hover:underline"
-                    >
-                      {s.label}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
           {utilityLinks.map((link, i) => (
             <Link
               key={link.label}

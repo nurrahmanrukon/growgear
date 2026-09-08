@@ -7,9 +7,9 @@ export const metadata: Metadata = { title: "সার্চ ফলাফল — 
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; badge?: string }>;
 }) {
-  const { q = "" } = await searchParams;
+  const { q = "", badge } = await searchParams;
   const query = q.trim().toLowerCase();
   const results = query
     ? allProducts.filter(
@@ -25,6 +25,8 @@ export default async function SearchPage({
       title={q ? `"${q}" এর জন্য সার্চ ফলাফল` : "সব প্রোডাক্ট"}
       description={`${results.length} টি প্রোডাক্ট পাওয়া গেছে`}
       products={results}
+      basePath="/search"
+      initialBadge={badge}
     />
   );
 }
