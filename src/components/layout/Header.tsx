@@ -17,6 +17,15 @@ const navLinks = [
   { label: "ব্লগ", href: "/blog" },
 ];
 
+const utilityLinks = [
+  { label: "আজকের অফার", href: "/" },
+  { label: "গ্রাহক সেবা", href: "/" },
+  { label: "প্রিমিয়াম ব্লগ", href: "/blog" },
+  { label: "গিফট কার্ড", href: "/" },
+  { label: "বিক্রি করুন", href: "/" },
+  { label: "উইশলিস্ট", href: "/" },
+];
+
 export function Header() {
   const router = useRouter();
   const [query, setQuery] = useState("");
@@ -110,7 +119,7 @@ export function Header() {
 
       {/* Secondary nav bar */}
       <div style={{ background: "#232f3e" }} className="hidden text-white lg:block">
-        <div className="container-page flex items-center gap-5 py-2 text-sm">
+        <div className="container-page flex flex-wrap items-center gap-x-5 gap-y-1.5 py-2 text-sm">
           <button
             onClick={() => setMobileOpen((v) => !v)}
             className="flex items-center gap-1.5 rounded border border-transparent px-1.5 py-1 font-medium hover:border-white/40"
@@ -122,6 +131,19 @@ export function Header() {
               key={link.href}
               href={link.href}
               className="rounded border border-transparent px-1 py-1 text-white/90 hover:border-white/40 hover:text-white"
+            >
+              {link.label}
+            </Link>
+          ))}
+          <span className="h-4 w-px bg-white/20" aria-hidden />
+          {utilityLinks.map((link, i) => (
+            <Link
+              key={link.label}
+              href={link.href}
+              className={clsx(
+                "rounded border px-1.5 py-1 text-white/90 hover:border-white/40 hover:text-white",
+                i === 0 ? "border-white" : "border-transparent"
+              )}
             >
               {link.label}
             </Link>
@@ -142,7 +164,20 @@ export function Header() {
               key={link.href}
               href={link.href}
               onClick={() => setMobileOpen(false)}
-              className="border-b border-white/10 py-2.5 text-sm text-white/90 last:border-none hover:text-white"
+              className="border-b border-white/10 py-2.5 text-sm text-white/90 hover:text-white"
+            >
+              {link.label}
+            </Link>
+          ))}
+          {utilityLinks.map((link, i) => (
+            <Link
+              key={link.label}
+              href={link.href}
+              onClick={() => setMobileOpen(false)}
+              className={clsx(
+                "border-b border-white/10 py-2.5 text-sm text-white/90 last:border-none hover:text-white",
+                i === 0 && "font-semibold text-white"
+              )}
             >
               {link.label}
             </Link>
