@@ -11,7 +11,6 @@ import { PainPointsSection } from "@/components/product/PainPointsSection";
 import { AuthorBioSection } from "@/components/product/AuthorBioSection";
 import { KeyIdeasSection } from "@/components/product/KeyIdeasSection";
 import { TransformationSection } from "@/components/product/TransformationSection";
-import { ExpertOpinionsSection } from "@/components/product/ExpertOpinionsSection";
 import { LiveDemandSection } from "@/components/product/LiveDemandSection";
 import { EditorialVideoReviewSection } from "@/components/product/EditorialVideoReviewSection";
 import { FaqSection } from "@/components/product/FaqSection";
@@ -91,7 +90,6 @@ export function ProductDetailView({
 
       {isLongForm ? (
         <>
-          <ExpertOpinionsSection product={product} />
           <LiveDemandSection product={product} />
 
           <CtaBanner
