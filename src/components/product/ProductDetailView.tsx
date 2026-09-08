@@ -1,4 +1,3 @@
-import { ImagePlus, Video } from "lucide-react";
 import { Product } from "@/lib/types";
 import { ProductImage } from "@/components/ui/ProductImage";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
@@ -27,8 +26,8 @@ function SpecsSection({ product }: { product: Product }) {
   return (
     <section className="container-page py-10">
       <h2 className="font-display text-lg font-bold text-foreground">স্পেসিফিকেশন</h2>
-      <div className="mt-4 flex flex-col gap-6 lg:flex-row">
-        <table className="w-full max-w-xl text-sm lg:flex-1">
+      <div className="mt-4">
+        <table className="w-full max-w-xl text-sm">
           <tbody>
             {product.specs.map((spec) => (
               <tr key={spec.label} className="border-b border-border">
@@ -38,17 +37,6 @@ function SpecsSection({ product }: { product: Product }) {
             ))}
           </tbody>
         </table>
-
-        <div className="flex w-full gap-3 lg:w-72 lg:shrink-0">
-          <div className="flex flex-1 flex-col items-center justify-center gap-1.5 rounded-md border border-dashed border-border bg-surface-muted p-4 text-center text-ink-faint">
-            <ImagePlus size={20} />
-            <span className="text-[11px]">প্রোডাক্টের আসল ছবি যোগ করুন</span>
-          </div>
-          <div className="flex flex-1 flex-col items-center justify-center gap-1.5 rounded-md border border-dashed border-border bg-surface-muted p-4 text-center text-ink-faint">
-            <Video size={20} />
-            <span className="text-[11px]">প্রোডাক্ট ভিডিও যোগ করুন</span>
-          </div>
-        </div>
       </div>
     </section>
   );

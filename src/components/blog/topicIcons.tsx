@@ -1,4 +1,4 @@
-import { Briefcase, Zap, Wallet, Sparkles, Megaphone, TrendingUp, Users, Compass } from "lucide-react";
+import { Briefcase, Zap, Wallet, Sparkles, Megaphone, TrendingUp, Users, Compass, MessageCircle, Brain } from "lucide-react";
 import { BlogTopicSlug } from "@/lib/types";
 
 export const TOPIC_ICONS: Record<BlogTopicSlug, typeof Briefcase> = {
@@ -10,4 +10,6 @@ export const TOPIC_ICONS: Record<BlogTopicSlug, typeof Briefcase> = {
   sales: TrendingUp,
   leadership: Users,
   career: Compass,
+  communication: MessageCircle,
+  mindset: Brain,
 };

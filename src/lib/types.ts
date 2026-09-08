@@ -52,7 +52,9 @@ export type BlogTopicSlug =
   | "marketing"
   | "sales"
   | "leadership"
-  | "career";
+  | "career"
+  | "communication"
+  | "mindset";
 
 export interface BlogPost {
   id: string;
