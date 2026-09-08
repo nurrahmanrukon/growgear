@@ -13,6 +13,7 @@ import { KeyIdeasSection } from "@/components/product/KeyIdeasSection";
 import { TransformationSection } from "@/components/product/TransformationSection";
 import { ExpertOpinionsSection } from "@/components/product/ExpertOpinionsSection";
 import { EditorialVideoReviewSection } from "@/components/product/EditorialVideoReviewSection";
+import { SocialProofScreenshotsSection } from "@/components/product/SocialProofScreenshotsSection";
 import { FaqSection } from "@/components/product/FaqSection";
 import { QuoteBanner } from "@/components/product/QuoteBanner";
 import { FinalOrderSection } from "@/components/product/FinalOrderSection";
@@ -80,9 +81,11 @@ export function ProductDetailView({
           <LandingHero product={product} />
           <LandingHeroTitleBar product={product} />
 
+          <VideoSection product={product} />
+
           <ExpertOpinionsSection product={product} />
 
-          <VideoSection product={product} />
+          <SocialProofScreenshotsSection product={product} />
           <PainPointsSection product={product} />
 
           <CtaBanner
@@ -104,7 +107,6 @@ export function ProductDetailView({
           <FaqSection product={product} />
           <QuoteBanner product={product} />
           <FinalOrderSection product={product} />
-          <SpecsSection product={product} />
           <EditorialVideoReviewSection product={product} />
           <ReviewsSection product={product} />
         </>

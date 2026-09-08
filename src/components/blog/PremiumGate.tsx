@@ -3,6 +3,28 @@
 import { useState } from "react";
 import { Lock, Smartphone, CreditCard, X } from "lucide-react";
 
+const FREE_PREVIEW_RATIO = 0.25;
+
+function countWords(text: string) {
+  return text.trim().split(/\s+/).filter(Boolean).length;
+}
+
+function splitFreeContent(paragraphs: string[], ratio: number) {
+  const totalWords = paragraphs.reduce((sum, p) => sum + countWords(p), 0);
+  const targetWords = Math.max(1, Math.round(totalWords * ratio));
+
+  let wordsSoFar = 0;
+  let cut = 0;
+  for (let i = 0; i < paragraphs.length; i++) {
+    wordsSoFar += countWords(paragraphs[i]);
+    cut = i + 1;
+    if (wordsSoFar >= targetWords) break;
+  }
+  if (paragraphs.length > 1 && cut >= paragraphs.length) cut = paragraphs.length - 1;
+
+  return { free: paragraphs.slice(0, cut), locked: paragraphs.slice(cut) };
+}
+
 export function PremiumGate({
   paragraphs,
   premium,
@@ -23,14 +45,16 @@ export function PremiumGate({
     );
   }
 
-  const [first, ...rest] = paragraphs;
+  const { free, locked } = splitFreeContent(paragraphs, FREE_PREVIEW_RATIO);
 
   return (
     <>
-      <p>{first}</p>
+      {free.map((para, i) => (
+        <p key={i}>{para}</p>
+      ))}
       <div className="relative">
         <div aria-hidden className="pointer-events-none space-y-4 blur-sm select-none">
-          {rest.map((para, i) => (
+          {locked.map((para, i) => (
             <p key={i}>{para}</p>
           ))}
         </div>
