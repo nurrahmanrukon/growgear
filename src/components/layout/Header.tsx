@@ -1,21 +1,43 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { Menu, Search, ShoppingCart, X } from "lucide-react";
 import clsx from "clsx";
 import { useCartStore, useHasHydrated } from "@/store/cart";
 import { toBengaliNumber } from "@/lib/format";
+import { TOPICS } from "@/lib/data/blog";
 
-const navLinks = [
-  { label: "হোম", href: "/" },
-  { label: "বই", href: "/books" },
-  { label: "ইবুক", href: "/ebooks" },
-  { label: "গিয়ার", href: "/gear" },
-  { label: "কোর্স", href: "/course" },
-  { label: "ব্লগ", href: "/blog" },
+const productSub = (basePath: string) => [
+  { label: `সব ${basePath === "/books" ? "বই" : basePath === "/ebooks" ? "ইবুক" : "গিয়ার"}`, href: basePath },
+  { label: "বেস্ট সেলার", href: `${basePath}?badge=${encodeURIComponent("বেস্ট সেলার")}` },
+  { label: "নতুন", href: `${basePath}?badge=${encodeURIComponent("নতুন")}` },
+  { label: "অফার", href: `${basePath}?badge=${encodeURIComponent("লিমিটেড অফার")}` },
 ];
+
+const navLinks: { key: string; label: string; href: string; sub?: { label: string; href: string }[] }[] = [
+  { key: "home", label: "হোম", href: "/" },
+  { key: "book", label: "বই", href: "/books", sub: productSub("/books") },
+  { key: "ebook", label: "ইবুক", href: "/ebooks", sub: productSub("/ebooks") },
+  { key: "gear", label: "গিয়ার", href: "/gear", sub: productSub("/gear") },
+  { key: "course", label: "কোর্স", href: "/course" },
+  {
+    key: "blog",
+    label: "ব্লগ",
+    href: "/blog",
+    sub: [{ label: "সব লেখা", href: "/blog" }, ...TOPICS.map((t) => ({ label: t.label, href: `/blog?topic=${t.slug}` }))],
+  },
+];
+
+function getActiveCategoryKey(pathname: string): string {
+  if (pathname.startsWith("/books")) return "book";
+  if (pathname.startsWith("/ebooks")) return "ebook";
+  if (pathname.startsWith("/gear")) return "gear";
+  if (pathname.startsWith("/course")) return "course";
+  if (pathname.startsWith("/blog")) return "blog";
+  return "home";
+}
 
 const utilityLinks = [
   { label: "আজকের অফার", href: "/" },
@@ -28,10 +50,14 @@ const utilityLinks = [
 
 export function Header() {
   const router = useRouter();
+  const pathname = usePathname();
   const [query, setQuery] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
   const hydrated = useHasHydrated();
   const totalItems = useCartStore((s) => s.totalItems());
+
+  const activeKey = getActiveCategoryKey(pathname);
+  const activeCategory = navLinks.find((l) => l.key === activeKey);
 
   function handleSearch(e: FormEvent) {
     e.preventDefault();
@@ -130,7 +156,10 @@ export function Header() {
             <Link
               key={link.href}
               href={link.href}
-              className="rounded border border-transparent px-1 py-1 text-white/90 hover:border-white/40 hover:text-white"
+              className={clsx(
+                "rounded border px-1 py-1 hover:border-white/40 hover:text-white",
+                link.key === activeKey ? "border-white font-semibold text-white" : "border-transparent text-white/90"
+              )}
             >
               {link.label}
             </Link>
@@ -149,6 +178,17 @@ export function Header() {
             </Link>
           ))}
         </div>
+        {activeCategory?.sub && activeCategory.sub.length > 0 && (
+          <div style={{ background: "#37475a" }}>
+            <div className="container-page flex items-center gap-4 overflow-x-auto py-1.5 text-xs scrollbar-none">
+              {activeCategory.sub.map((s) => (
+                <Link key={s.href} href={s.href} className="shrink-0 text-white/80 hover:text-white hover:underline">
+                  {s.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <nav
@@ -160,14 +200,32 @@ export function Header() {
       >
         <div className="container-page flex flex-col py-1">
           {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={() => setMobileOpen(false)}
-              className="border-b border-white/10 py-2.5 text-sm text-white/90 hover:text-white"
-            >
-              {link.label}
-            </Link>
+            <div key={link.href} className="border-b border-white/10">
+              <Link
+                href={link.href}
+                onClick={() => setMobileOpen(false)}
+                className={clsx(
+                  "block py-2.5 text-sm hover:text-white",
+                  link.key === activeKey ? "font-semibold text-white" : "text-white/90"
+                )}
+              >
+                {link.label}
+              </Link>
+              {link.key === activeKey && link.sub && link.sub.length > 0 && (
+                <div className="flex flex-wrap gap-x-3 gap-y-1.5 pb-2.5 pl-3">
+                  {link.sub.map((s) => (
+                    <Link
+                      key={s.href}
+                      href={s.href}
+                      onClick={() => setMobileOpen(false)}
+                      className="text-xs text-white/70 hover:text-white hover:underline"
+                    >
+                      {s.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           ))}
           {utilityLinks.map((link, i) => (
             <Link
