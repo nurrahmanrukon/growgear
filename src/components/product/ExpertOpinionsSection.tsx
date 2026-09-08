@@ -71,18 +71,35 @@ function VideoReviewCard({
   onPlay: () => void;
 }) {
   return (
-    <ExpertCardShell expert={expert}>
+    <div className="rounded-lg border border-border bg-surface p-4">
       <button
         onClick={onPlay}
         aria-label={`${expert.name} এর ভিডিও রিভিউ চালু করুন`}
-        className="group flex aspect-square w-full items-center justify-center rounded-md"
+        className="group relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-lg"
         style={{ background: `linear-gradient(135deg, ${product.colorFrom}, ${product.colorTo})` }}
       >
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface/90 shadow-sm transition group-hover:scale-105">
-          <Play size={14} className="ml-0.5 text-foreground" fill="currentColor" />
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-surface/90 shadow-sm transition group-hover:scale-105">
+          <Play size={24} className="ml-1 text-foreground" fill="currentColor" />
         </div>
+        <span className="absolute bottom-3 left-4 text-xs font-medium text-white/85">
+          {expert.name} — ভিডিও রিভিউ (শীঘ্রই যুক্ত হবে)
+        </span>
       </button>
-    </ExpertCardShell>
+
+      <div className="mt-3 flex items-center gap-2">
+        <p className="text-sm font-medium text-foreground">{expert.name}</p>
+        {expert.verified && (
+          <span className="flex items-center gap-0.5 text-[10px] text-success">
+            <BadgeCheck size={10} /> স্বীকৃত বিশেষজ্ঞ
+          </span>
+        )}
+      </div>
+      <p className="text-xs text-ink-faint">{expert.title}</p>
+      <div className="mt-2">
+        <StarRating rating={expert.rating} size={13} />
+      </div>
+      <p className="mt-2 text-sm text-ink-soft">&ldquo;{expert.quote}&rdquo;</p>
+    </div>
   );
 }
 
