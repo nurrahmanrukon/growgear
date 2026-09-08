@@ -90,12 +90,6 @@ export function ProductDetailView({
             </div>
           </div>
 
-          <CtaBanner
-            product={product}
-            heading="সিদ্ধান্ত নেওয়া হয়ে গেছে? আজই সংগ্রহ করুন"
-            sub="সীমিত স্টক — সারাদেশে হোম ডেলিভারি সুবিধা"
-          />
-
           <VideoSection product={product} />
           <PainPointsSection product={product} />
 
