@@ -18,6 +18,7 @@ import { QuoteBanner } from "@/components/product/QuoteBanner";
 import { FinalOrderSection } from "@/components/product/FinalOrderSection";
 import { StickyMobileCta } from "@/components/product/StickyMobileCta";
 import { ProductGrid } from "@/components/product/ProductGrid";
+import { LandingHero } from "@/components/product/LandingHero";
 import { categoryMeta } from "@/lib/data/products";
 
 function SpecsSection({ product }: { product: Product }) {
@@ -63,33 +64,27 @@ export function ProductDetailView({
 
   return (
     <div className="pb-20 lg:pb-0">
-      {/* Hero: product image + persuasive buy box */}
-      <section className="container-page pt-4">
-        <Breadcrumb
-          items={[
-            { label: "হোম", href: "/" },
-            { label: meta.label, href: meta.path },
-            { label: product.title },
-          ]}
-        />
-
-        <div className="mt-4 flex flex-col gap-6 lg:flex-row lg:items-start">
-          <div className="lg:flex-1">
-            <ProductImage
-              title={product.title}
-              category={product.category}
-              colorFrom={product.colorFrom}
-              colorTo={product.colorTo}
-              iconSize={72}
-              className="aspect-square w-full"
-            />
-          </div>
-          <BuyBox product={product} />
-        </div>
-      </section>
-
       {isLongForm ? (
         <>
+          {/* Hero: dark landing banner (title, live-demand badges, cover, sample read) */}
+          <div className="container-page pt-4">
+            <Breadcrumb
+              items={[
+                { label: "হোম", href: "/" },
+                { label: meta.label, href: meta.path },
+                { label: product.title },
+              ]}
+            />
+          </div>
+          <div className="mt-4">
+            <LandingHero product={product} />
+          </div>
+          <div className="container-page py-6">
+            <div className="mx-auto max-w-md">
+              <BuyBox product={product} compact />
+            </div>
+          </div>
+
           <LiveDemandSection product={product} />
 
           <CtaBanner
@@ -126,6 +121,30 @@ export function ProductDetailView({
         </>
       ) : (
         <>
+          <section className="container-page pt-4">
+            <Breadcrumb
+              items={[
+                { label: "হোম", href: "/" },
+                { label: meta.label, href: meta.path },
+                { label: product.title },
+              ]}
+            />
+
+            <div className="mt-4 flex flex-col gap-6 lg:flex-row lg:items-start">
+              <div className="lg:flex-1">
+                <ProductImage
+                  title={product.title}
+                  category={product.category}
+                  colorFrom={product.colorFrom}
+                  colorTo={product.colorTo}
+                  iconSize={72}
+                  className="aspect-square w-full"
+                />
+              </div>
+              <BuyBox product={product} />
+            </div>
+          </section>
+
           <VideoSection product={product} />
           <ReviewsSection product={product} />
           <StorySection product={product} />

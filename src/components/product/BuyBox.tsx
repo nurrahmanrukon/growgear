@@ -17,7 +17,7 @@ function weeklyBuyers(id: string): number {
   return 24 + (h % 140);
 }
 
-export function BuyBox({ product }: { product: Product }) {
+export function BuyBox({ product, compact = false }: { product: Product; compact?: boolean }) {
   const router = useRouter();
   const addItem = useCartStore((s) => s.addItem);
   const [quantity, setQuantity] = useState(1);
@@ -39,23 +39,27 @@ export function BuyBox({ product }: { product: Product }) {
 
   return (
     <div id="buy-box" className="w-full rounded-lg border border-border bg-surface p-5 lg:w-[22rem]">
-      <p className="text-xs font-medium uppercase tracking-wide text-primary">
-        {product.category === "book" ? "হার্ডকভার বই" : product.category === "ebook" ? "ইনস্ট্যান্ট ইবুক" : "প্রোডাক্টিভিটি গিয়ার"}
-      </p>
-      <h1 className="mt-1.5 font-display text-2xl font-bold text-foreground">{product.title}</h1>
-      {product.author && <p className="mt-1 text-sm text-ink-soft">{product.author}</p>}
-      <p className="mt-2.5 text-sm leading-relaxed text-ink-soft">{product.shortDescription}</p>
+      {!compact && (
+        <>
+          <p className="text-xs font-medium uppercase tracking-wide text-primary">
+            {product.category === "book" ? "হার্ডকভার বই" : product.category === "ebook" ? "ইনস্ট্যান্ট ইবুক" : "প্রোডাক্টিভিটি গিয়ার"}
+          </p>
+          <h1 className="mt-1.5 font-display text-2xl font-bold text-foreground">{product.title}</h1>
+          {product.author && <p className="mt-1 text-sm text-ink-soft">{product.author}</p>}
+          <p className="mt-2.5 text-sm leading-relaxed text-ink-soft">{product.shortDescription}</p>
 
-      {isReadable && (
-        <button
-          onClick={() => setShowSample(true)}
-          className="mt-2 flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary-dark hover:underline"
-        >
-          <BookOpen size={13} /> একটু পড়ে দেখুন
-        </button>
+          {isReadable && (
+            <button
+              onClick={() => setShowSample(true)}
+              className="mt-2 flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary-dark hover:underline"
+            >
+              <BookOpen size={13} /> একটু পড়ে দেখুন
+            </button>
+          )}
+        </>
       )}
 
-      <div className="mt-3 flex items-center gap-3">
+      <div className={compact ? "flex items-center gap-3" : "mt-3 flex items-center gap-3"}>
         <StarRating rating={product.rating} reviewCount={product.reviewCount} />
       </div>
 
@@ -121,7 +125,7 @@ export function BuyBox({ product }: { product: Product }) {
         </>
       )}
 
-      {isReadable && (
+      {isReadable && !compact && (
         <SampleReadModal product={product} open={showSample} onClose={() => setShowSample(false)} />
       )}
     </div>
