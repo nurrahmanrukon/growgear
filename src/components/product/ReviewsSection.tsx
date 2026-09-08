@@ -7,7 +7,7 @@ import { getReviewsForProduct, getRatingBreakdown, Review } from "@/lib/data/rev
 import { toBengaliNumber } from "@/lib/format";
 import { StarRating } from "@/components/ui/StarRating";
 import { Button } from "@/components/ui/Button";
-import { WriteReviewModal, SubmittedReview } from "@/components/product/WriteReviewModal";
+import { InlineReviewForm, SubmittedReview } from "@/components/product/InlineReviewForm";
 
 const PER_SEGMENT = 5;
 
@@ -80,9 +80,18 @@ export function ReviewsSection({ product }: { product: Product }) {
             ))}
           </div>
 
-          <Button variant="secondary" onClick={() => setShowWriteReview(true)} className="mt-1">
+          <Button variant="secondary" onClick={() => setShowWriteReview((v) => !v)} className="mt-1">
             রিভিউ লিখুন
           </Button>
+
+          <InlineReviewForm
+            open={showWriteReview}
+            onSubmit={(r) => {
+              handleSubmitReview(r);
+              setShowWriteReview(false);
+            }}
+            onCancel={() => setShowWriteReview(false)}
+          />
         </div>
 
         <div className="mt-8 flex items-center justify-center gap-2">
@@ -159,12 +168,6 @@ export function ReviewsSection({ product }: { product: Product }) {
           })}
         </div>
       </div>
-
-      <WriteReviewModal
-        open={showWriteReview}
-        onClose={() => setShowWriteReview(false)}
-        onSubmit={handleSubmitReview}
-      />
     </section>
   );
 }

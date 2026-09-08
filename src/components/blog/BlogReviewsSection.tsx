@@ -7,7 +7,7 @@ import { getBlogReviews, BlogReview } from "@/lib/data/blogReviews";
 import { toBengaliNumber } from "@/lib/format";
 import { StarRating } from "@/components/ui/StarRating";
 import { Button } from "@/components/ui/Button";
-import { WriteReviewModal, SubmittedReview } from "@/components/product/WriteReviewModal";
+import { InlineReviewForm, SubmittedReview } from "@/components/product/InlineReviewForm";
 
 export function BlogReviewsSection({ post }: { post: BlogPost }) {
   const generated = getBlogReviews(post);
@@ -55,9 +55,18 @@ export function BlogReviewsSection({ post }: { post: BlogPost }) {
           <StarRating rating={avgRating} size={16} />
         </div>
         <p className="text-xs text-ink-faint">{toBengaliNumber(reviews.length)} টি মতামতের ভিত্তিতে</p>
-        <Button variant="secondary" onClick={() => setShowWriteReview(true)} className="mt-1">
+        <Button variant="secondary" onClick={() => setShowWriteReview((v) => !v)} className="mt-1">
           মতামত লিখুন
         </Button>
+
+        <InlineReviewForm
+          open={showWriteReview}
+          onSubmit={(r) => {
+            handleSubmitReview(r);
+            setShowWriteReview(false);
+          }}
+          onCancel={() => setShowWriteReview(false)}
+        />
       </div>
 
       <div className="mx-auto mt-6 max-w-2xl rounded-lg border border-border bg-surface">
@@ -104,12 +113,6 @@ export function BlogReviewsSection({ post }: { post: BlogPost }) {
           );
         })}
       </div>
-
-      <WriteReviewModal
-        open={showWriteReview}
-        onClose={() => setShowWriteReview(false)}
-        onSubmit={handleSubmitReview}
-      />
     </section>
   );
 }

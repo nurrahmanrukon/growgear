@@ -3,6 +3,7 @@ import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { PurchaseToast } from "@/components/layout/PurchaseToast";
+import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 
 export const metadata: Metadata = {
   title: "GrowGear — বই, ইবুক ও প্রোডাক্টিভিটি গিয়ার",
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <main className="flex-1">{children}</main>
         <Footer />
         <PurchaseToast />
+        <WhatsAppButton />
       </body>
     </html>
   );
