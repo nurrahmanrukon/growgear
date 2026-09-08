@@ -1,5 +1,6 @@
 import { BlogPost, BlogTopicSlug } from "@/lib/types";
 import { MUTED_GRADIENTS as gradients } from "./palette";
+import { hashString } from "./social";
 
 export const TOPICS: { slug: BlogTopicSlug; label: string }[] = [
   { slug: "business", label: "ব্যবসা" },
@@ -252,4 +253,14 @@ export function getPostsByTopic(topicSlug: string): BlogPost[] {
 
 export function getFeaturedPosts(limit = 3): BlogPost[] {
   return blogPosts.filter((p) => p.featured).slice(0, limit);
+}
+
+/**
+ * Deterministic per-post "X জন কিনেছেন" count for the premium paywall.
+ * No real backend exists yet — swap this out for an actual purchase-count
+ * lookup once one does; every caller already reads through this function.
+ */
+export function getPremiumPurchaseCount(post: BlogPost): number {
+  const seed = hashString(post.id + ":premium-buyers");
+  return 35 + (seed % 165);
 }

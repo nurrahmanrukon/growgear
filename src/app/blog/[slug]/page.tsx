@@ -83,7 +83,7 @@ export default async function BlogPostPage({
         </p>
 
         <div className="mt-5 space-y-4 text-sm leading-relaxed text-ink-soft sm:text-base">
-          <PremiumGate paragraphs={post.content} premium={post.premium} />
+          <PremiumGate post={post} />
         </div>
 
         <Link

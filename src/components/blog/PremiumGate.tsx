@@ -1,7 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Lock, Smartphone, CreditCard, X } from "lucide-react";
+import { Lock, Smartphone, CreditCard, X, Eye } from "lucide-react";
+import { BlogPost } from "@/lib/types";
+import { getPremiumPurchaseCount } from "@/lib/data/blog";
+import { toBengaliNumber } from "@/lib/format";
+import { Modal } from "@/components/ui/Modal";
+import { Button } from "@/components/ui/Button";
 
 const FREE_PREVIEW_RATIO = 0.25;
 
@@ -25,15 +30,11 @@ function splitFreeContent(paragraphs: string[], ratio: number) {
   return { free: paragraphs.slice(0, cut), locked: paragraphs.slice(cut) };
 }
 
-export function PremiumGate({
-  paragraphs,
-  premium,
-}: {
-  paragraphs: string[];
-  premium?: boolean;
-}) {
+export function PremiumGate({ post }: { post: BlogPost }) {
+  const { content: paragraphs, premium } = post;
   const [unlocked, setUnlocked] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  const [showSample, setShowSample] = useState(false);
 
   if (!premium || unlocked) {
     return (
@@ -46,6 +47,12 @@ export function PremiumGate({
   }
 
   const { free, locked } = splitFreeContent(paragraphs, FREE_PREVIEW_RATIO);
+  const purchaseCount = getPremiumPurchaseCount(post);
+
+  function unlockAndCloseSample() {
+    setUnlocked(true);
+    setShowSample(false);
+  }
 
   return (
     <>
@@ -81,7 +88,14 @@ export function PremiumGate({
               <h3 className="mt-2.5 font-display text-sm font-bold text-foreground">এই লেখাটি প্রিমিয়াম</h3>
               <p className="mt-1 text-xs text-ink-soft">সম্পূর্ণ কনটেন্ট পড়তে আনলক করুন</p>
               <p className="mt-2 text-lg font-bold text-price">৪৯ টাকা</p>
+              <p className="mt-1 text-[11px] text-ink-faint">{toBengaliNumber(purchaseCount)} জন এই লেখাটি কিনেছেন</p>
               <div className="mt-3 flex flex-col gap-2">
+                <button
+                  onClick={() => setShowSample(true)}
+                  className="flex items-center justify-center gap-1.5 rounded-full bg-emerald-500 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-600"
+                >
+                  <Eye size={13} /> একটু পড়ে দেখুন
+                </button>
                 <button
                   onClick={() => setUnlocked(true)}
                   className="flex items-center justify-center gap-1.5 rounded-md bg-primary px-4 py-2 text-xs font-semibold text-white hover:bg-primary-dark"
@@ -99,6 +113,27 @@ export function PremiumGate({
           )}
         </div>
       </div>
+
+      <Modal open={showSample} onClose={() => setShowSample(false)}>
+        <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-primary">
+          <Eye size={14} /> সংক্ষিপ্ত প্রিভিউ
+        </div>
+        <h2 className="mt-1.5 font-display text-lg font-bold text-foreground">{post.title}</h2>
+        <div className="mt-4 space-y-3 text-sm leading-relaxed text-ink-soft">
+          <p>{locked[0]}</p>
+        </div>
+        <div className="mt-5 rounded-md border border-dashed border-border bg-surface-muted p-3 text-center">
+          <p className="text-xs text-ink-faint">সম্পূর্ণ লেখা পড়তে আনলক করুন — মাত্র ৪৯ টাকা।</p>
+          <div className="mt-3 flex flex-col gap-2">
+            <Button variant="primary" fullWidth onClick={unlockAndCloseSample}>
+              <Smartphone size={13} /> বিকাশে পে করুন
+            </Button>
+            <Button variant="secondary" fullWidth onClick={unlockAndCloseSample}>
+              <CreditCard size={13} /> কার্ডে পে করুন
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </>
   );
 }
