@@ -6,11 +6,12 @@ import { Product } from "@/lib/types";
 import { ExpertOpinion, getExpertOpinions, getExpertVideoOpinions } from "@/lib/data/landingContent";
 import { toBengaliNumber } from "@/lib/format";
 import { StarRating } from "@/components/ui/StarRating";
+import { Modal } from "@/components/ui/Modal";
 
-type Tab = "text" | "video";
+type Tab = "text" | "video" | "mixed";
 
 const SEGMENT_COUNT = 7;
-const DEFAULT_PREVIEW_COUNT = 3;
+const MIXED_PREVIEW_COUNT = 3;
 
 function ExpertCardShell({
   expert,
@@ -60,17 +61,27 @@ function TextReviewCard({ expert, product }: { expert: ExpertOpinion; product: P
   );
 }
 
-function VideoReviewCard({ expert, product }: { expert: ExpertOpinion; product: Product }) {
+function VideoReviewCard({
+  expert,
+  product,
+  onPlay,
+}: {
+  expert: ExpertOpinion;
+  product: Product;
+  onPlay: () => void;
+}) {
   return (
     <ExpertCardShell expert={expert}>
-      <div
-        className="flex aspect-square w-full items-center justify-center rounded-md"
+      <button
+        onClick={onPlay}
+        aria-label={`${expert.name} এর ভিডিও রিভিউ চালু করুন`}
+        className="group flex aspect-square w-full items-center justify-center rounded-md"
         style={{ background: `linear-gradient(135deg, ${product.colorFrom}, ${product.colorTo})` }}
       >
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface/90 shadow-sm">
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface/90 shadow-sm transition group-hover:scale-105">
           <Play size={14} className="ml-0.5 text-foreground" fill="currentColor" />
         </div>
-      </div>
+      </button>
     </ExpertCardShell>
   );
 }
@@ -78,10 +89,11 @@ function VideoReviewCard({ expert, product }: { expert: ExpertOpinion; product: 
 export function ExpertOpinionsSection({ product }: { product: Product }) {
   const textReviews = getExpertOpinions(product, SEGMENT_COUNT);
   const videoReviews = getExpertVideoOpinions(product, SEGMENT_COUNT);
-  const [tab, setTab] = useState<Tab | null>(null);
+  const [tab, setTab] = useState<Tab>("mixed");
+  const [playingVideo, setPlayingVideo] = useState<ExpertOpinion | null>(null);
 
-  const visibleText = tab === "video" ? [] : tab === "text" ? textReviews : textReviews.slice(0, DEFAULT_PREVIEW_COUNT);
-  const visibleVideo = tab === "text" ? [] : tab === "video" ? videoReviews : videoReviews.slice(0, DEFAULT_PREVIEW_COUNT);
+  const visibleText = tab === "video" ? [] : tab === "text" ? textReviews : textReviews.slice(0, MIXED_PREVIEW_COUNT);
+  const visibleVideo = tab === "text" ? [] : tab === "video" ? videoReviews : videoReviews.slice(0, MIXED_PREVIEW_COUNT);
 
   return (
     <section className="border-y border-border bg-surface-muted py-10">
@@ -114,6 +126,16 @@ export function ExpertOpinionsSection({ product }: { product: Product }) {
           >
             ভিডিও রিভিউ ({toBengaliNumber(SEGMENT_COUNT)})
           </button>
+          <button
+            onClick={() => setTab("mixed")}
+            className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition ${
+              tab === "mixed"
+                ? "bg-primary text-white"
+                : "border border-border bg-surface text-ink-soft hover:border-primary hover:text-primary"
+            }`}
+          >
+            সেগমেন্ট ৩
+          </button>
         </div>
 
         <div className="mx-auto mt-6 flex max-w-xl flex-col gap-4">
@@ -121,10 +143,30 @@ export function ExpertOpinionsSection({ product }: { product: Product }) {
             <TextReviewCard key={`t-${i}`} expert={e} product={product} />
           ))}
           {visibleVideo.map((e, i) => (
-            <VideoReviewCard key={`v-${i}`} expert={e} product={product} />
+            <VideoReviewCard key={`v-${i}`} expert={e} product={product} onPlay={() => setPlayingVideo(e)} />
           ))}
         </div>
       </div>
+
+      <Modal open={!!playingVideo} onClose={() => setPlayingVideo(null)}>
+        {playingVideo && (
+          <>
+            <div
+              className="group relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-lg border border-border"
+              style={{ background: `linear-gradient(135deg, ${product.colorFrom}, ${product.colorTo})` }}
+            >
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-surface/90 shadow-sm">
+                <Play size={28} className="ml-1 text-foreground" fill="currentColor" />
+              </div>
+              <span className="absolute bottom-3 left-4 text-xs font-medium text-white/85 sm:bottom-4 sm:left-5 sm:text-sm">
+                {playingVideo.name} — ভিডিও রিভিউ (শীঘ্রই যুক্ত হবে)
+              </span>
+            </div>
+            <p className="mt-3 text-sm font-medium text-foreground">{playingVideo.name}</p>
+            <p className="text-xs text-ink-faint">{playingVideo.title}</p>
+          </>
+        )}
+      </Modal>
     </section>
   );
 }
