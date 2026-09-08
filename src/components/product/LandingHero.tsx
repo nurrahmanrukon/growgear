@@ -1,42 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Eye } from "lucide-react";
 import { Product } from "@/lib/types";
-import { getLiveDemand } from "@/lib/data/landingContent";
+import { getLiveDemand, getHeroHeadline } from "@/lib/data/landingContent";
 import { toBengaliNumber } from "@/lib/format";
 import { ProductImage } from "@/components/ui/ProductImage";
 import { SampleReadModal } from "@/components/product/SampleReadModal";
-import { useCartStore } from "@/store/cart";
 
 export function LandingHero({ product }: { product: Product }) {
-  const router = useRouter();
-  const addItem = useCartStore((s) => s.addItem);
   const [showSample, setShowSample] = useState(false);
   const demand = getLiveDemand(product);
-
-  function handleOrderNow() {
-    addItem(product, 1);
-    router.push("/checkout");
-  }
+  const headline = getHeroHeadline(product);
 
   return (
     <section
       className="relative overflow-hidden"
       style={{ background: "linear-gradient(180deg, #2a4570 0%, #182a4a 55%, #0d1830 100%)" }}
     >
-      <div className="container-page flex items-center justify-between gap-3 py-4">
-        <h1 className="truncate font-display text-lg font-bold text-white sm:text-xl">{product.title}</h1>
-        <button
-          onClick={handleOrderNow}
-          className="shrink-0 rounded-md bg-amber-400 px-4 py-2 text-sm font-bold text-slate-900 shadow-sm transition hover:bg-amber-300"
-        >
-          অর্ডার করুন
-        </button>
-      </div>
-
-      <div className="container-page flex flex-wrap items-center justify-center gap-3 pb-6">
+      <div className="container-page flex flex-wrap items-center justify-center gap-3 pt-6 pb-6">
         <span className="rounded-full bg-rose-500/90 px-3.5 py-1.5 text-xs font-semibold text-white">
           অল্প কিছু কপি বাকি
         </span>
@@ -64,6 +46,41 @@ export function LandingHero({ product }: { product: Product }) {
         >
           <Eye size={16} /> একটু পড়ে দেখুন
         </button>
+      </div>
+
+      <div className="container-page pb-8">
+        <h2 className="mx-auto max-w-2xl text-center font-display text-lg font-bold leading-relaxed text-white sm:text-xl">
+          {headline}
+        </h2>
+
+        <div className="mx-auto mt-6 max-w-xl">
+          <div className="flex items-center justify-between text-xs font-medium text-white/85">
+            <span>🔥 আজকের স্টক দ্রুত শেষ হচ্ছে</span>
+            <span>অল্প কিছু কপি বাকি</span>
+          </div>
+          <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-white/15">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-amber-400 to-rose-500"
+              style={{ width: `${demand.stockSoldPercent}%` }}
+            />
+          </div>
+        </div>
+
+        <div className="mx-auto mt-5 flex max-w-xl items-center justify-center gap-3">
+          <div className="flex -space-x-2">
+            {demand.recentOrderInitials.map((initial, i) => (
+              <div
+                key={i}
+                className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-[#182a4a] bg-white/90 text-xs font-semibold text-slate-900"
+              >
+                {initial}
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-white/85">
+            গত ২৪ ঘণ্টায় <span className="font-semibold text-white">{toBengaliNumber(demand.ordersLast24h)}</span> জন অর্ডার করেছেন
+          </p>
+        </div>
       </div>
 
       <SampleReadModal product={product} open={showSample} onClose={() => setShowSample(false)} />

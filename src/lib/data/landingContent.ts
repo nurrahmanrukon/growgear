@@ -248,6 +248,20 @@ export function getLiveDemand(product: Product): LiveDemand {
   return { viewers, copiesLeft, stockSoldPercent, ordersLast24h, recentOrderInitials };
 }
 
+const HERO_HEADLINE_POOL = [
+  "আপনার বর্তমান জীবন অতীতে নেয়া সিদ্ধান্তের ফল, আপনার ভবিষ্যৎ জীবনটা কেমন হবে তা তৈরি হবে আজকের সিদ্ধান্ত থেকে",
+  "আজ যে সিদ্ধান্তটা নেবেন, আগামী কয়েক বছর পর ঠিক সেটাই আপনার গল্প হয়ে দাঁড়াবে",
+  "ছোট একটা পদক্ষেপ আজ — বড় একটা পরিবর্তন আগামীকাল",
+  "যারা আজ শুরু করে, তারাই কাল এগিয়ে থাকে",
+  "প্রতিটা বড় পরিবর্তনের শুরু হয় একটা সাধারণ সিদ্ধান্ত দিয়ে — আজকেরটা আপনার হতে পারে",
+  "সময় নষ্ট করার সুযোগ নেই — আজকের সিদ্ধান্তই আগামীর ভিত্তি",
+];
+
+export function getHeroHeadline(product: Product): string {
+  const seed = hashString(product.id + ":hero-headline");
+  return HERO_HEADLINE_POOL[seed % HERO_HEADLINE_POOL.length];
+}
+
 export interface Faq {
   q: string;
   a: string;

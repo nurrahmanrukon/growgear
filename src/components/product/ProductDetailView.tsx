@@ -11,7 +11,7 @@ import { PainPointsSection } from "@/components/product/PainPointsSection";
 import { AuthorBioSection } from "@/components/product/AuthorBioSection";
 import { KeyIdeasSection } from "@/components/product/KeyIdeasSection";
 import { TransformationSection } from "@/components/product/TransformationSection";
-import { LiveDemandSection } from "@/components/product/LiveDemandSection";
+import { ExpertOpinionsSection } from "@/components/product/ExpertOpinionsSection";
 import { EditorialVideoReviewSection } from "@/components/product/EditorialVideoReviewSection";
 import { FaqSection } from "@/components/product/FaqSection";
 import { QuoteBanner } from "@/components/product/QuoteBanner";
@@ -19,6 +19,7 @@ import { FinalOrderSection } from "@/components/product/FinalOrderSection";
 import { StickyMobileCta } from "@/components/product/StickyMobileCta";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { LandingHero } from "@/components/product/LandingHero";
+import { LandingHeroTitleBar } from "@/components/product/LandingHeroTitleBar";
 import { categoryMeta } from "@/lib/data/products";
 
 function SpecsSection({ product }: { product: Product }) {
@@ -76,16 +77,18 @@ export function ProductDetailView({
               ]}
             />
           </div>
-          <div className="mt-4">
+          <LandingHeroTitleBar product={product} />
+          <div className="-mt-px">
             <LandingHero product={product} />
           </div>
+
+          <ExpertOpinionsSection product={product} />
+
           <div className="container-page py-6">
             <div className="mx-auto max-w-md">
               <BuyBox product={product} compact />
             </div>
           </div>
-
-          <LiveDemandSection product={product} />
 
           <CtaBanner
             product={product}

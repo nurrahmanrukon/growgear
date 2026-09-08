@@ -30,7 +30,7 @@ export function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-surface/95 backdrop-blur">
+    <header id="site-header" className="sticky top-0 z-40 border-b border-border bg-surface/95 backdrop-blur">
       <div className="border-b border-border/70 bg-primary-light/60 py-1.5 text-center text-[11px] text-primary-dark">
         সারাদেশে ক্যাশ অন ডেলিভারি — অর্ডারের পর হাতে পেয়ে মূল্য পরিশোধ করুন
       </div>
