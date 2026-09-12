@@ -13,10 +13,14 @@ const DELIVERY_FEES: Record<string, number> = { "ঢাকার ভিতরে
 const QUANTITIES = [1, 2, 3, 4, 5];
 
 type PaymentMethod = "cod" | "bkash" | "card";
-const PAYMENT_METHODS: { id: PaymentMethod; label: string; icon: typeof Banknote; enabled: boolean }[] = [
+const PHYSICAL_PAYMENT_METHODS: { id: PaymentMethod; label: string; icon: typeof Banknote; enabled: boolean }[] = [
   { id: "cod", label: "ক্যাশ অন ডেলিভারি", icon: Banknote, enabled: true },
   { id: "bkash", label: "বিকাশ", icon: Smartphone, enabled: false },
   { id: "card", label: "কার্ড", icon: CreditCard, enabled: false },
+];
+const EBOOK_PAYMENT_METHODS: { id: PaymentMethod; label: string; icon: typeof Banknote; enabled: boolean }[] = [
+  { id: "bkash", label: "বিকাশ", icon: Smartphone, enabled: true },
+  { id: "card", label: "কার্ড", icon: CreditCard, enabled: true },
 ];
 
 export function QuickOrderModal({
@@ -28,17 +32,21 @@ export function QuickOrderModal({
   open: boolean;
   onClose: () => void;
 }) {
+  const isEbook = product.category === "ebook";
+  const paymentMethods = isEbook ? EBOOK_PAYMENT_METHODS : PHYSICAL_PAYMENT_METHODS;
+
   const router = useRouter();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
   const [area, setArea] = useState(AREAS[0]);
   const [quantity, setQuantity] = useState(1);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(isEbook ? "bkash" : "cod");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const deliveryFee = DELIVERY_FEES[area];
+  const deliveryFee = isEbook ? 0 : DELIVERY_FEES[area];
   const total = product.price * quantity + deliveryFee;
 
   async function handleSubmit(e: FormEvent) {
@@ -52,8 +60,9 @@ export function QuickOrderModal({
         body: JSON.stringify({
           name,
           phone,
-          address,
-          area,
+          email: isEbook ? email : undefined,
+          address: isEbook ? undefined : address,
+          area: isEbook ? undefined : area,
           paymentMethod,
           items: [{ productId: product.id, title: product.title, price: product.price, quantity }],
         }),
@@ -95,27 +104,40 @@ export function QuickOrderModal({
           />
         </div>
 
-        <textarea
-          required
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          placeholder="সম্পূর্ণ ঠিকানা লিখুন *"
-          rows={2}
-          className="w-full resize-none rounded border border-border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
-        />
+        {isEbook ? (
+          <input
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="ইমেইল ঠিকানা * — এখানে ইবুক পাঠানো হবে"
+            className="w-full rounded border border-border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+          />
+        ) : (
+          <textarea
+            required
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            placeholder="সম্পূর্ণ ঠিকানা লিখুন *"
+            rows={2}
+            className="w-full resize-none rounded border border-border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+          />
+        )}
 
-        <div className="grid grid-cols-2 gap-2">
-          <select
-            value={area}
-            onChange={(e) => setArea(e.target.value)}
-            className="rounded border border-border px-2.5 py-2 text-sm outline-none"
-          >
-            {AREAS.map((a) => (
-              <option key={a} value={a}>
-                {a}
-              </option>
-            ))}
-          </select>
+        <div className={isEbook ? "grid grid-cols-1" : "grid grid-cols-2 gap-2"}>
+          {!isEbook && (
+            <select
+              value={area}
+              onChange={(e) => setArea(e.target.value)}
+              className="rounded border border-border px-2.5 py-2 text-sm outline-none"
+            >
+              {AREAS.map((a) => (
+                <option key={a} value={a}>
+                  {a}
+                </option>
+              ))}
+            </select>
+          )}
           <select
             value={quantity}
             onChange={(e) => setQuantity(Number(e.target.value))}
@@ -131,8 +153,8 @@ export function QuickOrderModal({
 
         <div>
           <span className="mb-1.5 block text-xs text-ink-soft">পেমেন্ট পদ্ধতি</span>
-          <div className="grid grid-cols-3 gap-2">
-            {PAYMENT_METHODS.map((m) => {
+          <div className={isEbook ? "grid grid-cols-2 gap-2" : "grid grid-cols-3 gap-2"}>
+            {paymentMethods.map((m) => {
               const Icon = m.icon;
               const active = paymentMethod === m.id;
               return (
@@ -156,7 +178,8 @@ export function QuickOrderModal({
 
         <div className="flex items-center justify-between rounded bg-surface-muted px-3 py-2 text-xs text-ink-soft">
           <span>
-            {formatTaka(product.price)} × {toBengaliNumber(quantity)} + ডেলিভারি {formatTaka(deliveryFee)}
+            {formatTaka(product.price)} × {toBengaliNumber(quantity)}
+            {!isEbook && <> + ডেলিভারি {formatTaka(deliveryFee)}</>}
           </span>
           <span className="text-sm font-bold text-price">মোট {formatTaka(total)}</span>
         </div>

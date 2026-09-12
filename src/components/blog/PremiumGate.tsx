@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CreditCard, FileText, Headphones, Layers, Lock, Smartphone, X, Eye } from "lucide-react";
+import { CreditCard, FileText, Headphones, Layers, Lock, Mail, Smartphone, X, Eye } from "lucide-react";
 import { BlogPost } from "@/lib/types";
 import { getPremiumPurchaseCount } from "@/lib/data/blog";
 import { toBengaliNumber, formatTaka } from "@/lib/format";
@@ -47,9 +47,13 @@ export function PremiumGate({ post }: { post: BlogPost }) {
   const [selectedTier, setSelectedTier] = useState<Tier>("both");
   const [dismissed, setDismissed] = useState(false);
   const [showSample, setShowSample] = useState(false);
+  const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState(false);
+  const [emailedTo, setEmailedTo] = useState<string | null>(null);
 
   const isLocked = Boolean(premium) && !unlockedFormats.has(format);
   const purchaseCount = getPremiumPurchaseCount(post);
+  const tierNeedsEmail = (tier: Tier) => tier === "text" || tier === "both";
 
   function unlockTier(tier: Tier) {
     setUnlockedFormats((prev) => {
@@ -63,6 +67,16 @@ export function PremiumGate({ post }: { post: BlogPost }) {
       return next;
     });
     setShowSample(false);
+  }
+
+  function attemptUnlock(tier: Tier) {
+    if (tierNeedsEmail(tier) && !email.trim()) {
+      setEmailError(true);
+      return;
+    }
+    setEmailError(false);
+    if (tierNeedsEmail(tier)) setEmailedTo(email.trim());
+    unlockTier(tier);
   }
 
   const { free, locked } = premium ? splitFreeContent(paragraphs, FREE_PREVIEW_RATIO) : { free: paragraphs, locked: [] };
@@ -132,6 +146,25 @@ export function PremiumGate({ post }: { post: BlogPost }) {
       </div>
 
       <p className="mt-2.5 text-[11px] text-ink-faint">{toBengaliNumber(purchaseCount)} জন এই লেখাটি কিনেছেন</p>
+
+      {tierNeedsEmail(selectedTier) && (
+        <div className="mt-3 text-left">
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setEmailError(false);
+            }}
+            placeholder="ইমেইল ঠিকানা * — PDF এখানে পাঠানো হবে"
+            className={`w-full rounded border px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-primary ${
+              emailError ? "border-price" : "border-border"
+            }`}
+          />
+          {emailError && <p className="mt-1 text-[10px] text-price">PDF পাঠানোর জন্য ইমেইল আবশ্যক</p>}
+        </div>
+      )}
+
       <div className="mt-3 flex flex-col gap-2">
         <button
           onClick={() => setShowSample(true)}
@@ -140,13 +173,13 @@ export function PremiumGate({ post }: { post: BlogPost }) {
           <Eye size={13} /> একটু পড়ে দেখুন
         </button>
         <button
-          onClick={() => unlockTier(selectedTier)}
+          onClick={() => attemptUnlock(selectedTier)}
           className="flex items-center justify-center gap-1.5 rounded-md bg-primary px-4 py-2 text-xs font-semibold text-white hover:bg-primary-dark"
         >
           <Smartphone size={13} /> বিকাশে পে করুন — {formatTaka(TIERS.find((t) => t.id === selectedTier)!.price)}
         </button>
         <button
-          onClick={() => unlockTier(selectedTier)}
+          onClick={() => attemptUnlock(selectedTier)}
           className="flex items-center justify-center gap-1.5 rounded-md border border-primary px-4 py-2 text-xs font-semibold text-primary hover:bg-primary-light"
         >
           <CreditCard size={13} /> কার্ডে পে করুন
@@ -186,7 +219,16 @@ export function PremiumGate({ post }: { post: BlogPost }) {
             </div>
           </>
         ) : (
-          paragraphs.map((para, i) => <p key={i}>{para}</p>)
+          <>
+            {premium && emailedTo && (
+              <div className="mb-3 flex items-center gap-1.5 rounded-md bg-primary-light px-3 py-2 text-xs font-medium text-primary-dark">
+                <Mail size={13} /> সম্পূর্ণ লেখার PDF পাঠানো হয়েছে {emailedTo} ঠিকানায়
+              </div>
+            )}
+            {paragraphs.map((para, i) => (
+              <p key={i}>{para}</p>
+            ))}
+          </>
         ))}
 
       {format === "audio" &&
@@ -215,11 +257,28 @@ export function PremiumGate({ post }: { post: BlogPost }) {
         </div>
         <div className="mt-5 rounded-md border border-dashed border-border bg-surface-muted p-3 text-center">
           <p className="text-xs text-ink-faint">সম্পূর্ণ লেখা পড়তে/শুনতে আনলক করুন — ৳{selectedTier === "both" ? "২৯" : selectedTier === "audio" ? "২৫" : "২০"} থেকে শুরু।</p>
+          {tierNeedsEmail(selectedTier) && (
+            <div className="mt-3 text-left">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setEmailError(false);
+                }}
+                placeholder="ইমেইল ঠিকানা * — PDF এখানে পাঠানো হবে"
+                className={`w-full rounded border px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-primary ${
+                  emailError ? "border-price" : "border-border"
+                }`}
+              />
+              {emailError && <p className="mt-1 text-[10px] text-price">PDF পাঠানোর জন্য ইমেইল আবশ্যক</p>}
+            </div>
+          )}
           <div className="mt-3 flex flex-col gap-2">
-            <Button variant="primary" fullWidth onClick={() => unlockTier(selectedTier)}>
+            <Button variant="primary" fullWidth onClick={() => attemptUnlock(selectedTier)}>
               <Smartphone size={13} /> বিকাশে পে করুন
             </Button>
-            <Button variant="secondary" fullWidth onClick={() => unlockTier(selectedTier)}>
+            <Button variant="secondary" fullWidth onClick={() => attemptUnlock(selectedTier)}>
               <CreditCard size={13} /> কার্ডে পে করুন
             </Button>
           </div>

@@ -3,8 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 interface CheckoutPayload {
   name: string;
   phone: string;
-  address: string;
-  area: string;
+  email?: string;
+  address?: string;
+  area?: string;
   paymentMethod: string;
   items: { productId: string; title: string; price: number; quantity: number }[];
 }
@@ -17,10 +18,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "অবৈধ রিকোয়েস্ট" }, { status: 400 });
   }
 
-  const { name, phone, address, items } = body;
-  if (!name?.trim() || !phone?.trim() || !address?.trim() || !items?.length) {
+  const { name, phone, email, address, items } = body;
+  const hasDelivery = address?.trim() || email?.trim();
+  if (!name?.trim() || !phone?.trim() || !hasDelivery || !items?.length) {
     return NextResponse.json(
-      { error: "নাম, ফোন নম্বর, ঠিকানা এবং কার্ট আইটেম আবশ্যক" },
+      { error: "নাম, ফোন নম্বর, ঠিকানা/ইমেইল এবং কার্ট আইটেম আবশ্যক" },
       { status: 400 }
     );
   }
