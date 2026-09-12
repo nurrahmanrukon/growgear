@@ -4,6 +4,7 @@ import { getTransformations } from "@/lib/data/landingContent";
 
 export function TransformationSection({ product }: { product: Product }) {
   const items = getTransformations(product);
+  const isReadable = product.category === "book" || product.category === "ebook";
 
   return (
     <section className="border-y border-border bg-surface-muted py-10">
@@ -11,7 +12,7 @@ export function TransformationSection({ product }: { product: Product }) {
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-xs font-medium uppercase tracking-wide text-primary">যে পরিবর্তন আসবে</p>
           <h2 className="mt-1.5 font-display text-xl font-bold text-foreground sm:text-2xl">
-            পড়া শেষ করার পর আপনার জীবনে যা বদলাবে
+            {isReadable ? "পড়া শেষ করার পর আপনার জীবনে যা বদলাবে" : "ব্যবহার শুরু করার পর আপনার জীবনে যা বদলাবে"}
           </h2>
         </div>
 

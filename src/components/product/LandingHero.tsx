@@ -13,6 +13,7 @@ export function LandingHero({ product }: { product: Product }) {
   const demand = getLiveDemand(product);
   const headline = getHeroHeadline(product);
   const isEbook = product.category === "ebook";
+  const isReadable = product.category === "book" || product.category === "ebook";
 
   return (
     <section
@@ -40,14 +41,16 @@ export function LandingHero({ product }: { product: Product }) {
         />
       </div>
 
-      <div className="container-page flex justify-center pb-8">
-        <button
-          onClick={() => setShowSample(true)}
-          className="flex items-center gap-2 rounded-full bg-emerald-500 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600"
-        >
-          <Eye size={16} /> একটু পড়ে দেখুন
-        </button>
-      </div>
+      {isReadable && (
+        <div className="container-page flex justify-center pb-8">
+          <button
+            onClick={() => setShowSample(true)}
+            className="flex items-center gap-2 rounded-full bg-emerald-500 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600"
+          >
+            <Eye size={16} /> একটু পড়ে দেখুন
+          </button>
+        </div>
+      )}
 
       <div className="container-page pb-8">
         <h2 className="mx-auto max-w-2xl text-center font-display text-lg font-bold leading-relaxed text-white sm:text-xl">
@@ -93,7 +96,9 @@ export function LandingHero({ product }: { product: Product }) {
         </div>
       </div>
 
-      <SampleReadModal product={product} open={showSample} onClose={() => setShowSample(false)} />
+      {isReadable && (
+        <SampleReadModal product={product} open={showSample} onClose={() => setShowSample(false)} />
+      )}
     </section>
   );
 }

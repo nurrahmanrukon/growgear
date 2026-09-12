@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { Product } from "@/lib/types";
@@ -8,9 +9,11 @@ import { StarRating } from "@/components/ui/StarRating";
 import { formatTaka, discountPercent } from "@/lib/format";
 import { categoryMeta } from "@/lib/data/products";
 import { useCartStore } from "@/store/cart";
+import { QuickOrderModal } from "@/components/product/QuickOrderModal";
 
 export function ProductCard({ product }: { product: Product }) {
   const addItem = useCartStore((s) => s.addItem);
+  const [showOrder, setShowOrder] = useState(false);
   const discount = discountPercent(product.price, product.oldPrice);
   const href = `${categoryMeta[product.category].path}/${product.slug}`;
 
@@ -57,13 +60,23 @@ export function ProductCard({ product }: { product: Product }) {
       {!product.inStock ? (
         <span className="mt-2 text-xs font-medium text-price">স্টকে নেই</span>
       ) : (
-        <button
-          onClick={() => addItem(product)}
-          className="mt-3 flex items-center justify-center gap-1.5 rounded-md border border-primary bg-surface px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary-light"
-        >
-          <Plus size={14} /> কার্টে যোগ করুন
-        </button>
+        <div className="mt-3 flex flex-col gap-1.5">
+          <button
+            onClick={() => setShowOrder(true)}
+            className="flex items-center justify-center rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary-dark"
+          >
+            এখনই কিনুন
+          </button>
+          <button
+            onClick={() => addItem(product)}
+            className="flex items-center justify-center gap-1.5 rounded-md border border-primary bg-surface px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary-light"
+          >
+            <Plus size={14} /> কার্টে যোগ করুন
+          </button>
+        </div>
       )}
+
+      <QuickOrderModal product={product} open={showOrder} onClose={() => setShowOrder(false)} />
     </div>
   );
 }
