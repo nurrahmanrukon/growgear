@@ -1,22 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { CheckCircle2 } from "lucide-react";
 import { Product } from "@/lib/types";
 import { formatTaka, discountPercent } from "@/lib/format";
 import { useCartStore } from "@/store/cart";
+import { QuickOrderModal } from "@/components/product/QuickOrderModal";
 
 export function FinalOrderSection({ product }: { product: Product }) {
-  const router = useRouter();
   const addItem = useCartStore((s) => s.addItem);
   const [added, setAdded] = useState(false);
+  const [showOrder, setShowOrder] = useState(false);
   const discount = discountPercent(product.price, product.oldPrice);
-
-  function handleBuyNow() {
-    addItem(product, 1);
-    router.push("/checkout");
-  }
 
   function handleAddToCart() {
     addItem(product, 1);
@@ -47,7 +42,7 @@ export function FinalOrderSection({ product }: { product: Product }) {
 
           <div className="mt-6 flex flex-col items-center justify-center gap-2 sm:flex-row">
             <button
-              onClick={handleBuyNow}
+              onClick={() => setShowOrder(true)}
               className="inline-flex items-center justify-center gap-2 rounded-md bg-white px-8 py-3 text-sm font-semibold text-primary-dark shadow-sm transition hover:bg-white/90"
             >
               এখনই কিনুন
@@ -79,6 +74,7 @@ export function FinalOrderSection({ product }: { product: Product }) {
           </div>
         </div>
       </div>
+      <QuickOrderModal product={product} open={showOrder} onClose={() => setShowOrder(false)} />
     </section>
   );
 }

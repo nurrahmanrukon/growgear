@@ -11,7 +11,7 @@ export function WhatsAppButton() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="হোয়াটসঅ্যাপে আমাদের সাথে কথা বলুন"
-      className="fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition hover:scale-105"
+      className="fixed bottom-20 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition hover:scale-105 lg:bottom-5"
       style={{ backgroundColor: "#25D366" }}
     >
       <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-30" style={{ backgroundColor: "#25D366" }} />

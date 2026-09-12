@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { BookOpen, CheckCircle2, ShieldCheck, Truck, Users } from "lucide-react";
 import { Product } from "@/lib/types";
@@ -9,6 +8,7 @@ import { StarRating } from "@/components/ui/StarRating";
 import { QuantityStepper } from "@/components/ui/QuantityStepper";
 import { Button } from "@/components/ui/Button";
 import { SampleReadModal } from "@/components/product/SampleReadModal";
+import { QuickOrderModal } from "@/components/product/QuickOrderModal";
 import { useCartStore } from "@/store/cart";
 
 function weeklyBuyers(id: string): number {
@@ -18,11 +18,11 @@ function weeklyBuyers(id: string): number {
 }
 
 export function BuyBox({ product, compact = false }: { product: Product; compact?: boolean }) {
-  const router = useRouter();
   const addItem = useCartStore((s) => s.addItem);
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
   const [showSample, setShowSample] = useState(false);
+  const [showOrder, setShowOrder] = useState(false);
   const discount = discountPercent(product.price, product.oldPrice);
   const isReadable = product.category === "book" || product.category === "ebook";
 
@@ -30,11 +30,6 @@ export function BuyBox({ product, compact = false }: { product: Product; compact
     addItem(product, quantity);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
-  }
-
-  function handleBuyNow() {
-    addItem(product, quantity);
-    router.push("/checkout");
   }
 
   return (
@@ -109,7 +104,7 @@ export function BuyBox({ product, compact = false }: { product: Product; compact
           </div>
 
           <div className="mt-4 flex flex-col gap-2">
-            <Button variant="primary" onClick={handleBuyNow}>
+            <Button variant="primary" onClick={() => setShowOrder(true)}>
               এখনই কিনুন
             </Button>
             <Button variant="secondary" onClick={handleAddToCart}>
@@ -128,6 +123,7 @@ export function BuyBox({ product, compact = false }: { product: Product; compact
       {isReadable && !compact && (
         <SampleReadModal product={product} open={showSample} onClose={() => setShowSample(false)} />
       )}
+      <QuickOrderModal product={product} open={showOrder} onClose={() => setShowOrder(false)} />
     </div>
   );
 }
