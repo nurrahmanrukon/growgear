@@ -66,6 +66,7 @@ export interface BlogPost {
   date: string;
   category: string;
   topicSlug: BlogTopicSlug;
+  segmentSlug: string;
   featured?: boolean;
   premium?: boolean;
   readMinutes: number;

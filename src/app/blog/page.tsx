@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { blogPosts, getFeaturedPosts, getPostsByTopic, TOPICS } from "@/lib/data/blog";
+import { blogPosts, getFeaturedPosts, getPostsByTopic, SEGMENTS, TOPICS } from "@/lib/data/blog";
 import { getFeaturedProducts } from "@/lib/data/products";
 import { courses } from "@/lib/data/courses";
 import { BlogTopicSlug } from "@/lib/types";
@@ -23,9 +23,9 @@ const TOPIC_PAGE_SIZE = 9;
 export default async function BlogPage({
   searchParams,
 }: {
-  searchParams: Promise<{ topic?: string; page?: string }>;
+  searchParams: Promise<{ topic?: string; segment?: string; page?: string }>;
 }) {
-  const { topic, page } = await searchParams;
+  const { topic, segment, page } = await searchParams;
   const currentPage = Math.max(1, Number(page) || 1);
 
   if (topic) {
@@ -37,21 +37,25 @@ export default async function BlogPage({
         </div>
       );
     }
+    const segmentMeta = segment ? SEGMENTS[topicMeta.slug].find((s) => s.slug === segment) : undefined;
     const Icon = TOPIC_ICONS[topicMeta.slug];
-    const all = getPostsByTopic(topicMeta.slug);
+    const all = getPostsByTopic(topicMeta.slug, segmentMeta?.slug);
     const totalPages = Math.ceil(all.length / TOPIC_PAGE_SIZE);
     const pagePosts = all.slice((currentPage - 1) * TOPIC_PAGE_SIZE, currentPage * TOPIC_PAGE_SIZE);
 
     return (
       <>
-        <TopicNav activeTopic={topicMeta.slug} />
+        <TopicNav activeTopic={topicMeta.slug} activeSegment={segmentMeta?.slug} />
         <div className="container-page py-8">
           <div className="flex items-center gap-2.5">
             <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-light text-primary">
               <Icon size={18} />
             </span>
             <div>
-              <h1 className="font-display text-xl font-bold text-foreground sm:text-2xl">{topicMeta.label}</h1>
+              <h1 className="font-display text-xl font-bold text-foreground sm:text-2xl">
+                {topicMeta.label}
+                {segmentMeta && <span className="text-ink-soft"> — {segmentMeta.label}</span>}
+              </h1>
               <p className="text-xs text-ink-faint">{toBengaliNumber(all.length)} টি লেখা</p>
             </div>
           </div>
@@ -65,7 +69,9 @@ export default async function BlogPage({
           <Pagination
             totalPages={totalPages}
             currentPage={currentPage}
-            hrefFor={(p) => `/blog?topic=${topicMeta.slug}${p > 1 ? `&page=${p}` : ""}`}
+            hrefFor={(p) =>
+              `/blog?topic=${topicMeta.slug}${segmentMeta ? `&segment=${segmentMeta.slug}` : ""}${p > 1 ? `&page=${p}` : ""}`
+            }
           />
         </div>
         <BlogCategoryTiles />

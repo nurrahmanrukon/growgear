@@ -15,6 +15,60 @@ export const TOPICS: { slug: BlogTopicSlug; label: string }[] = [
   { slug: "mindset", label: "মানসিকতা ও আত্ম-উন্নয়ন" },
 ];
 
+/** Layer-2 sub-segments per topic, so readers can drill into their exact stage/interest. */
+export const SEGMENTS: Record<BlogTopicSlug, { slug: string; label: string }[]> = {
+  business: [
+    { slug: "startup", label: "স্টার্টআপ" },
+    { slug: "small-business", label: "ছোট ব্যবসা" },
+    { slug: "scaling", label: "স্কেলিং ও গ্রোথ" },
+  ],
+  productivity: [
+    { slug: "time-management", label: "টাইম ম্যানেজমেন্ট" },
+    { slug: "focus-habits", label: "ফোকাস ও অভ্যাস" },
+    { slug: "routine-planning", label: "রুটিন ও প্ল্যানিং" },
+  ],
+  finance: [
+    { slug: "budgeting-saving", label: "বাজেট ও সঞ্চয়" },
+    { slug: "investing", label: "বিনিয়োগ" },
+    { slug: "debt-management", label: "ঋণ ব্যবস্থাপনা" },
+  ],
+  branding: [
+    { slug: "personal-branding", label: "পার্সোনাল ব্র্যান্ডিং" },
+    { slug: "business-branding", label: "বিজনেস ব্র্যান্ডিং" },
+    { slug: "storytelling", label: "কনটেন্ট ও গল্প বলা" },
+  ],
+  marketing: [
+    { slug: "digital-marketing", label: "ডিজিটাল মার্কেটিং" },
+    { slug: "social-media", label: "সোশ্যাল মিডিয়া" },
+    { slug: "content-marketing", label: "কনটেন্ট মার্কেটিং" },
+  ],
+  sales: [
+    { slug: "cold-outreach", label: "কোল্ড আউটরিচ" },
+    { slug: "negotiation", label: "নেগোসিয়েশন" },
+    { slug: "customer-relationship", label: "কাস্টমার রিলেশনশিপ" },
+  ],
+  leadership: [
+    { slug: "new-manager", label: "নতুন ম্যানেজার" },
+    { slug: "team-building", label: "টিম বিল্ডিং" },
+    { slug: "senior-leadership", label: "সিনিয়র লিডারশিপ" },
+  ],
+  career: [
+    { slug: "early-career", label: "আর্লি ক্যারিয়ার" },
+    { slug: "mid-career", label: "মিড ক্যারিয়ার" },
+    { slug: "top-executive", label: "টপ এক্সিকিউটিভ" },
+  ],
+  communication: [
+    { slug: "public-speaking", label: "পাবলিক স্পিকিং" },
+    { slug: "writing-skills", label: "লেখনী দক্ষতা" },
+    { slug: "interpersonal", label: "ইন্টারপারসোনাল যোগাযোগ" },
+  ],
+  mindset: [
+    { slug: "habit-building", label: "অভ্যাস গঠন" },
+    { slug: "confidence", label: "আত্মবিশ্বাস" },
+    { slug: "stress-emotion", label: "স্ট্রেস ও ইমোশন" },
+  ],
+};
+
 const AUTHORS = [
   "নূর রহমান",
   "ফারহানা আক্তার",
@@ -226,6 +280,7 @@ const raw: Omit<BlogPost, "id" | "slug" | "colorFrom" | "colorTo">[] = TOPIC_CON
       date: DATES[(topicIndex * 5 + i) % DATES.length],
       category: topic.category,
       topicSlug: topic.slug,
+      segmentSlug: SEGMENTS[topic.slug][i % SEGMENTS[topic.slug].length].slug,
       featured: i === 0,
       readMinutes: 4 + ((topicIndex + i * 2) % 5),
     }))
@@ -247,8 +302,8 @@ export function getBlogPostBySlug(slug: string): BlogPost | undefined {
   return blogPosts.find((p) => p.slug === slug);
 }
 
-export function getPostsByTopic(topicSlug: string): BlogPost[] {
-  return blogPosts.filter((p) => p.topicSlug === topicSlug);
+export function getPostsByTopic(topicSlug: string, segmentSlug?: string): BlogPost[] {
+  return blogPosts.filter((p) => p.topicSlug === topicSlug && (!segmentSlug || p.segmentSlug === segmentSlug));
 }
 
 export function getFeaturedPosts(limit = 3): BlogPost[] {

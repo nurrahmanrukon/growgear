@@ -156,12 +156,6 @@ export function Header() {
       {/* Category nav bar (layer 1) — always visible, directly below the search box */}
       <div style={{ background: "#232f3e" }} className="text-white">
         <div className="container-page flex items-center gap-x-3 gap-y-1.5 overflow-x-auto py-2 text-sm scrollbar-none lg:flex-wrap lg:gap-x-5">
-          <button
-            onClick={() => setMobileOpen((v) => !v)}
-            className="flex shrink-0 items-center gap-1.5 rounded border border-transparent px-1.5 py-1 font-medium hover:border-white/40"
-          >
-            <Menu size={16} /> সব
-          </button>
           {navLinks.map((link) => (
             <Link
               key={link.href}
