@@ -12,6 +12,7 @@ export function LandingHero({ product }: { product: Product }) {
   const [showSample, setShowSample] = useState(false);
   const demand = getLiveDemand(product);
   const headline = getHeroHeadline(product);
+  const isEbook = product.category === "ebook";
 
   return (
     <section
@@ -20,7 +21,7 @@ export function LandingHero({ product }: { product: Product }) {
     >
       <div className="container-page flex flex-wrap items-center justify-center gap-3 pt-6 pb-6">
         <span className="rounded-full bg-rose-500/90 px-3.5 py-1.5 text-xs font-semibold text-white">
-          অল্প কিছু কপি বাকি
+          {isEbook ? "⚡ পেমেন্টের সাথে সাথেই ডাউনলোড লিংক" : "অল্প কিছু কপি বাকি"}
         </span>
         <span className="flex items-center gap-1.5 rounded-full border border-white/25 bg-white/10 px-3.5 py-1.5 text-xs font-medium text-white">
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
@@ -53,18 +54,27 @@ export function LandingHero({ product }: { product: Product }) {
           {headline}
         </h2>
 
-        <div className="mx-auto mt-6 max-w-xl">
-          <div className="flex items-center justify-between text-xs font-medium text-white/85">
-            <span>🔥 আজকের স্টক দ্রুত শেষ হচ্ছে</span>
-            <span>অল্প কিছু কপি বাকি</span>
+        {isEbook ? (
+          <div className="mx-auto mt-6 max-w-xl text-center">
+            <p className="text-xs font-medium text-white/85 sm:text-sm">
+              📥 পেমেন্ট সম্পন্ন হওয়ার সাথে সাথেই সম্পূর্ণ ফাইল ডাউনলোড করতে পারবেন
+            </p>
+            <p className="mt-1.5 text-[11px] text-white/60">অপেক্ষা নেই — এখনই পড়া শুরু করতে পারবেন, যেকোনো ডিভাইসে</p>
           </div>
-          <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-white/15">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-amber-400 to-rose-500"
-              style={{ width: `${demand.stockSoldPercent}%` }}
-            />
+        ) : (
+          <div className="mx-auto mt-6 max-w-xl">
+            <div className="flex items-center justify-between text-xs font-medium text-white/85">
+              <span>🔥 আজকের স্টক দ্রুত শেষ হচ্ছে</span>
+              <span>অল্প কিছু কপি বাকি</span>
+            </div>
+            <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-white/15">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-amber-400 to-rose-500"
+                style={{ width: `${demand.stockSoldPercent}%` }}
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="mx-auto mt-5 flex max-w-xl items-center justify-center gap-3">
           <div className="flex -space-x-2">

@@ -5,6 +5,7 @@ interface RawItem {
   title: string;
   author?: string;
   price: number;
+  subcategorySlug?: string;
 }
 
 export function buildCatalog(
@@ -49,6 +50,7 @@ export function buildCatalog(
       bullets,
       specs: opts.specsBase,
       badge,
+      subcategorySlug: item.subcategorySlug,
       featured: i % 6 === 0,
       bestSeller: i % 11 === 0,
       inStock: i % 23 !== 22,

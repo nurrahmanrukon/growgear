@@ -24,12 +24,16 @@ export function ProductListing({
   products,
   basePath,
   initialBadge,
+  initialSubcategory,
+  subcategoryLabel,
 }: {
   title: string;
   description: string;
   products: Product[];
   basePath?: string;
   initialBadge?: string;
+  initialSubcategory?: string;
+  subcategoryLabel?: string;
 }) {
   const [sortBy, setSortBy] = useState<SortKey>("featured");
   const [priceBandIndex, setPriceBandIndex] = useState(0);
@@ -43,7 +47,8 @@ export function ProductListing({
         p.price >= band.min &&
         p.price <= band.max &&
         p.rating >= minRating &&
-        (!initialBadge || p.badge === initialBadge)
+        (!initialBadge || p.badge === initialBadge) &&
+        (!initialSubcategory || p.subcategorySlug === initialSubcategory)
     );
     switch (sortBy) {
       case "price-asc":
@@ -59,7 +64,7 @@ export function ProductListing({
         list = [...list].sort((a, b) => Number(b.featured) - Number(a.featured));
     }
     return list;
-  }, [products, sortBy, priceBandIndex, minRating, initialBadge]);
+  }, [products, sortBy, priceBandIndex, minRating, initialBadge, initialSubcategory]);
 
   const activeFilterCount = (priceBandIndex > 0 ? 1 : 0) + (minRating > 0 ? 1 : 0);
 
@@ -68,11 +73,18 @@ export function ProductListing({
       <h1 className="text-xl font-bold text-foreground sm:text-2xl">{title}</h1>
       <p className="mt-1 text-sm text-ink-soft">{description}</p>
 
-      {initialBadge && (
+      {(initialBadge || subcategoryLabel) && (
         <div className="mt-2 flex items-center gap-1.5">
-          <span className="rounded-full bg-primary-light px-2.5 py-1 text-xs font-medium text-primary-dark">
-            {initialBadge}
-          </span>
+          {subcategoryLabel && (
+            <span className="rounded-full bg-primary-light px-2.5 py-1 text-xs font-medium text-primary-dark">
+              {subcategoryLabel}
+            </span>
+          )}
+          {initialBadge && (
+            <span className="rounded-full bg-primary-light px-2.5 py-1 text-xs font-medium text-primary-dark">
+              {initialBadge}
+            </span>
+          )}
           {basePath && (
             <Link href={basePath} className="flex items-center gap-0.5 text-xs text-ink-faint hover:text-foreground">
               <X size={12} /> ফিল্টার সরান

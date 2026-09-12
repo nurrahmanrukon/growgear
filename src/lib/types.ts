@@ -20,6 +20,7 @@ export interface Product {
   bullets: string[];
   specs: ProductSpec[];
   badge?: string;
+  subcategorySlug?: string;
   featured?: boolean;
   bestSeller?: boolean;
   inStock: boolean;

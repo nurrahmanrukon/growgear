@@ -8,12 +8,21 @@ import clsx from "clsx";
 import { useCartStore, useHasHydrated } from "@/store/cart";
 import { toBengaliNumber } from "@/lib/format";
 import { TOPICS } from "@/lib/data/blog";
+import { GEAR_SUBCATEGORIES } from "@/lib/data/gear";
 
 const productSub = (basePath: string) => [
   { label: `সব ${basePath === "/books" ? "বই" : basePath === "/ebooks" ? "ইবুক" : "গিয়ার"}`, href: basePath },
   { label: "বেস্ট সেলার", href: `${basePath}?badge=${encodeURIComponent("বেস্ট সেলার")}` },
   { label: "নতুন", href: `${basePath}?badge=${encodeURIComponent("নতুন")}` },
   { label: "অফার", href: `${basePath}?badge=${encodeURIComponent("লিমিটেড অফার")}` },
+];
+
+const gearSub = [
+  { label: "সব গিয়ার", href: "/gear" },
+  ...GEAR_SUBCATEGORIES.map((c) => ({ label: c.label, href: `/gear?category=${c.slug}` })),
+  { label: "বেস্ট সেলার", href: `/gear?badge=${encodeURIComponent("বেস্ট সেলার")}` },
+  { label: "নতুন", href: `/gear?badge=${encodeURIComponent("নতুন")}` },
+  { label: "অফার", href: `/gear?badge=${encodeURIComponent("লিমিটেড অফার")}` },
 ];
 
 const navLinks: { key: string; label: string; href: string; sub?: { label: string; href: string }[] }[] = [
@@ -30,7 +39,7 @@ const navLinks: { key: string; label: string; href: string; sub?: { label: strin
   },
   { key: "book", label: "বই", href: "/books", sub: productSub("/books") },
   { key: "ebook", label: "ইবুক", href: "/ebooks", sub: productSub("/ebooks") },
-  { key: "gear", label: "গিয়ার", href: "/gear", sub: productSub("/gear") },
+  { key: "gear", label: "গিয়ার", href: "/gear", sub: gearSub },
   { key: "course", label: "কোর্স", href: "/course", sub: [{ label: "সব কোর্স", href: "/course" }] },
   {
     key: "blog",
