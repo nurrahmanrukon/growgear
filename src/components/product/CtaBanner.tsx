@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { CheckCircle2 } from "lucide-react";
 import { Product } from "@/lib/types";
 import { formatTaka, discountPercent } from "@/lib/format";
 import { useCartStore } from "@/store/cart";
+import { QuickOrderModal } from "@/components/product/QuickOrderModal";
 
 export function CtaBanner({
   product,
@@ -16,15 +16,10 @@ export function CtaBanner({
   heading: string;
   sub?: string;
 }) {
-  const router = useRouter();
   const addItem = useCartStore((s) => s.addItem);
   const [added, setAdded] = useState(false);
+  const [showOrder, setShowOrder] = useState(false);
   const discount = discountPercent(product.price, product.oldPrice);
-
-  function handleBuyNow() {
-    addItem(product, 1);
-    router.push("/checkout");
-  }
 
   function handleAddToCart() {
     addItem(product, 1);
@@ -45,7 +40,7 @@ export function CtaBanner({
         </div>
         <div className="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row">
           <button
-            onClick={handleBuyNow}
+            onClick={() => setShowOrder(true)}
             className="rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-primary-dark"
           >
             এখনই কিনুন
@@ -64,6 +59,7 @@ export function CtaBanner({
           </button>
         </div>
       </div>
+      <QuickOrderModal product={product} open={showOrder} onClose={() => setShowOrder(false)} />
     </section>
   );
 }

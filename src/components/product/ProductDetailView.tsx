@@ -20,6 +20,7 @@ import { StickyMobileCta } from "@/components/product/StickyMobileCta";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { LandingHero } from "@/components/product/LandingHero";
 import { LandingHeroTitleBar } from "@/components/product/LandingHeroTitleBar";
+import { InlineCtaBar } from "@/components/product/InlineCtaBar";
 import { categoryMeta } from "@/lib/data/products";
 
 function SpecsSection({ product }: { product: Product }) {
@@ -70,11 +71,15 @@ export function ProductDetailView({
           <LandingHeroTitleBar product={product} />
 
           <VideoSection product={product} />
+          <InlineCtaBar product={product} />
 
           <ExpertOpinionsSection product={product} />
+          <InlineCtaBar product={product} />
 
           <SocialProofScreenshotsSection product={product} />
+          <InlineCtaBar product={product} />
           <PainPointsSection product={product} />
+          <InlineCtaBar product={product} />
 
           <CtaBanner
             product={product}
@@ -83,7 +88,9 @@ export function ProductDetailView({
           />
 
           <AuthorBioSection product={product} />
+          <InlineCtaBar product={product} />
           <KeyIdeasSection product={product} />
+          <InlineCtaBar product={product} />
 
           <CtaBanner
             product={product}
@@ -92,11 +99,16 @@ export function ProductDetailView({
           />
 
           <TransformationSection product={product} />
+          <InlineCtaBar product={product} />
           <FaqSection product={product} />
+          <InlineCtaBar product={product} />
           <QuoteBanner product={product} />
+          <InlineCtaBar product={product} />
           <FinalOrderSection product={product} />
           <EditorialVideoReviewSection product={product} />
+          <InlineCtaBar product={product} />
           <ReviewsSection product={product} />
+          <InlineCtaBar product={product} />
         </>
       ) : (
         <>
@@ -125,9 +137,13 @@ export function ProductDetailView({
           </section>
 
           <VideoSection product={product} />
+          <InlineCtaBar product={product} />
           <ReviewsSection product={product} />
+          <InlineCtaBar product={product} />
           <StorySection product={product} />
+          <InlineCtaBar product={product} />
           <SpecsSection product={product} />
+          <InlineCtaBar product={product} />
         </>
       )}
 

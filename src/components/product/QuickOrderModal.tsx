@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Banknote, CreditCard, Smartphone } from "lucide-react";
 import { Product } from "@/lib/types";
 import { formatTaka, toBengaliNumber } from "@/lib/format";
 import { Modal } from "@/components/ui/Modal";
@@ -10,6 +11,13 @@ import { Button } from "@/components/ui/Button";
 const AREAS = ["ঢাকার ভিতরে", "ঢাকার বাইরে"];
 const DELIVERY_FEES: Record<string, number> = { "ঢাকার ভিতরে": 70, "ঢাকার বাইরে": 130 };
 const QUANTITIES = [1, 2, 3, 4, 5];
+
+type PaymentMethod = "cod" | "bkash" | "card";
+const PAYMENT_METHODS: { id: PaymentMethod; label: string; icon: typeof Banknote; enabled: boolean }[] = [
+  { id: "cod", label: "ক্যাশ অন ডেলিভারি", icon: Banknote, enabled: true },
+  { id: "bkash", label: "বিকাশ", icon: Smartphone, enabled: false },
+  { id: "card", label: "কার্ড", icon: CreditCard, enabled: false },
+];
 
 export function QuickOrderModal({
   product,
@@ -26,6 +34,7 @@ export function QuickOrderModal({
   const [address, setAddress] = useState("");
   const [area, setArea] = useState(AREAS[0]);
   const [quantity, setQuantity] = useState(1);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,7 +54,7 @@ export function QuickOrderModal({
           phone,
           address,
           area,
-          paymentMethod: "cod",
+          paymentMethod,
           items: [{ productId: product.id, title: product.title, price: product.price, quantity }],
         }),
       });
@@ -118,6 +127,31 @@ export function QuickOrderModal({
               </option>
             ))}
           </select>
+        </div>
+
+        <div>
+          <span className="mb-1.5 block text-xs text-ink-soft">পেমেন্ট পদ্ধতি</span>
+          <div className="grid grid-cols-3 gap-2">
+            {PAYMENT_METHODS.map((m) => {
+              const Icon = m.icon;
+              const active = paymentMethod === m.id;
+              return (
+                <button
+                  key={m.id}
+                  type="button"
+                  disabled={!m.enabled}
+                  onClick={() => setPaymentMethod(m.id)}
+                  className={`flex flex-col items-center gap-1 rounded-md border px-2 py-2 text-center text-[11px] transition ${
+                    active ? "border-primary bg-primary-light text-primary" : "border-border text-ink-soft"
+                  } ${m.enabled ? "hover:border-primary/50" : "cursor-not-allowed opacity-50"}`}
+                >
+                  <Icon size={15} />
+                  <span className="font-medium">{m.label}</span>
+                  {!m.enabled && <span className="text-[9px] text-ink-faint">শীঘ্রই যুক্ত হবে</span>}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         <div className="flex items-center justify-between rounded bg-surface-muted px-3 py-2 text-xs text-ink-soft">
