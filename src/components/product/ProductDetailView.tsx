@@ -62,8 +62,12 @@ export function ProductDetailView({
         sub="এখনই অর্ডার করে আজকের সিদ্ধান্তটা বদলে ফেলুন"
       />
 
-      <AuthorBioSection product={product} />
-      <InlineCtaBar product={product} />
+      {isReadable && (
+        <>
+          <AuthorBioSection product={product} />
+          <InlineCtaBar product={product} />
+        </>
+      )}
       <KeyIdeasSection product={product} />
       <InlineCtaBar product={product} />
 

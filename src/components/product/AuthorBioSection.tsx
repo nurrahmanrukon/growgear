@@ -11,7 +11,6 @@ const PHOTO_COUNT = 10;
 export function AuthorBioSection({ product }: { product: Product }) {
   const author = getAuthorProfile(product);
   const trackRef = useRef<HTMLDivElement>(null);
-  const sectionLabel = product.category === "gear" ? "যারা তৈরি করেছে" : "যিনি লিখেছেন";
 
   function scrollByPhoto(direction: 1 | -1) {
     const track = trackRef.current;
@@ -25,7 +24,7 @@ export function AuthorBioSection({ product }: { product: Product }) {
     <section className="border-y border-border bg-surface-muted py-10">
       <div className="container-page">
         <div className="mx-auto max-w-md text-center">
-          <p className="text-xs font-medium uppercase tracking-wide text-primary">{sectionLabel}</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-primary">যিনি লিখেছেন</p>
 
           <div className="relative mt-4">
             <div

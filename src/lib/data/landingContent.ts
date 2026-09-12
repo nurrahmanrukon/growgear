@@ -69,19 +69,6 @@ export function getAuthorProfile(product: Product): AuthorProfile {
   const readers = 8 + (Math.floor(seed / 7) % 40);
   const sessions = 30 + (Math.floor(seed / 13) % 250);
 
-  if (product.category === "gear") {
-    return {
-      name,
-      title: "প্রোডাক্ট ডিজাইন টিম",
-      bio: `${name} দীর্ঘদিন ধরে প্রোডাক্টিভিটি এক্সেসরি নিয়ে কাজ করছে — প্রতিদিনের ব্যবহারকারীদের ফিডব্যাক, মানসম্পন্ন উপকরণ আর সহজ ডিজাইনের সমন্বয়ে তৈরি হয়েছে "${product.title}"। কোনো অপ্রয়োজনীয় ফিচার নেই, যা রাখা হয়েছে তার প্রতিটাই কাজে লাগে।`,
-      stats: [
-        { label: "বছরের অভিজ্ঞতা", value: `${years}+` },
-        { label: "হাজার ব্যবহারকারী", value: `${readers}+` },
-        { label: "কোয়ালিটি চেক", value: `${sessions}+` },
-      ],
-    };
-  }
-
   return {
     name,
     title:

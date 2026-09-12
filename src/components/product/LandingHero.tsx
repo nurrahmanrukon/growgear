@@ -7,12 +7,14 @@ import { getLiveDemand, getHeroHeadline } from "@/lib/data/landingContent";
 import { toBengaliNumber } from "@/lib/format";
 import { ProductImage } from "@/components/ui/ProductImage";
 import { SampleReadModal } from "@/components/product/SampleReadModal";
+import { ProductImageGallery } from "@/components/product/ProductImageGallery";
 
 export function LandingHero({ product }: { product: Product }) {
   const [showSample, setShowSample] = useState(false);
   const demand = getLiveDemand(product);
   const headline = getHeroHeadline(product);
   const isEbook = product.category === "ebook";
+  const isGear = product.category === "gear";
   const isReadable = product.category === "book" || product.category === "ebook";
 
   return (
@@ -31,14 +33,18 @@ export function LandingHero({ product }: { product: Product }) {
       </div>
 
       <div className="container-page flex justify-center pb-2">
-        <ProductImage
-          title={product.title}
-          category={product.category}
-          colorFrom={product.colorFrom}
-          colorTo={product.colorTo}
-          iconSize={56}
-          className="aspect-[3/4] w-48 rounded-lg shadow-2xl sm:w-56"
-        />
+        {isGear ? (
+          <ProductImageGallery product={product} />
+        ) : (
+          <ProductImage
+            title={product.title}
+            category={product.category}
+            colorFrom={product.colorFrom}
+            colorTo={product.colorTo}
+            iconSize={56}
+            className="aspect-[3/4] w-48 rounded-lg shadow-2xl sm:w-56"
+          />
+        )}
       </div>
 
       {isReadable && (
