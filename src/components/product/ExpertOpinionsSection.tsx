@@ -4,13 +4,9 @@ import { useState } from "react";
 import { BadgeCheck, ImageIcon, Play } from "lucide-react";
 import { Product } from "@/lib/types";
 import { ExpertOpinion, getExpertOpinions, getExpertVideoOpinions } from "@/lib/data/landingContent";
-import { toBengaliNumber } from "@/lib/format";
 import { StarRating } from "@/components/ui/StarRating";
 import { Modal } from "@/components/ui/Modal";
 
-type Tab = "text" | "video" | "mixed";
-
-const SEGMENT_COUNT = 7;
 const MIXED_PREVIEW_COUNT = 3;
 
 function ExpertCardShell({
@@ -104,13 +100,9 @@ function VideoReviewCard({
 }
 
 export function ExpertOpinionsSection({ product }: { product: Product }) {
-  const textReviews = getExpertOpinions(product, SEGMENT_COUNT);
-  const videoReviews = getExpertVideoOpinions(product, SEGMENT_COUNT);
-  const [tab, setTab] = useState<Tab>("mixed");
+  const textReviews = getExpertOpinions(product, MIXED_PREVIEW_COUNT);
+  const videoReviews = getExpertVideoOpinions(product, MIXED_PREVIEW_COUNT);
   const [playingVideo, setPlayingVideo] = useState<ExpertOpinion | null>(null);
-
-  const visibleText = tab === "video" ? [] : tab === "text" ? textReviews : textReviews.slice(0, MIXED_PREVIEW_COUNT);
-  const visibleVideo = tab === "text" ? [] : tab === "video" ? videoReviews : videoReviews.slice(0, MIXED_PREVIEW_COUNT);
 
   return (
     <section className="border-y border-border bg-surface-muted py-10">
@@ -122,44 +114,11 @@ export function ExpertOpinionsSection({ product }: { product: Product }) {
           </h2>
         </div>
 
-        <div className="mt-6 flex items-center justify-center gap-2">
-          <button
-            onClick={() => setTab("text")}
-            className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition ${
-              tab === "text"
-                ? "bg-primary text-white"
-                : "border border-border bg-surface text-ink-soft hover:border-primary hover:text-primary"
-            }`}
-          >
-            টেক্সট রিভিউ ({toBengaliNumber(SEGMENT_COUNT)})
-          </button>
-          <button
-            onClick={() => setTab("video")}
-            className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition ${
-              tab === "video"
-                ? "bg-primary text-white"
-                : "border border-border bg-surface text-ink-soft hover:border-primary hover:text-primary"
-            }`}
-          >
-            ভিডিও রিভিউ ({toBengaliNumber(SEGMENT_COUNT)})
-          </button>
-          <button
-            onClick={() => setTab("mixed")}
-            className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition ${
-              tab === "mixed"
-                ? "bg-primary text-white"
-                : "border border-border bg-surface text-ink-soft hover:border-primary hover:text-primary"
-            }`}
-          >
-            সেগমেন্ট ৩
-          </button>
-        </div>
-
         <div className="mx-auto mt-6 flex max-w-xl flex-col gap-4">
-          {visibleText.map((e, i) => (
+          {textReviews.map((e, i) => (
             <TextReviewCard key={`t-${i}`} expert={e} product={product} />
           ))}
-          {visibleVideo.map((e, i) => (
+          {videoReviews.map((e, i) => (
             <VideoReviewCard key={`v-${i}`} expert={e} product={product} onPlay={() => setPlayingVideo(e)} />
           ))}
         </div>
