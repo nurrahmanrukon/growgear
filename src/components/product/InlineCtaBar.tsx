@@ -20,27 +20,29 @@ export function InlineCtaBar({ product }: { product: Product }) {
   }
 
   return (
-    <div className="container-page flex flex-col items-center justify-center gap-2.5 py-6 sm:flex-row">
-      <button
-        onClick={() => setShowOrder(true)}
-        className="w-full rounded-md bg-primary px-8 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-dark sm:w-auto"
-      >
-        এখনই কিনুন
-      </button>
-      <button
-        onClick={handleAddToCart}
-        className="w-full rounded-md border border-primary px-8 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary-light sm:w-auto"
-      >
-        {added ? (
-          <span className="flex items-center justify-center gap-1.5">
-            <CheckCircle2 size={16} /> কার্টে যোগ হয়েছে
-          </span>
-        ) : (
-          "কার্টে যোগ করুন"
-        )}
-      </button>
+    <div className="border-y border-border bg-surface-muted">
+      <div className="container-page flex flex-col items-center justify-center gap-2.5 py-8 sm:flex-row">
+        <button
+          onClick={() => setShowOrder(true)}
+          className="w-full rounded-md bg-cta px-8 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-cta-dark sm:w-auto"
+        >
+          এখনই কিনুন
+        </button>
+        <button
+          onClick={handleAddToCart}
+          className="w-full rounded-md border border-primary px-8 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary-light sm:w-auto"
+        >
+          {added ? (
+            <span className="flex items-center justify-center gap-1.5">
+              <CheckCircle2 size={16} /> কার্টে যোগ হয়েছে
+            </span>
+          ) : (
+            "কার্টে যোগ করুন"
+          )}
+        </button>
 
-      <QuickOrderModal product={product} open={showOrder} onClose={() => setShowOrder(false)} />
+        <QuickOrderModal product={product} open={showOrder} onClose={() => setShowOrder(false)} />
+      </div>
     </div>
   );
 }

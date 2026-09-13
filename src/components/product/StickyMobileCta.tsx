@@ -28,7 +28,7 @@ export function StickyMobileCta({ product }: { product: Product }) {
       </div>
       <button
         onClick={() => setShowOrder(true)}
-        className="shrink-0 rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-dark"
+        className="shrink-0 rounded-md bg-cta px-5 py-2.5 text-sm font-semibold text-white hover:bg-cta-dark"
       >
         এখনই কিনুন
       </button>

@@ -43,13 +43,13 @@ export function FinalOrderSection({ product }: { product: Product }) {
           <div className="mt-6 flex flex-col items-center justify-center gap-2 sm:flex-row">
             <button
               onClick={() => setShowOrder(true)}
-              className="inline-flex items-center justify-center gap-2 rounded-md bg-white px-8 py-3 text-sm font-semibold text-primary-dark shadow-sm transition hover:bg-white/90"
+              className="inline-flex w-56 items-center justify-center gap-2 rounded-md bg-cta px-8 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-cta-dark"
             >
               এখনই কিনুন
             </button>
             <button
               onClick={handleAddToCart}
-              className="inline-flex items-center justify-center gap-2 rounded-md border border-white/40 px-8 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+              className="inline-flex w-56 items-center justify-center gap-2 rounded-md border border-white/40 px-8 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
             >
               {added ? (
                 <span className="flex items-center gap-1.5">

@@ -63,7 +63,7 @@ export function AuthorBioSection({ product }: { product: Product }) {
           <p className="text-sm text-ink-faint">{author.title}</p>
           <p className="mt-3 text-sm leading-relaxed text-ink-soft">{author.bio}</p>
 
-          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
             {author.stats.map((s) => (
               <div key={s.label} className="rounded-lg border-b-4 border-star bg-surface p-3">
                 <p className="font-display text-xl font-bold text-foreground">{s.value}</p>

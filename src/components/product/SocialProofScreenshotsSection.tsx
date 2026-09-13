@@ -1,4 +1,7 @@
-import { ThumbsUp, Heart, MessageCircle, Send } from "lucide-react";
+"use client";
+
+import { useEffect, useState } from "react";
+import { ThumbsUp, Heart, MessageCircle, Send, X } from "lucide-react";
 import { Product } from "@/lib/types";
 import { PERSON_NAMES, hashString } from "@/lib/data/social";
 import { toBengaliNumber } from "@/lib/format";
@@ -14,6 +17,15 @@ const SOCIAL_COMMENTS = [
   (t: string) => `"${t}" নিয়ে আমার রিভিউ — সত্যিই দাম উসুল, কোনো কমপ্লেইন নাই।`,
 ];
 
+interface SocialPost {
+  name: string;
+  platform: Platform;
+  text: string;
+  likes: number;
+  hoursAgo: number;
+  seed: number;
+}
+
 function initials(name: string) {
   return name.trim().charAt(0);
 }
@@ -22,7 +34,7 @@ function handleFor(name: string, seed: number) {
   return "@" + name.replace(/\s+/g, "").toLowerCase() + (10 + (seed % 89));
 }
 
-function socialProofPosts(product: Product, count: number) {
+function socialProofPosts(product: Product, count: number): SocialPost[] {
   const base = hashString(product.id + "social");
   const platforms: Platform[] = ["facebook", "instagram", "whatsapp"];
   return Array.from({ length: count }).map((_, i) => {
@@ -36,27 +48,35 @@ function socialProofPosts(product: Product, count: number) {
   });
 }
 
-function FacebookMock({ name, text, likes, hoursAgo, seed }: { name: string; text: string; likes: number; hoursAgo: number; seed: number }) {
+function FacebookMock({ name, text, likes, hoursAgo, seed, large }: SocialPost & { large?: boolean }) {
   return (
-    <div className="rounded-md border border-border bg-surface p-2.5 text-left shadow-sm">
+    <div className={`rounded-md border border-border bg-surface text-left shadow-sm ${large ? "p-4" : "p-2.5"}`}>
       <div>
         <div className="flex items-center gap-1.5">
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#e7f0fe] text-[11px] font-bold text-[#1877F2]">
+          <div
+            className={`flex shrink-0 items-center justify-center rounded-full bg-[#e7f0fe] font-bold text-[#1877F2] ${
+              large ? "h-10 w-10 text-sm" : "h-7 w-7 text-[11px]"
+            }`}
+          >
             {initials(name)}
           </div>
           <div className="min-w-0">
-            <p className="truncate text-[11px] font-semibold text-foreground">{name}</p>
-            <p className="text-[9px] text-ink-faint">{toBengaliNumber(hoursAgo)} ঘণ্টা আগে</p>
+            <p className={`truncate font-semibold text-foreground ${large ? "text-sm" : "text-[11px]"}`}>{name}</p>
+            <p className={`text-ink-faint ${large ? "text-xs" : "text-[9px]"}`}>{toBengaliNumber(hoursAgo)} ঘণ্টা আগে</p>
           </div>
           <span className="ml-auto shrink-0 text-[#1877F2]">
-            <MessageCircle size={13} />
+            <MessageCircle size={large ? 18 : 13} />
           </span>
         </div>
-        <p className="mt-2 line-clamp-4 text-[11px] leading-snug text-foreground">{text}</p>
+        <p className={`mt-2 leading-snug text-foreground ${large ? "text-sm" : "text-[11px] line-clamp-4"}`}>{text}</p>
       </div>
-      <div className="mt-2 flex items-center gap-3 border-t border-border pt-1.5 text-[9px] font-medium text-ink-faint">
+      <div
+        className={`mt-2 flex items-center gap-3 border-t border-border pt-1.5 font-medium text-ink-faint ${
+          large ? "text-xs" : "text-[9px]"
+        }`}
+      >
         <span className="flex items-center gap-1 text-[#1877F2]">
-          <ThumbsUp size={10} fill="currentColor" /> {toBengaliNumber(likes)}
+          <ThumbsUp size={large ? 13 : 10} fill="currentColor" /> {toBengaliNumber(likes)}
         </span>
         <span>উত্তর দিন</span>
         <span className="ml-auto text-ink-faint/70">{seed % 2 === 0 ? "১২" : "৮"} মন্তব্য</span>
@@ -65,44 +85,52 @@ function FacebookMock({ name, text, likes, hoursAgo, seed }: { name: string; tex
   );
 }
 
-function InstagramMock({ name, text, likes, seed }: { name: string; text: string; likes: number; seed: number }) {
+function InstagramMock({ name, text, likes, seed, large }: SocialPost & { large?: boolean }) {
   return (
-    <div className="rounded-md border border-border bg-surface p-2.5 text-left shadow-sm">
+    <div className={`rounded-md border border-border bg-surface text-left shadow-sm ${large ? "p-4" : "p-2.5"}`}>
       <div>
         <div className="flex items-center gap-1.5">
           <div
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full p-[1.5px]"
+            className={`flex shrink-0 items-center justify-center rounded-full p-[1.5px] ${large ? "h-10 w-10" : "h-7 w-7"}`}
             style={{ background: "linear-gradient(135deg,#f9ce34,#ee2a7b,#6228d7)" }}
           >
-            <div className="flex h-full w-full items-center justify-center rounded-full bg-surface text-[10px] font-bold text-foreground">
+            <div
+              className={`flex h-full w-full items-center justify-center rounded-full bg-surface font-bold text-foreground ${
+                large ? "text-sm" : "text-[10px]"
+              }`}
+            >
               {initials(name)}
             </div>
           </div>
-          <p className="truncate text-[11px] font-semibold text-foreground">{handleFor(name, seed)}</p>
+          <p className={`truncate font-semibold text-foreground ${large ? "text-sm" : "text-[11px]"}`}>
+            {handleFor(name, seed)}
+          </p>
         </div>
-        <p className="mt-2 line-clamp-4 text-[11px] leading-snug text-foreground">{text}</p>
+        <p className={`mt-2 leading-snug text-foreground ${large ? "text-sm" : "text-[11px] line-clamp-4"}`}>{text}</p>
       </div>
       <div className="mt-2 flex items-center gap-2.5 border-t border-border pt-1.5 text-ink-faint">
-        <Heart size={13} className="text-[#ee2a7b]" fill="#ee2a7b" />
-        <MessageCircle size={13} />
-        <Send size={13} />
-        <span className="ml-auto text-[9px] font-medium">{toBengaliNumber(likes)} লাইক</span>
+        <Heart size={large ? 18 : 13} className="text-[#ee2a7b]" fill="#ee2a7b" />
+        <MessageCircle size={large ? 18 : 13} />
+        <Send size={large ? 18 : 13} />
+        <span className={`ml-auto font-medium ${large ? "text-xs" : "text-[9px]"}`}>{toBengaliNumber(likes)} লাইক</span>
       </div>
     </div>
   );
 }
 
-function WhatsAppMock({ name, text, hoursAgo }: { name: string; text: string; hoursAgo: number }) {
+function WhatsAppMock({ name, text, hoursAgo, large }: SocialPost & { large?: boolean }) {
   return (
-    <div className="rounded-md border border-border p-2.5 shadow-sm" style={{ background: "#e9f5e1" }}>
-      <div className="ml-auto max-w-[92%] rounded-lg rounded-tr-sm bg-[#dcf8c6] px-2.5 py-2 text-left shadow-sm">
-        <p className="text-[10px] font-semibold" style={{ color: "#075e54" }}>
+    <div className={`rounded-md border border-border shadow-sm ${large ? "p-4" : "p-2.5"}`} style={{ background: "#e9f5e1" }}>
+      <div
+        className={`ml-auto max-w-[92%] rounded-lg rounded-tr-sm bg-[#dcf8c6] text-left shadow-sm ${large ? "px-4 py-3" : "px-2.5 py-2"}`}
+      >
+        <p className={`font-semibold ${large ? "text-sm" : "text-[10px]"}`} style={{ color: "#075e54" }}>
           {name}
         </p>
-        <p className="mt-0.5 line-clamp-4 text-[11px] leading-snug text-foreground">{text}</p>
-        <p className="mt-1 flex items-center justify-end gap-1 text-[9px] text-ink-faint">
+        <p className={`mt-0.5 leading-snug text-foreground ${large ? "text-sm" : "text-[11px] line-clamp-4"}`}>{text}</p>
+        <p className={`mt-1 flex items-center justify-end gap-1 text-ink-faint ${large ? "text-xs" : "text-[9px]"}`}>
           {toBengaliNumber(hoursAgo)} ঘণ্টা আগে
-          <svg viewBox="0 0 16 11" width="13" height="9" fill="#34b7f1">
+          <svg viewBox="0 0 16 11" width={large ? 16 : 13} height={large ? 11 : 9} fill="#34b7f1">
             <path d="M11.1 0.4 5.5 6.9 3 4.4 1.6 5.8l3.9 4L12.5 1.8Z" />
             <path d="M15 0.4 9.4 6.9 8.6 6l-1.4 1.4 1.5 1.6L16.4 1.8Z" />
           </svg>
@@ -112,8 +140,30 @@ function WhatsAppMock({ name, text, hoursAgo }: { name: string; text: string; ho
   );
 }
 
+function SocialMock({ post, large }: { post: SocialPost; large?: boolean }) {
+  if (post.platform === "facebook") return <FacebookMock {...post} large={large} />;
+  if (post.platform === "instagram") return <InstagramMock {...post} large={large} />;
+  return <WhatsAppMock {...post} large={large} />;
+}
+
+const PLATFORM_LABEL: Record<Platform, string> = {
+  facebook: "ফেসবুক",
+  instagram: "ইনস্টাগ্রাম",
+  whatsapp: "হোয়াটসঅ্যাপ",
+};
+
 export function SocialProofScreenshotsSection({ product }: { product: Product }) {
   const posts = socialProofPosts(product, 6);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (activeIndex === null) return;
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setActiveIndex(null);
+    }
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [activeIndex]);
 
   return (
     <section className="container-page py-10">
@@ -129,13 +179,56 @@ export function SocialProofScreenshotsSection({ product }: { product: Product })
 
       <div className="mx-auto mt-6 grid max-w-3xl grid-cols-2 items-start gap-3 sm:grid-cols-3">
         {posts.map((post, i) => (
-          <div key={i}>
-            {post.platform === "facebook" && <FacebookMock {...post} />}
-            {post.platform === "instagram" && <InstagramMock {...post} />}
-            {post.platform === "whatsapp" && <WhatsAppMock {...post} />}
-          </div>
+          <button
+            key={i}
+            type="button"
+            onClick={() => setActiveIndex(i)}
+            aria-label="স্ক্রিনশট বড় করে দেখুন"
+            className="text-left transition hover:opacity-90"
+          >
+            <SocialMock post={post} />
+          </button>
         ))}
       </div>
+
+      {activeIndex !== null && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+          onClick={() => setActiveIndex(null)}
+        >
+          <div className="relative w-full max-w-sm" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setActiveIndex(null)}
+              aria-label="বন্ধ করুন"
+              className="absolute -top-11 right-0 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
+            >
+              <X size={18} />
+            </button>
+
+            <SocialMock post={posts[activeIndex]} large />
+
+            <div className="mt-4 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+              {posts.map((post, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setActiveIndex(i)}
+                  className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs transition ${
+                    i === activeIndex
+                      ? "border-cta bg-cta/10 text-cta"
+                      : "border-white/20 text-white/70 hover:border-white/40 hover:text-white"
+                  }`}
+                >
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/10 text-[10px] font-semibold">
+                    {initials(post.name)}
+                  </span>
+                  {PLATFORM_LABEL[post.platform]}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

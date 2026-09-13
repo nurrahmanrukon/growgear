@@ -41,7 +41,7 @@ export function CtaBanner({
         <div className="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row">
           <button
             onClick={() => setShowOrder(true)}
-            className="rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-primary-dark"
+            className="rounded-md bg-cta px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-cta-dark"
           >
             এখনই কিনুন
           </button>

@@ -68,6 +68,7 @@ export function getAuthorProfile(product: Product): AuthorProfile {
   const years = 6 + (seed % 12);
   const readers = 8 + (Math.floor(seed / 7) % 40);
   const sessions = 30 + (Math.floor(seed / 13) % 250);
+  const satisfaction = 92 + (Math.floor(seed / 19) % 8);
 
   return {
     name,
@@ -80,6 +81,7 @@ export function getAuthorProfile(product: Product): AuthorProfile {
       { label: "বছরের অভিজ্ঞতা", value: `${years}+` },
       { label: "হাজার পাঠক/শিক্ষার্থী", value: `${readers}+` },
       { label: "ওয়ার্কশপ/সেশন", value: `${sessions}+` },
+      { label: "সন্তুষ্টি হার", value: `${satisfaction}%` },
     ],
   };
 }

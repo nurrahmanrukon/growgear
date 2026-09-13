@@ -11,15 +11,19 @@
   --color-surface-muted: #efeee6;
   --color-border: #e1dfd2;
 
-  --color-primary: #3f6653;
-  --color-primary-dark: #2e4b3d;
-  --color-primary-light: #e6ede7;
+  --color-primary: #2a4570;
+  --color-primary-dark: #16294a;
+  --color-primary-light: #e8ecf4;
+
+  --color-cta: #16a34a;
+  --color-cta-dark: #15803d;
+  --color-cta-light: #e8f8ee;
 
   --color-price: #a2512f;
-  --color-success: #3f6653;
+  --color-success: var(--color-cta);
   --color-star: #c08a3e;
-  --color-link: #3f6653;
-  --color-link-hover: #2e4b3d;
+  --color-link: #2a4570;
+  --color-link-hover: #16294a;
 
   /* legacy token names kept so existing utility classes still resolve
      while components are migrated to the tokens above */
@@ -40,14 +44,17 @@
     --color-surface: #1d2018;
     --color-surface-muted: #242820;
     --color-border: #34372a;
-    --color-primary: #82ab90;
-    --color-primary-dark: #5e8770;
-    --color-primary-light: #263129;
+    --color-primary: #8fa8d6;
+    --color-primary-dark: #6b85b8;
+    --color-primary-light: #1b2740;
+    --color-cta: #34d399;
+    --color-cta-dark: #10b981;
+    --color-cta-light: #113023;
     --color-price: #de8f68;
-    --color-success: #82ab90;
+    --color-success: var(--color-cta);
     --color-star: #ddb15e;
-    --color-link: #82ab90;
-    --color-link-hover: #a9cdb4;
+    --color-link: #8fa8d6;
+    --color-link-hover: #aebfe3;
   }
 }
 
@@ -59,14 +66,17 @@
   --color-surface: #1d2018;
   --color-surface-muted: #242820;
   --color-border: #34372a;
-  --color-primary: #82ab90;
-  --color-primary-dark: #5e8770;
-  --color-primary-light: #263129;
+  --color-primary: #8fa8d6;
+  --color-primary-dark: #6b85b8;
+  --color-primary-light: #1b2740;
+  --color-cta: #34d399;
+  --color-cta-dark: #10b981;
+  --color-cta-light: #113023;
   --color-price: #de8f68;
-  --color-success: #82ab90;
+  --color-success: var(--color-cta);
   --color-star: #ddb15e;
-  --color-link: #82ab90;
-  --color-link-hover: #a9cdb4;
+  --color-link: #8fa8d6;
+  --color-link-hover: #aebfe3;
 }
 
 @theme inline {
@@ -82,6 +92,10 @@
   --color-primary: var(--color-primary);
   --color-primary-dark: var(--color-primary-dark);
   --color-primary-light: var(--color-primary-light);
+
+  --color-cta: var(--color-cta);
+  --color-cta-dark: var(--color-cta-dark);
+  --color-cta-light: var(--color-cta-light);
 
   --color-price: var(--color-price);
   --color-success: var(--color-success);
