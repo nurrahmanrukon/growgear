@@ -47,6 +47,7 @@ const navLinks: { key: string; label: string; href: string; sub?: { label: strin
     href: "/blog",
     sub: [{ label: "সব লেখা", href: "/blog" }, ...TOPICS.map((t) => ({ label: t.label, href: `/blog?topic=${t.slug}` }))],
   },
+  { key: "growguide", label: "GrowGuide", href: "/growguide" },
 ];
 
 function getActiveCategoryKey(pathname: string): string {
@@ -55,6 +56,7 @@ function getActiveCategoryKey(pathname: string): string {
   if (pathname.startsWith("/gear")) return "gear";
   if (pathname.startsWith("/course")) return "course";
   if (pathname.startsWith("/blog")) return "blog";
+  if (pathname.startsWith("/growguide")) return "growguide";
   return "home";
 }
 

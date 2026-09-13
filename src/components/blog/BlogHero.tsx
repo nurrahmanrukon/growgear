@@ -2,19 +2,28 @@
 
 import { FormEvent, useState } from "react";
 import Link from "next/link";
-import { Mail } from "lucide-react";
+import { CheckCircle2, Mail } from "lucide-react";
 import { BlogPost } from "@/lib/types";
+import { blogPosts } from "@/lib/data/blog";
 import { ArticleThumb } from "./ArticleThumb";
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const giftPost = blogPosts.find((p) => p.premium) ?? blogPosts[0];
 
 export function BlogHero({ featured }: { featured: BlogPost[] }) {
   const [email, setEmail] = useState("");
-  const [subscribed, setSubscribed] = useState(false);
+  const [emailError, setEmailError] = useState(false);
+  const [subscribedTo, setSubscribedTo] = useState<string | null>(null);
   const [hero, ...rest] = featured;
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!email.trim()) return;
-    setSubscribed(true);
+    if (!EMAIL_PATTERN.test(email.trim())) {
+      setEmailError(true);
+      return;
+    }
+    setEmailError(false);
+    setSubscribedTo(email.trim());
   }
 
   return (
@@ -32,24 +41,38 @@ export function BlogHero({ featured }: { featured: BlogPost[] }) {
           <div className="relative flex-1">
             <Mail size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint" />
             <input
-              type="email"
-              required
+              type="text"
+              inputMode="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setEmailError(false);
+              }}
               placeholder="আপনার ইমেইল"
-              className="w-full rounded-md border border-border bg-surface py-2 pl-9 pr-3 text-sm outline-none focus:ring-1 focus:ring-primary"
+              className={`w-full rounded-md border bg-surface py-2 pl-9 pr-3 text-sm outline-none focus:ring-1 focus:ring-primary ${
+                emailError ? "border-price" : "border-border"
+              }`}
             />
           </div>
           <button
             type="submit"
-            className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-dark"
+            className="rounded-md bg-cta px-4 py-2 text-sm font-semibold text-white hover:bg-cta-dark"
           >
-            {subscribed ? "সাবস্ক্রাইব হয়েছে ✓" : "সাবস্ক্রাইব করুন"}
+            {subscribedTo ? "সাবস্ক্রাইব হয়েছে ✓" : "সাবস্ক্রাইব করুন"}
           </button>
         </form>
-        <p className="mt-1.5 text-xs font-medium text-primary">
-          🎁 সাবস্ক্রাইব করলে উপহার হিসেবে একটি প্রিমিয়াম ব্লগ ফ্রি আনলক পাবেন!
-        </p>
+        {emailError && <p className="mt-1.5 text-xs font-medium text-price">সঠিক ইমেইল ঠিকানা দিন</p>}
+        {subscribedTo ? (
+          <p className="mt-1.5 flex items-center gap-1.5 text-xs font-medium text-primary">
+            <CheckCircle2 size={13} /> &ldquo;{giftPost.title}&rdquo; প্রিমিয়াম ব্লগটি {subscribedTo} ঠিকানায় পাঠানো হয়েছে — ইনবক্স চেক করুন!
+          </p>
+        ) : (
+          !emailError && (
+            <p className="mt-1.5 text-xs font-medium text-primary">
+              🎁 সাবস্ক্রাইব করলে একটি প্রিমিয়াম ব্লগ সাথে সাথে আপনার ইমেইলে পাঠিয়ে দেওয়া হবে!
+            </p>
+          )
+        )}
 
         {hero && (
           <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">

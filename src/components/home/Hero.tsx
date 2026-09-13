@@ -18,6 +18,9 @@ export function Hero() {
         <p className="mt-3 max-w-xl text-sm text-ink-soft sm:text-base">
           ৯০+ বই, ইবুক ও প্রোডাক্টিভিটি গিয়ার, সারাদেশে ক্যাশ অন ডেলিভারিতে
         </p>
+        <p className="mt-3 max-w-xl border-l-2 border-primary pl-3 text-sm font-medium text-primary-dark sm:text-base">
+          আমাদের লক্ষ্য — প্রতিটি মানুষকে সঠিক দিকনির্দেশনার মাধ্যমে (guided way) নিজের জীবনে এগিয়ে যেতে সাহায্য করা।
+        </p>
 
         <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
           {tiles.map((tile) => {

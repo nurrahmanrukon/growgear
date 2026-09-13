@@ -319,3 +319,8 @@ export function getPremiumPurchaseCount(post: BlogPost): number {
   const seed = hashString(post.id + ":premium-buyers");
   return 35 + (seed % 165);
 }
+
+export function getPremiumRating(post: BlogPost): { rating: number; reviewCount: number } {
+  const seed = hashString(post.id + ":premium-rating");
+  return { rating: seed % 2 === 0 ? 5 : 4.5, reviewCount: getPremiumPurchaseCount(post) };
+}

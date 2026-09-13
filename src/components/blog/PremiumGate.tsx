@@ -3,11 +3,12 @@
 import { useState } from "react";
 import { CreditCard, FileText, Headphones, Layers, Lock, Mail, Smartphone, X, Eye } from "lucide-react";
 import { BlogPost } from "@/lib/types";
-import { getPremiumPurchaseCount } from "@/lib/data/blog";
+import { getPremiumPurchaseCount, getPremiumRating } from "@/lib/data/blog";
 import { toBengaliNumber, formatTaka } from "@/lib/format";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { AudioPlayerCard } from "@/components/blog/AudioPlayerCard";
+import { StarRating } from "@/components/ui/StarRating";
 
 const FREE_PREVIEW_RATIO = 0.25;
 
@@ -53,6 +54,7 @@ export function PremiumGate({ post }: { post: BlogPost }) {
 
   const isLocked = Boolean(premium) && !unlockedFormats.has(format);
   const purchaseCount = getPremiumPurchaseCount(post);
+  const { rating } = getPremiumRating(post);
   const tierNeedsEmail = (tier: Tier) => tier === "text" || tier === "both";
 
   function unlockTier(tier: Tier) {
@@ -118,6 +120,9 @@ export function PremiumGate({ post }: { post: BlogPost }) {
       </div>
       <h3 className="mt-2.5 font-display text-sm font-bold text-foreground">এই লেখাটি প্রিমিয়াম</h3>
       <p className="mt-1 text-xs text-ink-soft">যেভাবে পড়তে/শুনতে চান বেছে নিন</p>
+      <div className="mt-1.5 flex justify-center">
+        <StarRating rating={rating} size={13} />
+      </div>
 
       <div className="mt-3 grid grid-cols-3 gap-1.5">
         {TIERS.map((tier) => {
