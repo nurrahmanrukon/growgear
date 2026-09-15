@@ -248,6 +248,62 @@ export function getExpertVideoOpinions(product: Product, count = 7): ExpertOpini
   return picked;
 }
 
+export interface ReaderOpinion {
+  name: string;
+  location: string;
+  quote: string;
+  rating: number;
+  hasPhoto: boolean;
+  verified: boolean;
+}
+
+const READER_QUOTE_POOL = [
+  "পড়া শুরু করার প্রথম কয়েক পাতাতেই বুঝেছি এটা অন্য বইয়ের মতো না — একদম নিজের জীবনের সাথে মিলে যাচ্ছিল।",
+  "শেষ করার পর মনে হলো আরও আগে পড়া উচিত ছিল, অনেক কিছু আগেই বদলাতে পারতাম।",
+  "সহজ ভাষায় লেখা, তাই একবার শুরু করার পর থামতেই ইচ্ছা করেনি।",
+  "নিজের পরিবার আর বন্ধুদেরও পড়তে বলেছি, সবাই একই কথা বলেছে — কাজের জিনিস।",
+  "যা লেখা আছে তা শুধু পড়েই রাখিনি, বাস্তবে কয়েকটা জিনিস প্রয়োগ করে ফলাফল পেয়েছি।",
+  "দামের তুলনায় যা পেয়েছি তা অনেক বেশি — এত সহজে এতকিছু বুঝিয়ে বলা সত্যিই কঠিন।",
+  "কাজের ফাঁকে ফাঁকে পড়েছি, তাও কোথাও বিরক্ত লাগেনি — লেখার স্টাইলটা খুব সাবলীল।",
+  "নিজের জীবনের একটা সিদ্ধান্তে সত্যিই সাহায্য করেছে, সেজন্য কৃতজ্ঞ।",
+  "প্রথমে ভেবেছিলাম আর দশটা বইয়ের মতোই হবে, কিন্তু শেষে গিয়ে দেখলাম সম্পূর্ণ ভিন্ন অভিজ্ঞতা।",
+  "যতটুকু আশা করে কিনেছিলাম, তার চেয়েও বেশি পেয়েছি — রিকমেন্ড করবো সবাইকে।",
+];
+
+export function getReaderOpinions(product: Product, count = 15): ReaderOpinion[] {
+  const base = hashString(product.id + ":readers");
+  const picked: ReaderOpinion[] = [];
+  for (let i = 0; i < count; i++) {
+    const seed = base + i * 83;
+    picked.push({
+      name: PERSON_NAMES[seed % PERSON_NAMES.length],
+      location: BD_LOCATIONS[Math.floor(seed / 11) % BD_LOCATIONS.length],
+      quote: READER_QUOTE_POOL[Math.floor(seed / 13) % READER_QUOTE_POOL.length],
+      rating: 4.5 + (Math.floor(seed / 23) % 2) * 0.5,
+      hasPhoto: seed % 3 !== 0,
+      verified: seed % 4 !== 0,
+    });
+  }
+  return picked;
+}
+
+export function getReaderVideoOpinions(product: Product, count = 7): ReaderOpinion[] {
+  const base = hashString(product.id + ":readervideos");
+  const picked: ReaderOpinion[] = [];
+  for (let i = 0; i < count; i++) {
+    const seed = base + i * 101;
+    picked.push({
+      name: PERSON_NAMES[seed % PERSON_NAMES.length],
+      location: BD_LOCATIONS[Math.floor(seed / 11) % BD_LOCATIONS.length],
+      quote: READER_QUOTE_POOL[Math.floor(seed / 13) % READER_QUOTE_POOL.length],
+      rating: 4.5 + (Math.floor(seed / 23) % 2) * 0.5,
+      hasPhoto: true,
+      verified: seed % 4 !== 0,
+    });
+  }
+  return picked;
+}
+
 export interface LiveDemand {
   viewers: number;
   copiesLeft: number;

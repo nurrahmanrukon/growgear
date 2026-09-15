@@ -5,6 +5,7 @@ import { ReviewsSection } from "@/components/product/ReviewsSection";
 import { CtaBanner } from "@/components/product/CtaBanner";
 import { PainPointsSection } from "@/components/product/PainPointsSection";
 import { AuthorBioSection } from "@/components/product/AuthorBioSection";
+import { ReaderOpinionsSection } from "@/components/product/ReaderOpinionsSection";
 import { KeyIdeasSection } from "@/components/product/KeyIdeasSection";
 import { TransformationSection } from "@/components/product/TransformationSection";
 import { ExpertOpinionsSection } from "@/components/product/ExpertOpinionsSection";
@@ -65,6 +66,7 @@ export function ProductDetailView({
       {isReadable && (
         <>
           <AuthorBioSection product={product} />
+          <ReaderOpinionsSection product={product} />
           <InlineCtaBar product={product} />
         </>
       )}

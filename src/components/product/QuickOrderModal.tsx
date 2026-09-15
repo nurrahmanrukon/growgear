@@ -15,8 +15,8 @@ const QUANTITIES = [1, 2, 3, 4, 5];
 type PaymentMethod = "cod" | "bkash" | "card";
 const PHYSICAL_PAYMENT_METHODS: { id: PaymentMethod; label: string; icon: typeof Banknote; enabled: boolean }[] = [
   { id: "cod", label: "ক্যাশ অন ডেলিভারি", icon: Banknote, enabled: true },
-  { id: "bkash", label: "বিকাশ", icon: Smartphone, enabled: false },
-  { id: "card", label: "কার্ড", icon: CreditCard, enabled: false },
+  { id: "bkash", label: "বিকাশ", icon: Smartphone, enabled: true },
+  { id: "card", label: "কার্ড", icon: CreditCard, enabled: true },
 ];
 const EBOOK_PAYMENT_METHODS: { id: PaymentMethod; label: string; icon: typeof Banknote; enabled: boolean }[] = [
   { id: "bkash", label: "বিকাশ", icon: Smartphone, enabled: true },

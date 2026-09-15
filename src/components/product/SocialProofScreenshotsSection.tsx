@@ -146,12 +146,6 @@ function SocialMock({ post, large }: { post: SocialPost; large?: boolean }) {
   return <WhatsAppMock {...post} large={large} />;
 }
 
-const PLATFORM_LABEL: Record<Platform, string> = {
-  facebook: "ফেসবুক",
-  instagram: "ইনস্টাগ্রাম",
-  whatsapp: "হোয়াটসঅ্যাপ",
-};
-
 export function SocialProofScreenshotsSection({ product }: { product: Product }) {
   const posts = socialProofPosts(product, 6);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -206,26 +200,6 @@ export function SocialProofScreenshotsSection({ product }: { product: Product })
             </button>
 
             <SocialMock post={posts[activeIndex]} large />
-
-            <div className="mt-4 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-              {posts.map((post, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => setActiveIndex(i)}
-                  className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs transition ${
-                    i === activeIndex
-                      ? "border-cta bg-cta/10 text-cta"
-                      : "border-white/20 text-white/70 hover:border-white/40 hover:text-white"
-                  }`}
-                >
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/10 text-[10px] font-semibold">
-                    {initials(post.name)}
-                  </span>
-                  {PLATFORM_LABEL[post.platform]}
-                </button>
-              ))}
-            </div>
           </div>
         </div>
       )}
