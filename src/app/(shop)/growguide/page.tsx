@@ -2,13 +2,31 @@ import { Metadata } from "next";
 import { Briefcase, GraduationCap, MessageCircle, Rocket } from "lucide-react";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { GrowGuideJoinForm } from "@/components/growguide/GrowGuideJoinForm";
+import { GrowGuideVideoSection } from "@/components/growguide/GrowGuideVideoSection";
+import { GrowGuidePastSessionsSection } from "@/components/growguide/GrowGuidePastSessionsSection";
+import { GrowGuideFaqSection } from "@/components/growguide/GrowGuideFaqSection";
 
 export const metadata: Metadata = { title: "GrowGuide — GrowGear" };
 
 const AUDIENCE = [
-  { icon: GraduationCap, label: "শিক্ষার্থী" },
-  { icon: Briefcase, label: "প্রফেশনাল" },
-  { icon: Rocket, label: "উদ্যোক্তা" },
+  {
+    id: "student",
+    icon: GraduationCap,
+    label: "শিক্ষার্থী",
+    body: "পড়াশোনার পাশাপাশি কীভাবে গাইডেড ওয়েতে ক্যারিয়ার প্রস্তুতি ও ব্যক্তিগত গ্রোথের পথ তৈরি করবেন তা শিখবেন।",
+  },
+  {
+    id: "professional",
+    icon: Briefcase,
+    label: "প্রফেশনাল",
+    body: "কর্মক্ষেত্রে প্রোডাক্টিভিটি বাড়ানো, সঠিক সিদ্ধান্ত নেওয়া এবং ক্যারিয়ারে এগিয়ে যাওয়ার বাস্তবসম্মত কৌশল পাবেন।",
+  },
+  {
+    id: "entrepreneur",
+    icon: Rocket,
+    label: "উদ্যোক্তা",
+    body: "ব্যবসা বড় করা, সিদ্ধান্ত নেওয়ার ঝুঁকি কমানো এবং টিম নিয়ে এগিয়ে যাওয়ার ব্যবহারিক দিকনির্দেশনা পাবেন।",
+  },
 ];
 
 const STEPS = [
@@ -48,16 +66,21 @@ export default function GrowGuidePage() {
           </p>
           <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
             {AUDIENCE.map((a) => (
-              <span
-                key={a.label}
-                className="flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground"
+              <a
+                key={a.id}
+                href={`#audience-${a.id}`}
+                className="flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground transition hover:border-primary hover:text-primary"
               >
                 <a.icon size={14} className="text-primary" /> {a.label}
-              </span>
+              </a>
             ))}
           </div>
         </div>
       </section>
+
+      <GrowGuideVideoSection audience={AUDIENCE} />
+      <GrowGuidePastSessionsSection />
+      <GrowGuideFaqSection />
 
       <section className="container-page py-10">
         <h2 className="text-center font-display text-xl font-bold text-foreground sm:text-2xl">যেভাবে কাজ করে</h2>
