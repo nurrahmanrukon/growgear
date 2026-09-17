@@ -122,15 +122,10 @@ export function ReviewsSection({ product }: { product: Product }) {
                   </button>
                 )}
 
-                <div className="mt-3 flex items-center gap-4 border-t border-border pt-3 text-xs text-ink-faint">
-                  <span>{toBengaliNumber(r.helpfulCount)} জনের কাছে এটি সহায়ক মনে হয়েছে</span>
-                  <span className="flex items-center gap-3">
-                    <button className="flex items-center gap-1 hover:text-primary">
-                      <ThumbsUp size={12} /> সহায়ক
-                    </button>
-                    <span className="text-border">|</span>
-                    <button className="hover:text-primary">রিপোর্ট করুন</button>
-                  </span>
+                <div className="mt-3 flex items-center border-t border-border pt-3 text-xs text-ink-faint">
+                  <button className="flex items-center gap-1 hover:text-primary">
+                    <ThumbsUp size={12} /> সহায়ক
+                  </button>
                 </div>
               </div>
             );
