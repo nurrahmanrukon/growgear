@@ -78,7 +78,13 @@ function UrgencyOrderCard({ product }: { product: Product }) {
         </div>
       )}
 
-      <div className={`flex items-center gap-2 rounded-md border border-white/10 px-3 py-2 text-xs font-medium text-white/85 ${isEbook ? "mt-3" : "mt-1.5"}`}>
+      <div
+        className={`flex items-center gap-2 rounded-md px-3 py-2 text-xs font-medium ${
+          isEbook
+            ? "mt-3 border border-red-500/40 bg-red-500/15 font-bold uppercase tracking-wide text-red-300"
+            : "mt-1.5 border border-white/10 text-white/85"
+        }`}
+      >
         <Clock size={13} />
         আজকের অফার শেষ হতে বাকি: {msLeft !== null ? formatCountdown(msLeft) : "..."}
       </div>
