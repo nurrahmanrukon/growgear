@@ -11,13 +11,15 @@ export interface SubmittedReview {
 }
 
 export function InlineReviewForm({
-  open,
+  open = true,
   onSubmit,
   onCancel,
+  variant = "card",
 }: {
-  open: boolean;
+  open?: boolean;
   onSubmit: (review: SubmittedReview) => void;
   onCancel: () => void;
+  variant?: "card" | "embedded";
 }) {
   const [name, setName] = useState("");
   const [rating, setRating] = useState(5);
@@ -34,9 +36,27 @@ export function InlineReviewForm({
     setText("");
   }
 
+  function handleCancel() {
+    setName("");
+    setRating(5);
+    setText("");
+    onCancel();
+  }
+
   return (
-    <div className="mt-4 w-full rounded-lg border border-border bg-surface p-4 text-left">
+    <div
+      className={
+        variant === "embedded"
+          ? "w-full text-left"
+          : "mt-4 w-full rounded-lg border border-border bg-surface p-4 text-left"
+      }
+    >
       <p className="text-sm font-semibold text-foreground">আপনার মতামত লিখুন</p>
+      {variant === "embedded" && (
+        <p className="mt-0.5 text-xs text-ink-soft">
+          আপনিও কি এটি কিনেছেন? আপনার অভিজ্ঞতা শেয়ার করুন — মাত্র ১ মিনিট লাগবে
+        </p>
+      )}
       <form onSubmit={handleSubmit} className="mt-3 space-y-3">
         <div>
           <label className="mb-1 block text-xs font-medium text-ink-soft">রেটিং</label>
@@ -76,7 +96,7 @@ export function InlineReviewForm({
           <Button type="submit" variant="primary">
             রিভিউ জমা দিন
           </Button>
-          <Button type="button" variant="secondary" onClick={onCancel}>
+          <Button type="button" variant="secondary" onClick={handleCancel}>
             বাতিল
           </Button>
         </div>

@@ -6,7 +6,6 @@ import { Product } from "@/lib/types";
 import { getReviewsForProduct, getRatingBreakdown, Review } from "@/lib/data/reviews";
 import { toBengaliNumber } from "@/lib/format";
 import { StarRating } from "@/components/ui/StarRating";
-import { Button } from "@/components/ui/Button";
 import { InlineReviewForm, SubmittedReview } from "@/components/product/InlineReviewForm";
 
 const VISIBLE_REVIEW_COUNT = 5;
@@ -16,7 +15,6 @@ export function ReviewsSection({ product }: { product: Product }) {
   const breakdown = getRatingBreakdown(product);
   const [userReviews, setUserReviews] = useState<Review[]>([]);
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
-  const [showWriteReview, setShowWriteReview] = useState(false);
 
   const reviews = [...userReviews, ...generated];
   const visible = reviews.slice(0, VISIBLE_REVIEW_COUNT);
@@ -76,22 +74,12 @@ export function ReviewsSection({ product }: { product: Product }) {
               </div>
             ))}
           </div>
-
-          <Button variant="secondary" onClick={() => setShowWriteReview((v) => !v)} className="mt-1">
-            রিভিউ লিখুন
-          </Button>
-
-          <InlineReviewForm
-            open={showWriteReview}
-            onSubmit={(r) => {
-              handleSubmitReview(r);
-              setShowWriteReview(false);
-            }}
-            onCancel={() => setShowWriteReview(false)}
-          />
         </div>
 
         <div className="mx-auto mt-8 max-w-2xl divide-y divide-border rounded-lg border border-border bg-surface">
+          <div className="bg-primary-light/25 p-5">
+            <InlineReviewForm variant="embedded" onSubmit={handleSubmitReview} onCancel={() => {}} />
+          </div>
           {visible.map((r, i) => {
             const globalIndex = i;
             const isExpanded = expanded.has(globalIndex);
