@@ -75,11 +75,10 @@ export function OrderForm({ product, onOrdered }: { product: Product; onOrdered?
   return (
     <>
       <h2 className="pr-6">
-        <span className="animate-order-cta inline-block rounded-md bg-cta px-3 py-1 text-sm font-bold text-white">
-          অর্ডার করুন
+        <span className="animate-order-cta inline-block max-w-full truncate rounded-md bg-cta px-3 py-1 text-sm font-bold text-white">
+          অর্ডার করুন — {product.title}
         </span>
       </h2>
-      <p className="mt-0.5 line-clamp-1 text-xs text-ink-faint">{product.title}</p>
 
       <form onSubmit={handleSubmit} className="mt-3 flex flex-col gap-2">
         <div className="grid grid-cols-2 gap-2">
