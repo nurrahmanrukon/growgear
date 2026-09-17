@@ -52,9 +52,9 @@ const navLinks: { key: string; label: string; href: string; sub?: { label: strin
     label: "GrowGuide",
     href: "/growguide",
     sub: [
-      { label: "শিক্ষার্থী", href: "/growguide#audience-student" },
-      { label: "প্রফেশনাল", href: "/growguide#audience-professional" },
-      { label: "উদ্যোক্তা", href: "/growguide#audience-entrepreneur" },
+      { label: "শিক্ষার্থী", href: "/growguide/student" },
+      { label: "প্রফেশনাল", href: "/growguide/professional" },
+      { label: "উদ্যোক্তা", href: "/growguide/entrepreneur" },
     ],
   },
   { key: "decisionmaster", label: "ডিসিশনমাস্টার", href: "/decisionmaster" },

@@ -1,33 +1,14 @@
 import { Metadata } from "next";
-import { Briefcase, GraduationCap, MessageCircle, Rocket } from "lucide-react";
+import Link from "next/link";
+import { MessageCircle } from "lucide-react";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { GrowGuideJoinForm } from "@/components/growguide/GrowGuideJoinForm";
 import { GrowGuideVideoSection } from "@/components/growguide/GrowGuideVideoSection";
 import { GrowGuidePastSessionsSection } from "@/components/growguide/GrowGuidePastSessionsSection";
 import { GrowGuideFaqSection } from "@/components/growguide/GrowGuideFaqSection";
+import { GROWGUIDE_AUDIENCE } from "@/lib/data/growguideAudience";
 
 export const metadata: Metadata = { title: "GrowGuide — GrowGear" };
-
-const AUDIENCE = [
-  {
-    id: "student",
-    icon: GraduationCap,
-    label: "শিক্ষার্থী",
-    body: "পড়াশোনার পাশাপাশি কীভাবে গাইডেড ওয়েতে ক্যারিয়ার প্রস্তুতি ও ব্যক্তিগত গ্রোথের পথ তৈরি করবেন তা শিখবেন।",
-  },
-  {
-    id: "professional",
-    icon: Briefcase,
-    label: "প্রফেশনাল",
-    body: "কর্মক্ষেত্রে প্রোডাক্টিভিটি বাড়ানো, সঠিক সিদ্ধান্ত নেওয়া এবং ক্যারিয়ারে এগিয়ে যাওয়ার বাস্তবসম্মত কৌশল পাবেন।",
-  },
-  {
-    id: "entrepreneur",
-    icon: Rocket,
-    label: "উদ্যোক্তা",
-    body: "ব্যবসা বড় করা, সিদ্ধান্ত নেওয়ার ঝুঁকি কমানো এবং টিম নিয়ে এগিয়ে যাওয়ার ব্যবহারিক দিকনির্দেশনা পাবেন।",
-  },
-];
 
 const STEPS = [
   {
@@ -65,20 +46,20 @@ export default function GrowGuidePage() {
             সম্পূর্ণ ফ্রি লাইভ ওয়েবিনার ও প্রাইভেট কমিউনিটির মাধ্যমে — নূর রহমান স্বয়ং হোস্ট করেন
           </p>
           <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
-            {AUDIENCE.map((a) => (
-              <a
-                key={a.id}
-                href={`#audience-${a.id}`}
+            {GROWGUIDE_AUDIENCE.map((a) => (
+              <Link
+                key={a.slug}
+                href={`/growguide/${a.slug}`}
                 className="flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground transition hover:border-primary hover:text-primary"
               >
                 <a.icon size={14} className="text-primary" /> {a.label}
-              </a>
+              </Link>
             ))}
           </div>
         </div>
       </section>
 
-      <GrowGuideVideoSection audience={AUDIENCE} />
+      <GrowGuideVideoSection audience={GROWGUIDE_AUDIENCE} />
       <GrowGuidePastSessionsSection />
       <GrowGuideFaqSection />
 
