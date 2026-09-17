@@ -3,8 +3,10 @@ import Link from "next/link";
 import { MessageCircle } from "lucide-react";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { GrowGuideJoinForm } from "@/components/growguide/GrowGuideJoinForm";
+import { GrowGuideHeroCarousel } from "@/components/growguide/GrowGuideHeroCarousel";
 import { GrowGuideVideoSection } from "@/components/growguide/GrowGuideVideoSection";
-import { GrowGuidePastSessionsSection } from "@/components/growguide/GrowGuidePastSessionsSection";
+import { GrowGuideSocialProofSection } from "@/components/growguide/GrowGuideSocialProofSection";
+import { GrowGuideReviewsSection } from "@/components/growguide/GrowGuideReviewsSection";
 import { GrowGuideFaqSection } from "@/components/growguide/GrowGuideFaqSection";
 import { GROWGUIDE_AUDIENCE } from "@/lib/data/growguideAudience";
 
@@ -39,13 +41,11 @@ export default function GrowGuidePage() {
       <section className="border-b border-border bg-surface-muted">
         <div className="container-page py-10 text-center sm:py-14">
           <p className="text-xs font-medium uppercase tracking-wide text-primary">GrowGuide</p>
-          <h1 className="mx-auto mt-2 max-w-2xl font-display text-3xl font-bold leading-tight text-foreground sm:text-4xl">
-            শিক্ষার্থী, প্রফেশনাল ও উদ্যোক্তাদের গাইডেড ওয়েতে গ্রো করতে সাহায্য করি
-          </h1>
-          <p className="mx-auto mt-3 max-w-xl text-sm text-ink-soft sm:text-base">
-            সম্পূর্ণ ফ্রি লাইভ ওয়েবিনার ও প্রাইভেট কমিউনিটির মাধ্যমে — নূর রহমান স্বয়ং হোস্ট করেন
-          </p>
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+          <h1 className="sr-only">শিক্ষার্থী, প্রফেশনাল ও উদ্যোক্তাদের গাইডেড ওয়েতে গ্রো করতে সাহায্য করি</h1>
+
+          <GrowGuideHeroCarousel />
+
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
             {GROWGUIDE_AUDIENCE.map((a) => (
               <Link
                 key={a.slug}
@@ -59,9 +59,11 @@ export default function GrowGuidePage() {
         </div>
       </section>
 
-      <GrowGuideVideoSection audience={GROWGUIDE_AUDIENCE} />
-      <GrowGuidePastSessionsSection />
+      <GrowGuideVideoSection />
+      <GrowGuideSocialProofSection />
+      <GrowGuideReviewsSection />
       <GrowGuideFaqSection />
+      <GrowGuideJoinForm />
 
       <section className="container-page py-10">
         <h2 className="text-center font-display text-xl font-bold text-foreground sm:text-2xl">যেভাবে কাজ করে</h2>
@@ -96,8 +98,6 @@ export default function GrowGuidePage() {
           </div>
         </div>
       </section>
-
-      <GrowGuideJoinForm />
 
       <section className="container-page py-10">
         <div className="mx-auto max-w-2xl rounded-lg border border-border bg-surface p-6 text-center">

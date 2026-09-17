@@ -1,13 +1,15 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { CheckCircle2, Users } from "lucide-react";
+import { CalendarClock, CheckCircle2, Users } from "lucide-react";
 import { toBengaliNumber } from "@/lib/format";
 
 const SEGMENT_LABEL = "চলতি সেগমেন্ট";
 const SEGMENT_TARGET = 500;
 const SEGMENT_JOINED = 342;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const NEXT_SESSION_DATE = "৩ অক্টোবর";
+const NEXT_SESSION_TIME = "রাত ৮:৩০";
 
 export function GrowGuideJoinForm() {
   const [email, setEmail] = useState("");
@@ -38,6 +40,13 @@ export function GrowGuideJoinForm() {
         <p className="mt-1.5 text-xs text-ink-soft">
           {SEGMENT_LABEL}-এ {toBengaliNumber(SEGMENT_TARGET)} জন হলেই ওয়েবিনার শুরু হবে
         </p>
+
+        <div className="mt-4 flex items-center justify-center gap-2 rounded-md bg-cta px-4 py-2.5 text-white shadow-sm">
+          <CalendarClock size={16} className="shrink-0" />
+          <p className="text-sm font-bold">
+            পরবর্তী সেশন: {NEXT_SESSION_DATE}, {NEXT_SESSION_TIME}
+          </p>
+        </div>
 
         <div className="mt-4">
           <div className="flex items-center justify-between text-xs font-medium text-ink-soft">
