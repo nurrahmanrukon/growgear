@@ -49,10 +49,10 @@ export function ProductDetailView({
       <VideoSection product={product} />
       <InlineCtaBar product={product} />
 
-      <ExpertOpinionsSection product={product} />
+      <SocialProofScreenshotsSection product={product} />
       <InlineCtaBar product={product} />
 
-      <SocialProofScreenshotsSection product={product} />
+      <ExpertOpinionsSection product={product} />
       <InlineCtaBar product={product} />
       <PainPointsSection product={product} />
       <InlineCtaBar product={product} />
