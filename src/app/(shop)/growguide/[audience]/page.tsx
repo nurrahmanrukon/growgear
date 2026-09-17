@@ -80,8 +80,12 @@ export default async function GrowGuideAudiencePage({
             </span>
           </div>
         </div>
+      </section>
 
-        <div className="mx-auto mt-8 grid max-w-3xl gap-4 sm:grid-cols-3">
+      <GrowGuideSocialProofSection />
+
+      <section className="container-page py-10">
+        <div className="mx-auto grid max-w-3xl gap-4 sm:grid-cols-3">
           {a.benefits.map((b) => (
             <div key={b.title} className="rounded-lg border border-border bg-surface p-4">
               <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-light text-primary">
@@ -93,8 +97,6 @@ export default async function GrowGuideAudiencePage({
           ))}
         </div>
       </section>
-
-      <GrowGuideSocialProofSection />
 
       <section className="border-y border-border bg-surface-muted py-10">
         <div className="container-page">
