@@ -57,6 +57,9 @@ export function ProductDetailView({
       <PainPointsSection product={product} />
       <InlineCtaBar product={product} />
 
+      <TransformationSection product={product} />
+      <InlineCtaBar product={product} />
+
       <CtaBanner
         product={product}
         heading={`"${product.title}" আপনার জন্যই তৈরি`}
@@ -79,8 +82,6 @@ export function ProductDetailView({
         sub={isReadable ? "আজই সংগ্রহ করুন — পড়া শুরু করুন আজ থেকেই" : "আজই সংগ্রহ করুন — ব্যবহার শুরু করুন আজ থেকেই"}
       />
 
-      <TransformationSection product={product} />
-      <InlineCtaBar product={product} />
       <FaqSection product={product} />
       <InlineCtaBar product={product} />
       <QuoteBanner product={product} />
