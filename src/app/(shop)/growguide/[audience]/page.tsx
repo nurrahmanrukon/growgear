@@ -53,6 +53,8 @@ export default async function GrowGuideAudiencePage({
         </div>
       </section>
 
+      <GrowGuideJoinForm />
+
       <section className="container-page py-10">
         <div className="mx-auto max-w-3xl">
           <div
@@ -81,6 +83,8 @@ export default async function GrowGuideAudiencePage({
         </div>
       </section>
 
+      <GrowGuideSocialProofSection />
+
       <section className="border-y border-border bg-surface-muted py-10">
         <div className="container-page">
           <h2 className="text-center font-display text-lg font-bold text-foreground sm:text-xl">
@@ -105,13 +109,11 @@ export default async function GrowGuideAudiencePage({
         </div>
       </section>
 
-      <GrowGuideSocialProofSection />
       <GrowGuideReviewsSection />
       <GrowGuideFaqSection />
       <GrowGuideStepsSection />
       <GrowGuideAuthorBioSection />
       <GrowGuideCommunitySection />
-      <GrowGuideJoinForm />
     </>
   );
 }
