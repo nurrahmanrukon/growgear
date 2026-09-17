@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { Menu, Search, ShoppingCart, X } from "lucide-react";
 import clsx from "clsx";
 import { useCartStore, useHasHydrated } from "@/store/cart";
@@ -76,15 +76,22 @@ export function Header() {
   const pathname = usePathname();
   const [query, setQuery] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const mobileSearchInputRef = useRef<HTMLInputElement>(null);
   const hydrated = useHasHydrated();
   const totalItems = useCartStore((s) => s.totalItems());
 
   const activeKey = getActiveCategoryKey(pathname);
   const activeCategory = navLinks.find((l) => l.key === activeKey);
 
+  useEffect(() => {
+    if (mobileSearchOpen) mobileSearchInputRef.current?.focus();
+  }, [mobileSearchOpen]);
+
   function handleSearch(e: FormEvent) {
     e.preventDefault();
     router.push(query.trim() ? `/search?q=${encodeURIComponent(query.trim())}` : "/search");
+    setMobileSearchOpen(false);
   }
 
   return (
@@ -129,9 +136,18 @@ export function Header() {
             </button>
           </form>
 
+          <button
+            type="button"
+            onClick={() => setMobileSearchOpen((v) => !v)}
+            aria-label={mobileSearchOpen ? "সার্চ বন্ধ করুন" : "সার্চ খুলুন"}
+            className="ml-auto rounded p-1.5 hover:bg-white/10 sm:hidden"
+          >
+            {mobileSearchOpen ? <X size={20} /> : <Search size={20} />}
+          </button>
+
           <Link
             href="/cart"
-            className="relative ml-auto flex items-center gap-1.5 rounded p-1.5 hover:bg-white/10 sm:ml-2"
+            className="relative flex items-center gap-1.5 rounded p-1.5 hover:bg-white/10 sm:ml-2"
           >
             <span className="relative">
               <ShoppingCart size={22} />
@@ -148,22 +164,25 @@ export function Header() {
           </Link>
         </div>
 
-        <form onSubmit={handleSearch} className="flex items-stretch px-3 pb-2.5 sm:hidden">
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="বই, ইবুক বা গিয়ার খুঁজুন..."
-            className="w-full min-w-0 rounded-l-md border border-border bg-surface px-3 py-2 text-sm text-foreground outline-none"
-          />
-          <button
-            type="submit"
-            style={{ background: "#febd69" }}
-            className="flex items-center justify-center rounded-r-md px-3.5 text-foreground"
-          >
-            <Search size={16} />
-          </button>
-        </form>
+        {mobileSearchOpen && (
+          <form onSubmit={handleSearch} className="flex items-stretch px-3 pb-2.5 sm:hidden">
+            <input
+              ref={mobileSearchInputRef}
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="বই, ইবুক বা গিয়ার খুঁজুন..."
+              className="w-full min-w-0 rounded-l-md border border-border bg-surface px-3 py-2 text-sm text-foreground outline-none"
+            />
+            <button
+              type="submit"
+              style={{ background: "#febd69" }}
+              className="flex items-center justify-center rounded-r-md px-3.5 text-foreground"
+            >
+              <Search size={16} />
+            </button>
+          </form>
+        )}
       </div>
 
       {/* Category nav bar (layer 1) — always visible, directly below the search box */}
