@@ -3,6 +3,12 @@ import { Metadata } from "next";
 import { Play } from "lucide-react";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { StarRating } from "@/components/ui/StarRating";
+import { GrowGuideSocialProofSection } from "@/components/growguide/GrowGuideSocialProofSection";
+import { GrowGuideReviewsSection } from "@/components/growguide/GrowGuideReviewsSection";
+import { GrowGuideFaqSection } from "@/components/growguide/GrowGuideFaqSection";
+import { GrowGuideStepsSection } from "@/components/growguide/GrowGuideStepsSection";
+import { GrowGuideAuthorBioSection } from "@/components/growguide/GrowGuideAuthorBioSection";
+import { GrowGuideCommunitySection } from "@/components/growguide/GrowGuideCommunitySection";
 import { GrowGuideJoinForm } from "@/components/growguide/GrowGuideJoinForm";
 import { GROWGUIDE_AUDIENCE, getGrowGuideAudience } from "@/lib/data/growguideAudience";
 
@@ -99,6 +105,12 @@ export default async function GrowGuideAudiencePage({
         </div>
       </section>
 
+      <GrowGuideSocialProofSection />
+      <GrowGuideReviewsSection />
+      <GrowGuideFaqSection />
+      <GrowGuideStepsSection />
+      <GrowGuideAuthorBioSection />
+      <GrowGuideCommunitySection />
       <GrowGuideJoinForm />
     </>
   );
