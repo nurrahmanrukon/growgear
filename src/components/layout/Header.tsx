@@ -47,7 +47,16 @@ const navLinks: { key: string; label: string; href: string; sub?: { label: strin
     href: "/blog",
     sub: [{ label: "সব লেখা", href: "/blog" }, ...TOPICS.map((t) => ({ label: t.label, href: `/blog?topic=${t.slug}` }))],
   },
-  { key: "growguide", label: "GrowGuide", href: "/growguide" },
+  {
+    key: "growguide",
+    label: "GrowGuide",
+    href: "/growguide",
+    sub: [
+      { label: "শিক্ষার্থী", href: "/growguide#audience-student" },
+      { label: "প্রফেশনাল", href: "/growguide#audience-professional" },
+      { label: "উদ্যোক্তা", href: "/growguide#audience-entrepreneur" },
+    ],
+  },
   { key: "decisionmaster", label: "ডিসিশনমাস্টার", href: "/decisionmaster" },
 ];
 
