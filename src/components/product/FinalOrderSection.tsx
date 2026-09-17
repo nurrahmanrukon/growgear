@@ -35,12 +35,14 @@ function UrgencyOrderCard({ product }: { product: Product }) {
 
   return (
     <div className="rounded-lg border border-white/10 bg-black/20 p-4 text-left">
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-emerald-300">
-        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-        সীমিত স্টক - আজকের অফার চলছে
-      </span>
+      {product.category !== "ebook" && (
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-emerald-300">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+          সীমিত স্টক - আজকের অফার চলছে
+        </span>
+      )}
 
-      <div className="mt-3 flex items-center gap-2 rounded-md border border-white/10 px-3 py-2 text-xs font-medium text-white/85">
+      <div className={`${product.category !== "ebook" ? "mt-3" : ""} flex items-center gap-2 rounded-md border border-white/10 px-3 py-2 text-xs font-medium text-white/85`}>
         <Clock size={13} />
         আজকের অফার শেষ হতে বাকি: {msLeft !== null ? formatCountdown(msLeft) : "..."}
       </div>
