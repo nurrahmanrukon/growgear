@@ -1,10 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ThumbsUp, Heart, MessageCircle, Send, X } from "lucide-react";
+import { ThumbsUp, Heart, MessageCircle, Send, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { Product } from "@/lib/types";
 import { PERSON_NAMES, hashString } from "@/lib/data/social";
 import { toBengaliNumber } from "@/lib/format";
+
+const STACK_SIZE = 3;
+const STACK_COUNT = 6;
+const TOTAL_POSTS = STACK_COUNT * STACK_SIZE;
 
 type Platform = "facebook" | "instagram" | "whatsapp";
 
@@ -146,14 +150,45 @@ function SocialMock({ post, large }: { post: SocialPost; large?: boolean }) {
   return <WhatsAppMock {...post} large={large} />;
 }
 
+function SocialStackTile({ stack, onOpen }: { stack: SocialPost[]; onOpen: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      aria-label="স্ক্রিনশট বড় করে দেখুন"
+      className="relative block text-left transition hover:opacity-90"
+    >
+      {stack.length > 2 && (
+        <div className="absolute inset-0 translate-x-3 translate-y-3 rounded-md border border-border bg-surface" />
+      )}
+      {stack.length > 1 && (
+        <div className="absolute inset-0 translate-x-1.5 translate-y-1.5 rounded-md border border-border bg-surface" />
+      )}
+      <SocialMock post={stack[0]} />
+      {stack.length > 1 && (
+        <span className="absolute -right-1.5 -top-1.5 rounded-full bg-cta px-1.5 py-0.5 text-[10px] font-bold text-white shadow-sm">
+          +{stack.length - 1}
+        </span>
+      )}
+    </button>
+  );
+}
+
 export function SocialProofScreenshotsSection({ product }: { product: Product }) {
-  const posts = socialProofPosts(product, 6);
+  const posts = socialProofPosts(product, TOTAL_POSTS);
+  const stacks = Array.from({ length: STACK_COUNT }, (_, i) => posts.slice(i * STACK_SIZE, i * STACK_SIZE + STACK_SIZE));
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
+  function go(delta: number) {
+    setActiveIndex((i) => (i === null ? null : (i + delta + TOTAL_POSTS) % TOTAL_POSTS));
+  }
 
   useEffect(() => {
     if (activeIndex === null) return;
     function handleKey(e: KeyboardEvent) {
       if (e.key === "Escape") setActiveIndex(null);
+      if (e.key === "ArrowLeft") go(-1);
+      if (e.key === "ArrowRight") go(1);
     }
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
@@ -171,17 +206,9 @@ export function SocialProofScreenshotsSection({ product }: { product: Product })
         </p>
       </div>
 
-      <div className="mx-auto mt-6 grid max-w-3xl grid-cols-2 items-start gap-3 sm:grid-cols-3">
-        {posts.map((post, i) => (
-          <button
-            key={i}
-            type="button"
-            onClick={() => setActiveIndex(i)}
-            aria-label="স্ক্রিনশট বড় করে দেখুন"
-            className="text-left transition hover:opacity-90"
-          >
-            <SocialMock post={post} />
-          </button>
+      <div className="mx-auto mt-6 grid max-w-3xl grid-cols-2 items-start gap-4 sm:grid-cols-3">
+        {stacks.map((stack, i) => (
+          <SocialStackTile key={i} stack={stack} onOpen={() => setActiveIndex(i * STACK_SIZE)} />
         ))}
       </div>
 
@@ -199,7 +226,28 @@ export function SocialProofScreenshotsSection({ product }: { product: Product })
               <X size={18} />
             </button>
 
-            <SocialMock post={posts[activeIndex]} large />
+            <div className="relative">
+              <SocialMock post={posts[activeIndex]} large />
+              <span className="pointer-events-none absolute left-2 top-2 rounded-full bg-black/50 px-2 py-0.5 text-[10px] font-medium text-white">
+                {toBengaliNumber(activeIndex + 1)}/{toBengaliNumber(posts.length)}
+              </span>
+              <button
+                type="button"
+                onClick={() => go(-1)}
+                aria-label="আগের স্ক্রিনশট"
+                className="absolute left-1.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white transition hover:bg-black/60"
+              >
+                <ChevronLeft size={18} />
+              </button>
+              <button
+                type="button"
+                onClick={() => go(1)}
+                aria-label="পরের স্ক্রিনশট"
+                className="absolute right-1.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white transition hover:bg-black/60"
+              >
+                <ChevronRight size={18} />
+              </button>
+            </div>
           </div>
         </div>
       )}
