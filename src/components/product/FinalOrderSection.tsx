@@ -5,12 +5,11 @@ import { CheckCircle2 } from "lucide-react";
 import { Product } from "@/lib/types";
 import { formatTaka, discountPercent } from "@/lib/format";
 import { useCartStore } from "@/store/cart";
-import { QuickOrderModal } from "@/components/product/QuickOrderModal";
+import { OrderForm } from "@/components/product/OrderForm";
 
 export function FinalOrderSection({ product }: { product: Product }) {
   const addItem = useCartStore((s) => s.addItem);
   const [added, setAdded] = useState(false);
-  const [showOrder, setShowOrder] = useState(false);
   const discount = discountPercent(product.price, product.oldPrice);
 
   function handleAddToCart() {
@@ -40,13 +39,7 @@ export function FinalOrderSection({ product }: { product: Product }) {
             )}
           </div>
 
-          <div className="mt-6 flex flex-col items-center justify-center gap-2 sm:flex-row">
-            <button
-              onClick={() => setShowOrder(true)}
-              className="inline-flex w-56 items-center justify-center gap-2 rounded-md bg-cta px-8 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-cta-dark"
-            >
-              এখনই কিনুন
-            </button>
+          <div className="mt-6 flex items-center justify-center">
             <button
               onClick={handleAddToCart}
               className="inline-flex w-56 items-center justify-center gap-2 rounded-md border border-white/40 px-8 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
@@ -73,8 +66,11 @@ export function FinalOrderSection({ product }: { product: Product }) {
             </span>
           </div>
         </div>
+
+        <div className="mx-auto mt-6 max-w-sm rounded-lg bg-surface p-5 text-left shadow-lg">
+          <OrderForm product={product} />
+        </div>
       </div>
-      <QuickOrderModal product={product} open={showOrder} onClose={() => setShowOrder(false)} />
     </section>
   );
 }
