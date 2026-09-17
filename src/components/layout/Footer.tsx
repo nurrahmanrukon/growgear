@@ -76,6 +76,9 @@ export function Footer() {
           <p className="text-xs text-background/50">
             © ২০২৬ GrowGear. সর্বস্বত্ব সংরক্ষিত। সারাদেশে ক্যাশ অন ডেলিভারি সুবিধা।
           </p>
+          <Link href="/admin" className="mt-1 text-[11px] text-background/30 hover:text-background/60 hover:underline">
+            অ্যাডমিন
+          </Link>
         </div>
       </div>
     </footer>

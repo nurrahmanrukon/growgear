@@ -41,11 +41,15 @@ function splitFreeContent(paragraphs: string[], ratio: number) {
   return { free: paragraphs.slice(0, cut), locked: paragraphs.slice(cut) };
 }
 
-export function PremiumGate({ post }: { post: BlogPost }) {
+export function PremiumGate({ post, availableFormats = ["text", "audio"] }: { post: BlogPost; availableFormats?: Format[] }) {
   const { content: paragraphs, premium, title } = post;
-  const [format, setFormat] = useState<Format>("text");
+  const showFormatTabs = availableFormats.length > 1;
+  const availableTiers = TIERS.filter(
+    (tier) => tier.id === "both" ? availableFormats.length > 1 : availableFormats.includes(tier.id)
+  );
+  const [format, setFormat] = useState<Format>(availableFormats.includes("text") ? "text" : "audio");
   const [unlockedFormats, setUnlockedFormats] = useState<Set<Format>>(new Set());
-  const [selectedTier, setSelectedTier] = useState<Tier>("both");
+  const [selectedTier, setSelectedTier] = useState<Tier>(availableTiers[availableTiers.length - 1].id);
   const [dismissed, setDismissed] = useState(false);
   const [showSample, setShowSample] = useState(false);
   const [email, setEmail] = useState("");
@@ -124,8 +128,8 @@ export function PremiumGate({ post }: { post: BlogPost }) {
         <StarRating rating={rating} size={13} />
       </div>
 
-      <div className="mt-3 grid grid-cols-3 gap-1.5">
-        {TIERS.map((tier) => {
+      <div className={`mt-3 grid gap-1.5 ${availableTiers.length === 1 ? "grid-cols-1" : availableTiers.length === 2 ? "grid-cols-2" : "grid-cols-3"}`}>
+        {availableTiers.map((tier) => {
           const Icon = tier.icon;
           const active = selectedTier === tier.id;
           return (
@@ -181,7 +185,7 @@ export function PremiumGate({ post }: { post: BlogPost }) {
           onClick={() => attemptUnlock(selectedTier)}
           className="flex items-center justify-center gap-1.5 rounded-md bg-primary px-4 py-2 text-xs font-semibold text-white hover:bg-primary-dark"
         >
-          <Smartphone size={13} /> বিকাশে পে করুন — {formatTaka(TIERS.find((t) => t.id === selectedTier)!.price)}
+          <Smartphone size={13} /> বিকাশে পে করুন — {formatTaka(availableTiers.find((t) => t.id === selectedTier)!.price)}
         </button>
         <button
           onClick={() => attemptUnlock(selectedTier)}
@@ -195,7 +199,7 @@ export function PremiumGate({ post }: { post: BlogPost }) {
 
   return (
     <>
-      {formatTabs}
+      {showFormatTabs && formatTabs}
 
       {format === "text" &&
         (isLocked ? (
