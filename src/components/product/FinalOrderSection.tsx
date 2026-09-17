@@ -36,10 +36,13 @@ function UrgencyOrderCard({ product }: { product: Product }) {
   return (
     <div className="rounded-lg border border-white/10 bg-black/20 p-4 text-left">
       {product.category !== "ebook" && (
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-emerald-300">
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+        <div className="flex items-center gap-2 rounded-md border border-red-500/40 bg-red-500/15 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-red-300">
+          <span className="relative flex h-2 w-2 shrink-0">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
+          </span>
           সীমিত স্টক - আজকের অফার চলছে
-        </span>
+        </div>
       )}
 
       <div className={`${product.category !== "ebook" ? "mt-3" : ""} flex items-center gap-2 rounded-md border border-white/10 px-3 py-2 text-xs font-medium text-white/85`}>
