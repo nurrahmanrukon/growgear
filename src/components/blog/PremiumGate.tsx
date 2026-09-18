@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CreditCard, FileText, Headphones, Layers, Lock, Mail, Smartphone, X, Eye } from "lucide-react";
 import { BlogPost } from "@/lib/types";
 import { getPremiumPurchaseCount, getPremiumRating } from "@/lib/data/blog";
@@ -61,6 +61,24 @@ export function PremiumGate({ post, hiddenFormats = [] }: { post: BlogPost; hidd
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState(false);
   const [emailedTo, setEmailedTo] = useState<string | null>(null);
+  const [hiddenPayment, setHiddenPayment] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!premium) return;
+    let cancelled = false;
+    fetch(`/api/payment-methods/${post.slug}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (!cancelled) setHiddenPayment(data.hidden ?? []);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [post.slug, premium]);
+
+  const showBkash = !hiddenPayment.includes("bkash");
+  const showCard = !hiddenPayment.includes("card");
 
   const isLocked = Boolean(premium) && !unlockedFormats.has(format);
   const purchaseCount = getPremiumPurchaseCount(post);
@@ -192,18 +210,22 @@ export function PremiumGate({ post, hiddenFormats = [] }: { post: BlogPost; hidd
         >
           <Eye size={13} /> একটু পড়ে দেখুন
         </button>
-        <button
-          onClick={() => attemptUnlock(selectedTier)}
-          className="flex items-center justify-center gap-1.5 rounded-md bg-primary px-4 py-2 text-xs font-semibold text-white hover:bg-primary-dark"
-        >
-          <Smartphone size={13} /> বিকাশে পে করুন — {formatTaka(selectedTierMeta.price)}
-        </button>
-        <button
-          onClick={() => attemptUnlock(selectedTier)}
-          className="flex items-center justify-center gap-1.5 rounded-md border border-primary px-4 py-2 text-xs font-semibold text-primary hover:bg-primary-light"
-        >
-          <CreditCard size={13} /> কার্ডে পে করুন
-        </button>
+        {showBkash && (
+          <button
+            onClick={() => attemptUnlock(selectedTier)}
+            className="flex items-center justify-center gap-1.5 rounded-md bg-primary px-4 py-2 text-xs font-semibold text-white hover:bg-primary-dark"
+          >
+            <Smartphone size={13} /> বিকাশে পে করুন — {formatTaka(selectedTierMeta.price)}
+          </button>
+        )}
+        {showCard && (
+          <button
+            onClick={() => attemptUnlock(selectedTier)}
+            className="flex items-center justify-center gap-1.5 rounded-md border border-primary px-4 py-2 text-xs font-semibold text-primary hover:bg-primary-light"
+          >
+            <CreditCard size={13} /> কার্ডে পে করুন
+          </button>
+        )}
       </div>
     </div>
   );
@@ -295,12 +317,16 @@ export function PremiumGate({ post, hiddenFormats = [] }: { post: BlogPost; hidd
             </div>
           )}
           <div className="mt-3 flex flex-col gap-2">
-            <Button variant="primary" fullWidth onClick={() => attemptUnlock(selectedTier)}>
-              <Smartphone size={13} /> বিকাশে পে করুন
-            </Button>
-            <Button variant="secondary" fullWidth onClick={() => attemptUnlock(selectedTier)}>
-              <CreditCard size={13} /> কার্ডে পে করুন
-            </Button>
+            {showBkash && (
+              <Button variant="primary" fullWidth onClick={() => attemptUnlock(selectedTier)}>
+                <Smartphone size={13} /> বিকাশে পে করুন
+              </Button>
+            )}
+            {showCard && (
+              <Button variant="secondary" fullWidth onClick={() => attemptUnlock(selectedTier)}>
+                <CreditCard size={13} /> কার্ডে পে করুন
+              </Button>
+            )}
           </div>
         </div>
       </Modal>

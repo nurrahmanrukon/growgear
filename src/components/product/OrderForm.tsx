@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Banknote, CreditCard, Smartphone } from "lucide-react";
 import { Product } from "@/lib/types";
@@ -24,7 +24,7 @@ const EBOOK_PAYMENT_METHODS: { id: PaymentMethod; label: string; icon: typeof Ba
 
 export function OrderForm({ product, onOrdered }: { product: Product; onOrdered?: () => void }) {
   const isEbook = product.category === "ebook";
-  const paymentMethods = isEbook ? EBOOK_PAYMENT_METHODS : PHYSICAL_PAYMENT_METHODS;
+  const allMethods = isEbook ? EBOOK_PAYMENT_METHODS : PHYSICAL_PAYMENT_METHODS;
 
   const router = useRouter();
   const [name, setName] = useState("");
@@ -33,9 +33,28 @@ export function OrderForm({ product, onOrdered }: { product: Product; onOrdered?
   const [address, setAddress] = useState("");
   const [area, setArea] = useState(AREAS[0]);
   const [quantity, setQuantity] = useState(1);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(isEbook ? "bkash" : "cod");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null);
+  const [hiddenPayment, setHiddenPayment] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`/api/payment-methods/${product.slug}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (!cancelled) setHiddenPayment(data.hidden ?? []);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [product.slug]);
+
+  const paymentMethods = allMethods.filter((m) => !hiddenPayment.includes(m.id));
+  const effectivePaymentMethod = paymentMethod && paymentMethods.some((m) => m.id === paymentMethod)
+    ? paymentMethod
+    : paymentMethods[0]?.id ?? allMethods[0].id;
 
   const deliveryFee = isEbook ? 0 : DELIVERY_FEES[area];
   const total = product.price * quantity + deliveryFee;
@@ -54,7 +73,7 @@ export function OrderForm({ product, onOrdered }: { product: Product; onOrdered?
           email: isEbook ? email : undefined,
           address: isEbook ? undefined : address,
           area: isEbook ? undefined : area,
-          paymentMethod,
+          paymentMethod: effectivePaymentMethod,
           items: [{ productId: product.id, title: product.title, price: product.price, quantity }],
         }),
       });
@@ -150,7 +169,7 @@ export function OrderForm({ product, onOrdered }: { product: Product; onOrdered?
           <div className={isEbook ? "grid grid-cols-2 gap-2" : "grid grid-cols-3 gap-2"}>
             {paymentMethods.map((m) => {
               const Icon = m.icon;
-              const active = paymentMethod === m.id;
+              const active = effectivePaymentMethod === m.id;
               return (
                 <button
                   key={m.id}
