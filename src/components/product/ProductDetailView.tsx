@@ -27,10 +27,12 @@ export function ProductDetailView({
   product,
   related,
   sectionOrder,
+  hiddenSections,
 }: {
   product: Product;
   related: Product[];
   sectionOrder?: string[];
+  hiddenSections?: string[];
 }) {
   const meta = categoryMeta[product.category];
   const isReadable = product.category === "book" || product.category === "ebook";
@@ -122,6 +124,7 @@ export function ProductDetailView({
   };
 
   const order = sectionOrder ?? getDefaultSectionOrder();
+  const hidden = new Set(hiddenSections ?? []);
 
   return (
     <div className="pb-20 lg:pb-0">
@@ -138,9 +141,11 @@ export function ProductDetailView({
       <LandingHero product={product} />
       <LandingHeroTitleBar product={product} />
 
-      {order.map((key) => (
-        <Fragment key={key}>{sectionRenderers[key]?.()}</Fragment>
-      ))}
+      {order
+        .filter((key) => !hidden.has(key))
+        .map((key) => (
+          <Fragment key={key}>{sectionRenderers[key]?.()}</Fragment>
+        ))}
 
       {related.length > 0 && (
         <section className="container-page border-t border-border py-10">

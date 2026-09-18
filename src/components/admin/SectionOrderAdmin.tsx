@@ -12,6 +12,8 @@ import {
   Check,
   Search,
   Sparkles,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 
 interface SectionMeta {
@@ -51,6 +53,7 @@ export function SectionOrderAdmin({
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<ProductRow | null>(null);
   const [order, setOrder] = useState<string[] | null>(null);
+  const [hidden, setHidden] = useState<Set<string>>(new Set());
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [loadingOrder, setLoadingOrder] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -68,6 +71,7 @@ export function SectionOrderAdmin({
   async function selectProduct(p: ProductRow) {
     setSelected(p);
     setOrder(null);
+    setHidden(new Set());
     setSaved(false);
     setError(null);
     setLoadingOrder(true);
@@ -75,11 +79,22 @@ export function SectionOrderAdmin({
       const res = await fetch(`/api/admin/section-order/${p.slug}`);
       const data = await res.json();
       setOrder(data.order);
+      setHidden(new Set(data.hidden ?? []));
     } catch {
       setError("লোড করা যায়নি");
     } finally {
       setLoadingOrder(false);
     }
+  }
+
+  function toggleHidden(key: string) {
+    setHidden((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+    setSaved(false);
   }
 
   function move(from: number, to: number) {
@@ -118,7 +133,7 @@ export function SectionOrderAdmin({
       const res = await fetch(`/api/admin/section-order/${selected.slug}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ order }),
+        body: JSON.stringify({ order, hidden: Array.from(hidden) }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => null);
@@ -146,6 +161,7 @@ export function SectionOrderAdmin({
         return;
       }
       setOrder(catalog.map((s) => s.key));
+      setHidden(new Set());
       setProducts((prev) => prev.map((p) => (p.slug === selected.slug ? { ...p, customized: false } : p)));
       setSaved(false);
     } catch {
@@ -168,8 +184,9 @@ export function SectionOrderAdmin({
           <h1 className="font-display text-xl font-bold text-foreground">প্রোডাক্ট পেজ সেকশন সাজান</h1>
           <p className="mt-1 max-w-2xl text-sm text-ink-soft">
             বামের লিস্ট থেকে একটা প্রোডাক্ট বেছে নিন, তারপর তার পেজের সেকশনগুলো টেনে (ড্র্যাগ) বা তীর বাটন দিয়ে
-            সাজান। প্রতিটা প্রোডাক্ট পেজ আলাদাভাবে কাস্টমাইজ করা যাবে — একটা প্রোডাক্টে পরিবর্তন করলে অন্য
-            প্রোডাক্টে কোনো প্রভাব পড়বে না। ডিজাইন একই থাকবে, শুধু সেকশনের ক্রম বদলাবে।
+            সাজান — আর চোখ-আইকনে ক্লিক করে যেকোনো সেকশন লুকিয়েও ফেলতে পারবেন, তাহলে ভিজিটররা সেটা পেজেই দেখবে না।
+            প্রতিটা প্রোডাক্ট পেজ আলাদাভাবে কাস্টমাইজ করা যাবে — একটা প্রোডাক্টে পরিবর্তন করলে অন্য প্রোডাক্টে কোনো
+            প্রভাব পড়বে না। ডিজাইন একই থাকবে, শুধু সেকশনের ক্রম ও দৃশ্যমানতা বদলাবে।
           </p>
         </div>
         <button
@@ -271,6 +288,7 @@ export function SectionOrderAdmin({
                     {order.map((key, index) => {
                       const meta = byKey.get(key);
                       if (!meta) return null;
+                      const isHidden = hidden.has(key);
                       return (
                         <div
                           key={key}
@@ -279,9 +297,9 @@ export function SectionOrderAdmin({
                           onDragOver={(e) => e.preventDefault()}
                           onDrop={() => handleDrop(index)}
                           onDragEnd={() => setDragIndex(null)}
-                          className={`flex items-center gap-3 rounded-lg border bg-surface p-3 transition ${
+                          className={`flex items-center gap-3 rounded-lg border p-3 transition ${
                             dragIndex === index ? "opacity-40" : "border-border"
-                          }`}
+                          } ${isHidden ? "bg-surface-muted" : "bg-surface"}`}
                         >
                           <span className="cursor-grab text-ink-faint active:cursor-grabbing" aria-hidden="true">
                             <GripVertical size={18} />
@@ -290,10 +308,29 @@ export function SectionOrderAdmin({
                             {index + 1}
                           </span>
                           <div className="min-w-0 flex-1">
-                            <p className="text-sm font-medium text-foreground">{meta.label}</p>
+                            <p
+                              className={`text-sm font-medium ${
+                                isHidden ? "text-ink-faint line-through" : "text-foreground"
+                              }`}
+                            >
+                              {meta.label}
+                            </p>
                             {meta.note && <p className="text-[11px] text-ink-faint">{meta.note}</p>}
+                            {isHidden && <p className="text-[11px] font-medium text-price">লুকানো — ভিজিটররা দেখবে না</p>}
                           </div>
                           <div className="flex shrink-0 items-center gap-1">
+                            <button
+                              type="button"
+                              aria-label={isHidden ? "সেকশন দেখান" : "সেকশন লুকান"}
+                              onClick={() => toggleHidden(key)}
+                              className={`rounded-md border p-1.5 ${
+                                isHidden
+                                  ? "border-price/40 bg-price/10 text-price"
+                                  : "border-border text-ink-soft hover:border-primary hover:text-primary"
+                              }`}
+                            >
+                              {isHidden ? <EyeOff size={15} /> : <Eye size={15} />}
+                            </button>
                             <button
                               type="button"
                               aria-label="উপরে সরান"

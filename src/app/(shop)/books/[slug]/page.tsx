@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import { books } from "@/lib/data/books";
 import { getProductBySlug, getRelatedProducts } from "@/lib/data/products";
 import { ProductDetailView } from "@/components/product/ProductDetailView";
-import { getSectionOrder } from "@/lib/server/sectionOrder";
+import { getSectionConfig } from "@/lib/server/sectionOrder";
 
 export const dynamic = "force-dynamic";
 
@@ -30,5 +30,13 @@ export default async function BookDetailPage({
   const product = getProductBySlug(slug);
   if (!product || product.category !== "book") notFound();
 
-  return <ProductDetailView product={product} related={getRelatedProducts(product)} sectionOrder={getSectionOrder(product.slug)} />;
+  const { order, hidden } = getSectionConfig(product.slug);
+  return (
+    <ProductDetailView
+      product={product}
+      related={getRelatedProducts(product)}
+      sectionOrder={order}
+      hiddenSections={hidden}
+    />
+  );
 }
