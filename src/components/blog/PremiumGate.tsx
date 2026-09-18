@@ -7,7 +7,7 @@ import { getPremiumPurchaseCount, getPremiumRating } from "@/lib/data/blog";
 import { toBengaliNumber, formatTaka } from "@/lib/format";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
-import { AudioPlayerCard } from "@/components/blog/AudioPlayerCard";
+import { BlogAudioPlayer } from "@/components/blog/BlogAudioPlayer";
 import { StarRating } from "@/components/ui/StarRating";
 
 const FREE_PREVIEW_RATIO = 0.25;
@@ -286,7 +286,7 @@ export function PremiumGate({ post, hiddenFormats = [] }: { post: BlogPost; hidd
             <div className="flex justify-center py-4">{paywallCard}</div>
           )
         ) : (
-          <AudioPlayerCard title={title} paragraphs={paragraphs} />
+          <BlogAudioPlayer slug={post.slug} title={title} paragraphs={paragraphs} />
         ))}
 
       <Modal open={showSample} onClose={() => setShowSample(false)}>

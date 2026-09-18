@@ -16,6 +16,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin/blog" className="hover:text-white">
             ব্লগ ফরম্যাট
           </Link>
+          <Link href="/admin/blog-audio" className="hover:text-white">
+            ব্লগ অডিও
+          </Link>
           <Link href="/admin/product-sections" className="hover:text-white">
             প্রোডাক্ট পেজ সেকশন
           </Link>
