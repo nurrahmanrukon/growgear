@@ -1,27 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
-import { SECTION_CATALOG, getSectionOrder, setSectionOrder } from "@/lib/server/sectionOrder";
+import { NextResponse } from "next/server";
+import { allProducts } from "@/lib/data/products";
+import { SECTION_CATALOG, isCustomized } from "@/lib/server/sectionOrder";
 
 export async function GET() {
-  return NextResponse.json({ order: getSectionOrder(), catalog: SECTION_CATALOG });
-}
-
-export async function PUT(req: NextRequest) {
-  let body: { order?: string[] };
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: "অবৈধ রিকোয়েস্ট" }, { status: 400 });
-  }
-
-  if (!Array.isArray(body.order)) {
-    return NextResponse.json({ error: "অর্ডার লিস্ট দিতে হবে" }, { status: 400 });
-  }
-
-  try {
-    setSectionOrder(body.order);
-  } catch (err) {
-    return NextResponse.json({ error: err instanceof Error ? err.message : "আপডেট করা যায়নি" }, { status: 400 });
-  }
-
-  return NextResponse.json({ ok: true });
+  const products = allProducts.map((p) => ({
+    slug: p.slug,
+    title: p.title,
+    category: p.category,
+    customized: isCustomized(p.slug),
+  }));
+  return NextResponse.json({ catalog: SECTION_CATALOG, products });
 }

@@ -27,32 +27,43 @@ const DEFAULT_ORDER: string[] = SECTION_CATALOG.map((s) => s.key);
 
 const STORE_PATH = path.join(process.cwd(), "data", "section-order.json");
 
-function readStore(): string[] | null {
+function readStore(): Record<string, string[]> {
   try {
     const data = JSON.parse(fs.readFileSync(STORE_PATH, "utf-8"));
-    if (Array.isArray(data) && data.every((k) => typeof k === "string")) return data;
-    return null;
+    if (data && typeof data === "object" && !Array.isArray(data)) return data;
+    // migrate from the earlier single-shared-order format (a plain array)
+    if (Array.isArray(data)) return { __default__: data };
+    return {};
   } catch {
-    return null;
+    return {};
   }
 }
 
-function writeStore(order: string[]) {
+function writeStore(data: Record<string, string[]>) {
   fs.mkdirSync(path.dirname(STORE_PATH), { recursive: true });
-  fs.writeFileSync(STORE_PATH, JSON.stringify(order, null, 2));
+  fs.writeFileSync(STORE_PATH, JSON.stringify(data, null, 2));
 }
 
-export function getSectionOrder(): string[] {
-  const stored = readStore();
-  if (!stored) return DEFAULT_ORDER;
-
+function sanitize(order: string[]): string[] {
   const validKeys = new Set(DEFAULT_ORDER);
-  const cleaned = stored.filter((k) => validKeys.has(k));
+  const cleaned = order.filter((k) => validKeys.has(k));
   const missing = DEFAULT_ORDER.filter((k) => !cleaned.includes(k));
   return [...cleaned, ...missing];
 }
 
-export function setSectionOrder(order: string[]) {
+export function getSectionOrder(slug?: string): string[] {
+  const store = readStore();
+  if (slug && store[slug]) return sanitize(store[slug]);
+  return DEFAULT_ORDER;
+}
+
+export function isCustomized(slug: string): boolean {
+  const store = readStore();
+  return Boolean(store[slug]);
+}
+
+export function setSectionOrder(slug: string, order: string[]) {
+  if (!slug) throw new Error("প্রোডাক্ট নির্দিষ্ট করা হয়নি");
   const validKeys = new Set(DEFAULT_ORDER);
   if (order.length !== DEFAULT_ORDER.length || !order.every((k) => validKeys.has(k))) {
     throw new Error("অবৈধ সেকশন অর্ডার");
@@ -60,7 +71,17 @@ export function setSectionOrder(order: string[]) {
   if (new Set(order).size !== order.length) {
     throw new Error("সেকশন একাধিকবার থাকতে পারবে না");
   }
-  writeStore(order);
+  const store = readStore();
+  store[slug] = order;
+  writeStore(store);
+}
+
+export function resetSectionOrder(slug: string) {
+  const store = readStore();
+  if (slug in store) {
+    delete store[slug];
+    writeStore(store);
+  }
 }
 
 export function getDefaultSectionOrder(): string[] {

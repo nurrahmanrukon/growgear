@@ -30,5 +30,5 @@ export default async function BookDetailPage({
   const product = getProductBySlug(slug);
   if (!product || product.category !== "book") notFound();
 
-  return <ProductDetailView product={product} related={getRelatedProducts(product)} sectionOrder={getSectionOrder()} />;
+  return <ProductDetailView product={product} related={getRelatedProducts(product)} sectionOrder={getSectionOrder(product.slug)} />;
 }
