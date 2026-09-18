@@ -7,6 +7,7 @@ import { gear } from "@/lib/data/gear";
 import { blogPosts, getBlogPostBySlug, getPostsByTopic, getFeaturedPosts } from "@/lib/data/blog";
 import { Product, BlogPost, ProductCategory } from "@/lib/types";
 import { getBlogImageUrl, getProductImageUrl, getProductVideoUrl } from "@/lib/server/mediaAssets";
+import { resolveInStock } from "@/lib/server/inventory";
 
 const STORE_PATH = path.join(process.cwd(), "data", "content-text.json");
 
@@ -75,6 +76,7 @@ function mergeProduct(product: Product, override: ProductTextOverride): Product 
   };
   return {
     ...merged,
+    inStock: resolveInStock(product.slug, merged.inStock),
     coverImageUrl: getProductImageUrl(product.slug),
     videoUrl: getProductVideoUrl(product.slug),
   };

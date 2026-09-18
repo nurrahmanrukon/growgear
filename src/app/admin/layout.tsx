@@ -31,6 +31,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin/media" className="hover:text-white">
             ছবি ও ভিডিও
           </Link>
+          <Link href="/admin/orders" className="hover:text-white">
+            অর্ডার
+          </Link>
+          <Link href="/admin/inventory" className="hover:text-white">
+            ইনভেন্টরি
+          </Link>
         </div>
       </div>
       <main className="flex-1">{children}</main>
