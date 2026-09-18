@@ -12,17 +12,26 @@ export function VideoSection({ product }: { product: Product }) {
       </div>
 
       <div className="mx-auto mt-6 max-w-3xl">
-        <div
-          className="group relative flex aspect-video w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-border"
-          style={{ background: `linear-gradient(135deg, ${product.colorFrom}, ${product.colorTo})` }}
-        >
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-surface/90 shadow-sm transition group-hover:scale-105 sm:h-20 sm:w-20">
-            <Play size={28} className="ml-1 text-foreground" fill="currentColor" />
+        {product.videoUrl ? (
+          <video
+            src={product.videoUrl}
+            controls
+            preload="metadata"
+            className="aspect-video w-full rounded-lg border border-border bg-black"
+          />
+        ) : (
+          <div
+            className="group relative flex aspect-video w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-border"
+            style={{ background: `linear-gradient(135deg, ${product.colorFrom}, ${product.colorTo})` }}
+          >
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-surface/90 shadow-sm transition group-hover:scale-105 sm:h-20 sm:w-20">
+              <Play size={28} className="ml-1 text-foreground" fill="currentColor" />
+            </div>
+            <span className="absolute bottom-3 left-4 text-xs font-medium text-white/85 sm:bottom-4 sm:left-5 sm:text-sm">
+              {product.title} — প্রোডাক্ট ভিডিও (শীঘ্রই যুক্ত হবে)
+            </span>
           </div>
-          <span className="absolute bottom-3 left-4 text-xs font-medium text-white/85 sm:bottom-4 sm:left-5 sm:text-sm">
-            {product.title} — প্রোডাক্ট ভিডিও (শীঘ্রই যুক্ত হবে)
-          </span>
-        </div>
+        )}
       </div>
     </section>
   );

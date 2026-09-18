@@ -54,6 +54,7 @@ export function ProductImageGallery({ product }: { product: Product }) {
             colorFrom={product.colorFrom}
             colorTo={product.colorTo}
             iconSize={76}
+            imageUrl={product.coverImageUrl}
             className="aspect-[3/4] w-64 rounded-lg shadow-2xl transition hover:brightness-105 sm:w-80"
           />
         </button>
@@ -103,6 +104,7 @@ export function ProductImageGallery({ product }: { product: Product }) {
                 colorFrom={product.colorFrom}
                 colorTo={product.colorTo}
                 iconSize={120}
+                imageUrl={product.coverImageUrl}
                 className="aspect-[3/4] w-full rounded-lg shadow-2xl"
               />
               <span className="pointer-events-none absolute left-3 top-3 rounded-full bg-black/50 px-2.5 py-1 text-xs font-medium text-white">

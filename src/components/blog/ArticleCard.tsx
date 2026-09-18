@@ -19,6 +19,7 @@ export function ArticleCard({
           topicSlug={post.topicSlug}
           colorFrom={post.colorFrom}
           colorTo={post.colorTo}
+          imageUrl={post.coverImageUrl}
           className="aspect-video w-full"
           iconSize={26}
           premium={post.premium}
@@ -39,6 +40,7 @@ export function ArticleCard({
         topicSlug={post.topicSlug}
         colorFrom={post.colorFrom}
         colorTo={post.colorTo}
+        imageUrl={post.coverImageUrl}
         className="h-20 w-24 sm:h-24 sm:w-28"
         iconSize={22}
         premium={post.premium}

@@ -25,6 +25,7 @@ export function ProductCard({ product }: { product: Product }) {
           category={product.category}
           colorFrom={product.colorFrom}
           colorTo={product.colorTo}
+          imageUrl={product.coverImageUrl}
           className="aspect-square w-full"
         />
         {product.badge && (

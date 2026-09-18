@@ -42,6 +42,7 @@ function UrgencyOrderCard({ product }: { product: Product }) {
           category={product.category}
           colorFrom={product.colorFrom}
           colorTo={product.colorTo}
+          imageUrl={product.coverImageUrl}
           hideLabel
           className="h-16 w-12 shrink-0 rounded-md"
         />

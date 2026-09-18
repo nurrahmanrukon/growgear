@@ -81,6 +81,7 @@ export function BlogHero({ featured }: { featured: BlogPost[] }) {
                 topicSlug={hero.topicSlug}
                 colorFrom={hero.colorFrom}
                 colorTo={hero.colorTo}
+                imageUrl={hero.coverImageUrl}
                 className="aspect-[16/8] w-full"
                 iconSize={40}
                 premium={hero.premium}
@@ -104,6 +105,7 @@ export function BlogHero({ featured }: { featured: BlogPost[] }) {
                       topicSlug={post.topicSlug}
                       colorFrom={post.colorFrom}
                       colorTo={post.colorTo}
+                      imageUrl={post.coverImageUrl}
                       className="h-16 w-20 shrink-0"
                       iconSize={18}
                       premium={post.premium}

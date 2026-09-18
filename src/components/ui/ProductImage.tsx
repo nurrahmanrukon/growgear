@@ -16,6 +16,7 @@ export function ProductImage({
   className,
   iconSize = 40,
   hideLabel = false,
+  imageUrl,
 }: {
   title: string;
   category: ProductCategory;
@@ -24,8 +25,19 @@ export function ProductImage({
   className?: string;
   iconSize?: number;
   hideLabel?: boolean;
+  imageUrl?: string;
 }) {
   const Icon = categoryIcon[category];
+
+  if (imageUrl) {
+    return (
+      <div className={clsx("overflow-hidden rounded-md", className)}>
+        {/* eslint-disable-next-line @next/next/no-img-element -- uploaded via admin, served dynamically */}
+        <img src={imageUrl} alt={title} className="h-full w-full object-cover" />
+      </div>
+    );
+  }
+
   return (
     <div
       className={clsx(

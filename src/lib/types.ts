@@ -26,6 +26,9 @@ export interface Product {
   inStock: boolean;
   colorFrom: string;
   colorTo: string;
+  /** Set only by the server-side resolver when an admin has uploaded real media; absent otherwise. */
+  coverImageUrl?: string;
+  videoUrl?: string;
 }
 
 export interface Course {
@@ -73,4 +76,6 @@ export interface BlogPost {
   readMinutes: number;
   colorFrom: string;
   colorTo: string;
+  /** Set only by the server-side resolver when an admin has uploaded a real image; absent otherwise. */
+  coverImageUrl?: string;
 }

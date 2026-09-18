@@ -21,12 +21,21 @@ export function BlogTeaser({ posts }: { posts: BlogPost[] }) {
               href={`/blog/${post.slug}`}
               className="group rounded-lg border border-border p-3 transition hover:shadow-md"
             >
-              <div
-                className="flex h-28 items-center justify-center rounded-md p-3 text-center text-sm font-medium text-white/90"
-                style={{ background: `linear-gradient(135deg, ${post.colorFrom}, ${post.colorTo})` }}
-              >
-                {post.category}
-              </div>
+              {post.coverImageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element -- uploaded via admin, served dynamically
+                <img
+                  src={post.coverImageUrl}
+                  alt=""
+                  className="h-28 w-full rounded-md object-cover"
+                />
+              ) : (
+                <div
+                  className="flex h-28 items-center justify-center rounded-md p-3 text-center text-sm font-medium text-white/90"
+                  style={{ background: `linear-gradient(135deg, ${post.colorFrom}, ${post.colorTo})` }}
+                >
+                  {post.category}
+                </div>
+              )}
               <p className="mt-2 line-clamp-2 text-sm font-medium text-foreground group-hover:text-link-hover">
                 {post.title}
               </p>

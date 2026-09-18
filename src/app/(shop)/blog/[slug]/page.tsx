@@ -62,6 +62,7 @@ export default async function BlogPostPage({
           topicSlug={post.topicSlug}
           colorFrom={post.colorFrom}
           colorTo={post.colorTo}
+          imageUrl={post.coverImageUrl}
           className="mt-4 h-40 w-full sm:h-56"
           iconSize={44}
           premium={post.premium}

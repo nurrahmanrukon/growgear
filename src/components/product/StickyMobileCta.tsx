@@ -18,6 +18,7 @@ export function StickyMobileCta({ product }: { product: Product }) {
         category={product.category}
         colorFrom={product.colorFrom}
         colorTo={product.colorTo}
+        imageUrl={product.coverImageUrl}
         className="h-11 w-11 shrink-0 rounded-md"
         iconSize={18}
         hideLabel

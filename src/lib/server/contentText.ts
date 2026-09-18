@@ -6,6 +6,7 @@ import { ebooks } from "@/lib/data/ebooks";
 import { gear } from "@/lib/data/gear";
 import { blogPosts, getBlogPostBySlug, getPostsByTopic, getFeaturedPosts } from "@/lib/data/blog";
 import { Product, BlogPost, ProductCategory } from "@/lib/types";
+import { getBlogImageUrl, getProductImageUrl, getProductVideoUrl } from "@/lib/server/mediaAssets";
 
 const STORE_PATH = path.join(process.cwd(), "data", "content-text.json");
 
@@ -63,8 +64,7 @@ export function isProductTextCustomized(slug: string): boolean {
 }
 
 function mergeProduct(product: Product, override: ProductTextOverride): Product {
-  if (Object.keys(override).length === 0) return product;
-  return {
+  const merged = Object.keys(override).length === 0 ? product : {
     ...product,
     title: override.title || product.title,
     author: override.author || product.author,
@@ -72,6 +72,11 @@ function mergeProduct(product: Product, override: ProductTextOverride): Product 
     description: override.description || product.description,
     bullets: override.bullets && override.bullets.length > 0 ? override.bullets : product.bullets,
     badge: override.badge ?? product.badge,
+  };
+  return {
+    ...merged,
+    coverImageUrl: getProductImageUrl(product.slug),
+    videoUrl: getProductVideoUrl(product.slug),
   };
 }
 
@@ -81,8 +86,7 @@ export function resolveProduct(product: Product): Product {
 
 export function resolveProducts(products: Product[]): Product[] {
   const store = readStore().products ?? {};
-  if (Object.keys(store).length === 0) return products;
-  return products.map((p) => (store[p.slug] ? mergeProduct(p, store[p.slug]) : p));
+  return products.map((p) => mergeProduct(p, store[p.slug] ?? {}));
 }
 
 export function getProductBySlugResolved(slug: string): Product | undefined {
@@ -166,8 +170,7 @@ export function isBlogTextCustomized(slug: string): boolean {
 }
 
 function mergeBlogPost(post: BlogPost, override: BlogTextOverride): BlogPost {
-  if (Object.keys(override).length === 0) return post;
-  return {
+  const merged = Object.keys(override).length === 0 ? post : {
     ...post,
     title: override.title || post.title,
     excerpt: override.excerpt || post.excerpt,
@@ -175,6 +178,7 @@ function mergeBlogPost(post: BlogPost, override: BlogTextOverride): BlogPost {
     author: override.author || post.author,
     category: override.category || post.category,
   };
+  return { ...merged, coverImageUrl: getBlogImageUrl(post.slug) };
 }
 
 export function resolveBlogPost(post: BlogPost): BlogPost {
@@ -183,8 +187,7 @@ export function resolveBlogPost(post: BlogPost): BlogPost {
 
 export function resolveBlogPosts(posts: BlogPost[]): BlogPost[] {
   const store = readStore().blog ?? {};
-  if (Object.keys(store).length === 0) return posts;
-  return posts.map((p) => (store[p.slug] ? mergeBlogPost(p, store[p.slug]) : p));
+  return posts.map((p) => mergeBlogPost(p, store[p.slug] ?? {}));
 }
 
 export function blogPostsResolved(): BlogPost[] {
