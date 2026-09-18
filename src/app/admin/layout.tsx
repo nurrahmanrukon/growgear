@@ -12,6 +12,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             ← মূল সাইটে ফিরুন
           </Link>
         </div>
+        <div className="container-page flex items-center gap-4 border-t border-white/10 py-2 text-xs font-medium text-white/70">
+          <Link href="/admin/blog" className="hover:text-white">
+            ব্লগ ফরম্যাট
+          </Link>
+          <Link href="/admin/product-sections" className="hover:text-white">
+            প্রোডাক্ট পেজ সেকশন
+          </Link>
+        </div>
       </div>
       <main className="flex-1">{children}</main>
     </div>

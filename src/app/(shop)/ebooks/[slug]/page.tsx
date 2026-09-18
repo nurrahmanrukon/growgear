@@ -3,6 +3,9 @@ import { Metadata } from "next";
 import { ebooks } from "@/lib/data/ebooks";
 import { getProductBySlug, getRelatedProducts } from "@/lib/data/products";
 import { ProductDetailView } from "@/components/product/ProductDetailView";
+import { getSectionOrder } from "@/lib/server/sectionOrder";
+
+export const dynamic = "force-dynamic";
 
 export function generateStaticParams() {
   return ebooks.map((b) => ({ slug: b.slug }));
@@ -27,5 +30,5 @@ export default async function EbookDetailPage({
   const product = getProductBySlug(slug);
   if (!product || product.category !== "ebook") notFound();
 
-  return <ProductDetailView product={product} related={getRelatedProducts(product)} />;
+  return <ProductDetailView product={product} related={getRelatedProducts(product)} sectionOrder={getSectionOrder()} />;
 }

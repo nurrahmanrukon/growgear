@@ -3,6 +3,9 @@ import { Metadata } from "next";
 import { gear } from "@/lib/data/gear";
 import { getProductBySlug, getRelatedProducts } from "@/lib/data/products";
 import { ProductDetailView } from "@/components/product/ProductDetailView";
+import { getSectionOrder } from "@/lib/server/sectionOrder";
+
+export const dynamic = "force-dynamic";
 
 export function generateStaticParams() {
   return gear.map((g) => ({ slug: g.slug }));
@@ -27,5 +30,5 @@ export default async function GearDetailPage({
   const product = getProductBySlug(slug);
   if (!product || product.category !== "gear") notFound();
 
-  return <ProductDetailView product={product} related={getRelatedProducts(product)} />;
+  return <ProductDetailView product={product} related={getRelatedProducts(product)} sectionOrder={getSectionOrder()} />;
 }
