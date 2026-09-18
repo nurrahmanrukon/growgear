@@ -3,6 +3,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { Lock } from "lucide-react";
 import { blogPosts, getBlogPostBySlug, getPostsByTopic, TOPICS } from "@/lib/data/blog";
+import { getHiddenFormats } from "@/lib/server/blogFormats";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { ArticleThumb } from "@/components/blog/ArticleThumb";
 import { ArticleCard } from "@/components/blog/ArticleCard";
@@ -42,6 +43,7 @@ export default async function BlogPostPage({
   const related = getPostsByTopic(post.topicSlug)
     .filter((p) => p.id !== post.id)
     .slice(0, 3);
+  const hiddenFormats = getHiddenFormats(post.slug);
 
   return (
     <>
@@ -85,7 +87,7 @@ export default async function BlogPostPage({
         </p>
 
         <div className="mt-5 space-y-4 text-sm leading-relaxed text-ink-soft sm:text-base">
-          <PremiumGate post={post} />
+          <PremiumGate post={post} hiddenFormats={hiddenFormats} />
         </div>
 
         <Link

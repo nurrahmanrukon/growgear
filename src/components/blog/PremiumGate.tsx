@@ -41,11 +41,21 @@ function splitFreeContent(paragraphs: string[], ratio: number) {
   return { free: paragraphs.slice(0, cut), locked: paragraphs.slice(cut) };
 }
 
-export function PremiumGate({ post }: { post: BlogPost }) {
+const GRID_COLS: Record<number, string> = { 1: "grid-cols-1", 2: "grid-cols-2", 3: "grid-cols-3" };
+
+export function PremiumGate({ post, hiddenFormats = [] }: { post: BlogPost; hiddenFormats?: string[] }) {
   const { content: paragraphs, premium, title } = post;
-  const [format, setFormat] = useState<Format>("text");
+
+  const availableFormats = (["text", "audio"] as Format[]).filter((f) => !hiddenFormats.includes(f));
+  const formats = availableFormats.length > 0 ? availableFormats : (["text", "audio"] as Format[]);
+  const availableTiers = TIERS.filter((t) => !hiddenFormats.includes(t.id));
+  const tiers = availableTiers.length > 0 ? availableTiers : TIERS;
+
+  const [format, setFormat] = useState<Format>(formats[0]);
   const [unlockedFormats, setUnlockedFormats] = useState<Set<Format>>(new Set());
-  const [selectedTier, setSelectedTier] = useState<Tier>("both");
+  const [selectedTier, setSelectedTier] = useState<Tier>(
+    tiers.some((t) => t.id === "both") ? "both" : tiers[0].id
+  );
   const [dismissed, setDismissed] = useState(false);
   const [showSample, setShowSample] = useState(false);
   const [email, setEmail] = useState("");
@@ -56,6 +66,7 @@ export function PremiumGate({ post }: { post: BlogPost }) {
   const purchaseCount = getPremiumPurchaseCount(post);
   const { rating } = getPremiumRating(post);
   const tierNeedsEmail = (tier: Tier) => tier === "text" || tier === "both";
+  const selectedTierMeta = tiers.find((t) => t.id === selectedTier) ?? tiers[0];
 
   function unlockTier(tier: Tier) {
     setUnlockedFormats((prev) => {
@@ -85,24 +96,28 @@ export function PremiumGate({ post }: { post: BlogPost }) {
 
   const formatTabs = (
     <div className="mb-4 inline-flex rounded-md border border-border bg-surface-muted p-1 text-sm">
-      <button
-        type="button"
-        onClick={() => setFormat("text")}
-        className={`flex items-center gap-1.5 rounded px-3 py-1.5 font-medium transition ${
-          format === "text" ? "bg-surface text-foreground shadow-sm" : "text-ink-soft hover:text-foreground"
-        }`}
-      >
-        <FileText size={14} /> টেক্সট পড়ুন
-      </button>
-      <button
-        type="button"
-        onClick={() => setFormat("audio")}
-        className={`flex items-center gap-1.5 rounded px-3 py-1.5 font-medium transition ${
-          format === "audio" ? "bg-surface text-foreground shadow-sm" : "text-ink-soft hover:text-foreground"
-        }`}
-      >
-        <Headphones size={14} /> অডিও শুনুন
-      </button>
+      {formats.includes("text") && (
+        <button
+          type="button"
+          onClick={() => setFormat("text")}
+          className={`flex items-center gap-1.5 rounded px-3 py-1.5 font-medium transition ${
+            format === "text" ? "bg-surface text-foreground shadow-sm" : "text-ink-soft hover:text-foreground"
+          }`}
+        >
+          <FileText size={14} /> টেক্সট পড়ুন
+        </button>
+      )}
+      {formats.includes("audio") && (
+        <button
+          type="button"
+          onClick={() => setFormat("audio")}
+          className={`flex items-center gap-1.5 rounded px-3 py-1.5 font-medium transition ${
+            format === "audio" ? "bg-surface text-foreground shadow-sm" : "text-ink-soft hover:text-foreground"
+          }`}
+        >
+          <Headphones size={14} /> অডিও শুনুন
+        </button>
+      )}
     </div>
   );
 
@@ -124,8 +139,8 @@ export function PremiumGate({ post }: { post: BlogPost }) {
         <StarRating rating={rating} size={13} />
       </div>
 
-      <div className="mt-3 grid grid-cols-3 gap-1.5">
-        {TIERS.map((tier) => {
+      <div className={`mt-3 grid gap-1.5 ${GRID_COLS[tiers.length] ?? "grid-cols-3"}`}>
+        {tiers.map((tier) => {
           const Icon = tier.icon;
           const active = selectedTier === tier.id;
           return (
@@ -181,7 +196,7 @@ export function PremiumGate({ post }: { post: BlogPost }) {
           onClick={() => attemptUnlock(selectedTier)}
           className="flex items-center justify-center gap-1.5 rounded-md bg-primary px-4 py-2 text-xs font-semibold text-white hover:bg-primary-dark"
         >
-          <Smartphone size={13} /> বিকাশে পে করুন — {formatTaka(TIERS.find((t) => t.id === selectedTier)!.price)}
+          <Smartphone size={13} /> বিকাশে পে করুন — {formatTaka(selectedTierMeta.price)}
         </button>
         <button
           onClick={() => attemptUnlock(selectedTier)}
