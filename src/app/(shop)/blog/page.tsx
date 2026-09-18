@@ -1,6 +1,6 @@
 import { Metadata } from "next";
-import { blogPosts, getFeaturedPosts, getPostsByTopic, SEGMENTS, TOPICS } from "@/lib/data/blog";
-import { getFeaturedProducts } from "@/lib/data/products";
+import { SEGMENTS, TOPICS } from "@/lib/data/blog";
+import { blogPostsResolved, getFeaturedPostsResolved, getPostsByTopicResolved, getFeaturedProductsResolved } from "@/lib/server/contentText";
 import { courses } from "@/lib/data/courses";
 import { BlogTopicSlug } from "@/lib/types";
 import { TopicNav } from "@/components/blog/TopicNav";
@@ -16,6 +16,7 @@ import { TOPIC_ICONS } from "@/components/blog/topicIcons";
 import { toBengaliNumber } from "@/lib/format";
 
 export const metadata: Metadata = { title: "ব্লগ — GrowGear" };
+export const dynamic = "force-dynamic";
 
 const PAGE_SIZE = 6;
 const TOPIC_PAGE_SIZE = 9;
@@ -39,7 +40,7 @@ export default async function BlogPage({
     }
     const segmentMeta = segment ? SEGMENTS[topicMeta.slug].find((s) => s.slug === segment) : undefined;
     const Icon = TOPIC_ICONS[topicMeta.slug];
-    const all = getPostsByTopic(topicMeta.slug, segmentMeta?.slug);
+    const all = getPostsByTopicResolved(topicMeta.slug, segmentMeta?.slug);
     const totalPages = Math.ceil(all.length / TOPIC_PAGE_SIZE);
     const pagePosts = all.slice((currentPage - 1) * TOPIC_PAGE_SIZE, currentPage * TOPIC_PAGE_SIZE);
 
@@ -80,9 +81,10 @@ export default async function BlogPage({
     );
   }
 
-  const featured = getFeaturedPosts(4);
-  const totalPages = Math.ceil(blogPosts.length / PAGE_SIZE);
-  const pagePosts = blogPosts.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const allPosts = blogPostsResolved();
+  const featured = getFeaturedPostsResolved(4);
+  const totalPages = Math.ceil(allPosts.length / PAGE_SIZE);
+  const pagePosts = allPosts.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   return (
     <>
@@ -108,11 +110,11 @@ export default async function BlogPage({
           key={t.slug}
           topicSlug={t.slug}
           label={t.label}
-          posts={getPostsByTopic(t.slug).slice(0, 5)}
+          posts={getPostsByTopicResolved(t.slug).slice(0, 5)}
         />
       ))}
 
-      <ProductRail title="পড়ার সাথে সাথে কিনুন" viewAllHref="/books" products={getFeaturedProducts(8)} />
+      <ProductRail title="পড়ার সাথে সাথে কিনুন" viewAllHref="/books" products={getFeaturedProductsResolved(8)} />
       <CourseTeaser courses={courses.slice(0, 6)} />
       <BlogCategoryTiles />
       <NewsletterSection />

@@ -1,9 +1,10 @@
 import { Metadata } from "next";
-import { ebooks } from "@/lib/data/ebooks";
 import { categoryMeta } from "@/lib/data/products";
+import { ebooksResolved } from "@/lib/server/contentText";
 import { ProductListing } from "@/components/product/ProductListing";
 
 export const metadata: Metadata = { title: "ইবুক — GrowGear" };
+export const dynamic = "force-dynamic";
 
 export default async function EbooksPage({
   searchParams,
@@ -15,7 +16,7 @@ export default async function EbooksPage({
     <ProductListing
       title={categoryMeta.ebook.label}
       description={categoryMeta.ebook.description}
-      products={ebooks}
+      products={ebooksResolved()}
       basePath="/ebooks"
       initialBadge={badge}
     />

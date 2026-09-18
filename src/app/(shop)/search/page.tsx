@@ -1,8 +1,9 @@
 import { Metadata } from "next";
-import { allProducts } from "@/lib/data/products";
+import { allProductsResolved } from "@/lib/server/contentText";
 import { ProductListing } from "@/components/product/ProductListing";
 
 export const metadata: Metadata = { title: "সার্চ ফলাফল — GrowGear" };
+export const dynamic = "force-dynamic";
 
 export default async function SearchPage({
   searchParams,
@@ -11,6 +12,7 @@ export default async function SearchPage({
 }) {
   const { q = "", badge } = await searchParams;
   const query = q.trim().toLowerCase();
+  const allProducts = allProductsResolved();
   const results = query
     ? allProducts.filter(
         (p) =>

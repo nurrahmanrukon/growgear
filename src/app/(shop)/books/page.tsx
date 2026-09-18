@@ -1,9 +1,10 @@
 import { Metadata } from "next";
-import { books } from "@/lib/data/books";
 import { categoryMeta } from "@/lib/data/products";
+import { booksResolved } from "@/lib/server/contentText";
 import { ProductListing } from "@/components/product/ProductListing";
 
 export const metadata: Metadata = { title: "বই — GrowGear" };
+export const dynamic = "force-dynamic";
 
 export default async function BooksPage({
   searchParams,
@@ -15,7 +16,7 @@ export default async function BooksPage({
     <ProductListing
       title={categoryMeta.book.label}
       description={categoryMeta.book.description}
-      products={books}
+      products={booksResolved()}
       basePath="/books"
       initialBadge={badge}
     />

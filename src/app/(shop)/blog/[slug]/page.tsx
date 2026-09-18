@@ -2,7 +2,8 @@ import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import Link from "next/link";
 import { Lock } from "lucide-react";
-import { blogPosts, getBlogPostBySlug, getPostsByTopic, TOPICS } from "@/lib/data/blog";
+import { blogPosts, TOPICS } from "@/lib/data/blog";
+import { getBlogPostBySlugResolved, getPostsByTopicResolved } from "@/lib/server/contentText";
 import { getHiddenFormats } from "@/lib/server/blogFormats";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { ArticleThumb } from "@/components/blog/ArticleThumb";
@@ -25,7 +26,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const post = getBlogPostBySlug(slug);
+  const post = getBlogPostBySlugResolved(slug);
   return { title: post ? `${post.title} — GrowGear ব্লগ` : "ব্লগ — GrowGear" };
 }
 
@@ -35,12 +36,12 @@ export default async function BlogPostPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const post = getBlogPostBySlug(slug);
+  const post = getBlogPostBySlugResolved(slug);
   if (!post) notFound();
 
   const topicMeta = TOPICS.find((t) => t.slug === post.topicSlug);
   const TopicIcon = TOPIC_ICONS[post.topicSlug];
-  const related = getPostsByTopic(post.topicSlug)
+  const related = getPostsByTopicResolved(post.topicSlug)
     .filter((p) => p.id !== post.id)
     .slice(0, 3);
   const hiddenFormats = getHiddenFormats(post.slug);

@@ -25,6 +25,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin/payment-methods" className="hover:text-white">
             পেমেন্ট পদ্ধতি
           </Link>
+          <Link href="/admin/content-text" className="hover:text-white">
+            টেক্সট কনটেন্ট
+          </Link>
         </div>
       </div>
       <main className="flex-1">{children}</main>
