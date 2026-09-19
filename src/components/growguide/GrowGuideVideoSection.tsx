@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { Play } from "lucide-react";
+import { GROWGUIDE_AUDIENCE } from "@/lib/data/growguideAudience";
 
 export function GrowGuideVideoSection() {
   return (
@@ -26,6 +28,22 @@ export function GrowGuideVideoSection() {
             <span className="absolute bottom-3 left-4 text-xs font-medium text-white/85 sm:bottom-4 sm:left-5 sm:text-sm">
               নূর রহমানের বার্তা (শীঘ্রই যুক্ত হবে)
             </span>
+          </div>
+
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+            {GROWGUIDE_AUDIENCE.map((audience) => {
+              const Icon = audience.icon;
+              return (
+                <Link
+                  key={audience.slug}
+                  href={`/growguide/${audience.slug}`}
+                  className="flex items-center gap-1.5 rounded-full border border-border bg-surface px-4 py-2 text-xs font-medium text-foreground transition hover:border-primary hover:text-primary"
+                >
+                  <Icon size={14} />
+                  {audience.label}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </div>
