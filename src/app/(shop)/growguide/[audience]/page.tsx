@@ -53,8 +53,6 @@ export default async function GrowGuideAudiencePage({
         </div>
       </section>
 
-      <GrowGuideJoinForm />
-
       <section className="container-page py-10">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-xs font-medium uppercase tracking-wide text-primary">মূল বার্তা</p>
@@ -83,6 +81,8 @@ export default async function GrowGuideAudiencePage({
       </section>
 
       <GrowGuideSocialProofSection />
+
+      <GrowGuideJoinForm />
 
       <section className="container-page py-10">
         <div className="mx-auto grid max-w-3xl gap-4 sm:grid-cols-3">

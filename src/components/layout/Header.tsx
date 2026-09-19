@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { FormEvent, Suspense, useEffect, useRef, useState } from "react";
 import { Menu, Search, ShoppingCart, X } from "lucide-react";
 import clsx from "clsx";
 import { useCartStore, useHasHydrated } from "@/store/cart";
@@ -59,6 +59,41 @@ const navLinks: { key: string; label: string; href: string; sub?: { label: strin
   },
   { key: "decisionmaster", label: "ডিসিশনমাস্টার", href: "/decisionmaster" },
 ];
+
+function isSubLinkActive(href: string, pathname: string, searchParams: URLSearchParams): boolean {
+  const [hrefPath, hrefQuery] = href.split("?");
+  if (hrefPath !== pathname) return false;
+  if (!hrefQuery) return searchParams.toString() === "";
+  const hrefParams = new URLSearchParams(hrefQuery);
+  for (const [key, value] of hrefParams) {
+    if (searchParams.get(key) !== value) return false;
+  }
+  return true;
+}
+
+function SubNavLinks({ sub }: { sub: { label: string; href: string }[] }) {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  return (
+    <>
+      {sub.map((s) => {
+        const active = isSubLinkActive(s.href, pathname, searchParams);
+        return (
+          <Link
+            key={s.href}
+            href={s.href}
+            className={clsx(
+              "shrink-0 hover:text-white hover:underline",
+              active ? "font-semibold text-white underline underline-offset-4" : "text-white/80"
+            )}
+          >
+            {s.label}
+          </Link>
+        );
+      })}
+    </>
+  );
+}
 
 function getActiveCategoryKey(pathname: string): string {
   if (pathname.startsWith("/books")) return "book";
@@ -223,11 +258,15 @@ export function Header() {
         {activeCategory?.sub && activeCategory.sub.length > 0 && (
           <div style={{ background: "#37475a" }}>
             <div className="container-page flex items-center gap-4 overflow-x-auto py-1.5 text-xs scrollbar-none">
-              {activeCategory.sub.map((s) => (
-                <Link key={s.href} href={s.href} className="shrink-0 text-white/80 hover:text-white hover:underline">
-                  {s.label}
-                </Link>
-              ))}
+              <Suspense
+                fallback={activeCategory.sub.map((s) => (
+                  <Link key={s.href} href={s.href} className="shrink-0 text-white/80 hover:text-white hover:underline">
+                    {s.label}
+                  </Link>
+                ))}
+              >
+                <SubNavLinks sub={activeCategory.sub} />
+              </Suspense>
             </div>
           </div>
         )}
