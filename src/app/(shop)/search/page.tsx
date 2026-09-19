@@ -27,7 +27,6 @@ export default async function SearchPage({
       title={q ? `"${q}" এর জন্য সার্চ ফলাফল` : "সব প্রোডাক্ট"}
       description={`${results.length} টি প্রোডাক্ট পাওয়া গেছে`}
       products={results}
-      basePath="/search"
       initialBadge={badge}
     />
   );

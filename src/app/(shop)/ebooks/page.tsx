@@ -17,7 +17,6 @@ export default async function EbooksPage({
       title={categoryMeta.ebook.label}
       description={categoryMeta.ebook.description}
       products={ebooksResolved()}
-      basePath="/ebooks"
       initialBadge={badge}
     />
   );

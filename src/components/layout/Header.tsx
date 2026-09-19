@@ -83,8 +83,8 @@ function SubNavLinks({ sub }: { sub: { label: string; href: string }[] }) {
             key={s.href}
             href={s.href}
             className={clsx(
-              "shrink-0 hover:text-white hover:underline",
-              active ? "font-semibold text-white underline underline-offset-4" : "text-white/80"
+              "shrink-0 rounded border px-2 py-0.5 hover:border-white/40 hover:text-white",
+              active ? "border-white/70 bg-white/10 font-semibold text-white" : "border-transparent text-white/80"
             )}
           >
             {s.label}
@@ -260,7 +260,11 @@ export function Header() {
             <div className="container-page flex items-center gap-4 overflow-x-auto py-1.5 text-xs scrollbar-none">
               <Suspense
                 fallback={activeCategory.sub.map((s) => (
-                  <Link key={s.href} href={s.href} className="shrink-0 text-white/80 hover:text-white hover:underline">
+                  <Link
+                    key={s.href}
+                    href={s.href}
+                    className="shrink-0 rounded border border-transparent px-2 py-0.5 text-white/80 hover:border-white/40 hover:text-white"
+                  >
                     {s.label}
                   </Link>
                 ))}

@@ -19,10 +19,8 @@ export default async function GearPage({
       title={subcategory ? `${categoryMeta.gear.label} — ${subcategory.label}` : categoryMeta.gear.label}
       description={categoryMeta.gear.description}
       products={gearResolved()}
-      basePath="/gear"
       initialBadge={badge}
       initialSubcategory={subcategory?.slug}
-      subcategoryLabel={subcategory?.label}
     />
   );
 }
