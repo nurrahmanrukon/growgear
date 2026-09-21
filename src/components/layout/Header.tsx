@@ -115,7 +115,7 @@ const utilityLinks = [
   { label: "উইশলিস্ট", href: "/" },
 ];
 
-export function Header() {
+export function Header({ visibleKeys }: { visibleKeys?: string[] } = {}) {
   const router = useRouter();
   const pathname = usePathname();
   const [query, setQuery] = useState("");
@@ -127,6 +127,10 @@ export function Header() {
 
   const activeKey = getActiveCategoryKey(pathname);
   const activeCategory = navLinks.find((l) => l.key === activeKey);
+
+  const visibleNavLinks = visibleKeys
+    ? (visibleKeys.map((k) => navLinks.find((l) => l.key === k)).filter(Boolean) as typeof navLinks)
+    : navLinks;
 
   useEffect(() => {
     if (mobileSearchOpen) mobileSearchInputRef.current?.focus();
@@ -228,7 +232,7 @@ export function Header() {
       {/* Category nav bar (layer 1) — always visible, directly below the search box */}
       <div style={{ background: "#232f3e" }} className="text-white">
         <div className="container-page flex items-center gap-x-3 gap-y-1.5 overflow-x-auto py-2 text-sm scrollbar-none lg:flex-wrap lg:gap-x-5">
-          {navLinks.map((link) => (
+          {visibleNavLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
