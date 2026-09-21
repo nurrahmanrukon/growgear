@@ -41,7 +41,7 @@ export function BlogReviewsSection({ post }: { post: BlogPost }) {
   }
 
   return (
-    <section className="container-page border-t border-border py-10">
+    <section className="container-page border-t border-border py-12">
       <div className="text-center">
         <p className="text-xs font-medium uppercase tracking-wide text-primary">পাঠকদের মতামত</p>
         <h2 className="mt-1.5 font-display text-xl font-bold text-foreground sm:text-2xl">

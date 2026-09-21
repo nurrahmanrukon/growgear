@@ -29,7 +29,7 @@ export function CtaBanner({
 
   return (
     <section className="border-y border-border bg-primary-light">
-      <div className="container-page flex flex-col items-center gap-4 py-6 text-center sm:flex-row sm:justify-between sm:text-left">
+      <div className="container-page flex flex-col items-center gap-4 py-8 text-center sm:flex-row sm:justify-between sm:text-left">
         <div>
           <h3 className="font-display text-base font-bold text-foreground sm:text-lg">{heading}</h3>
           {sub && <p className="mt-0.5 text-sm text-ink-soft">{sub}</p>}

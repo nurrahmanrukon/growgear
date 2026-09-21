@@ -114,7 +114,7 @@ export default async function BlogPostPage({
       </article>
 
       {!isFullyLocked && related.length > 0 && (
-        <section className="container-page border-t border-border py-8">
+        <section className="container-page border-t border-border py-10">
           <h2 className="mb-4 font-display text-lg font-bold text-foreground">
             {topicMeta?.label} বিষয়ে আরও লেখা
           </h2>

@@ -105,7 +105,7 @@ export function GrowGuideReviewsSection() {
   const [playingVideo, setPlayingVideo] = useState<Review | null>(null);
 
   return (
-    <section className="border-y border-border bg-surface-muted py-10">
+    <section className="border-y border-border bg-surface-muted py-12">
       <div className="container-page">
         <div className="text-center">
           <p className="text-xs font-medium uppercase tracking-wide text-primary">অংশগ্রহণকারীদের মতামত</p>

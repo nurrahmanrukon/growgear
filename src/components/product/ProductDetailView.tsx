@@ -148,7 +148,7 @@ export function ProductDetailView({
         ))}
 
       {related.length > 0 && (
-        <section className="container-page border-t border-border py-10">
+        <section className="container-page border-t border-border py-12">
           <h2 className="mb-4 font-display text-lg font-bold text-foreground">আপনার পছন্দ হতে পারে</h2>
           <ProductGrid products={related} />
         </section>

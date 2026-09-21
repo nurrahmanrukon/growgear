@@ -98,7 +98,7 @@ export default async function GrowGuideAudiencePage({
         </div>
       </section>
 
-      <section className="border-y border-border bg-surface-muted py-10">
+      <section className="border-y border-border bg-surface-muted py-12">
         <div className="container-page">
           <h2 className="text-center font-display text-lg font-bold text-foreground sm:text-xl">
             {a.label} রা যা বলছেন

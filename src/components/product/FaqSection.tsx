@@ -6,7 +6,7 @@ export function FaqSection({ product }: { product: Product }) {
   const faqs = getFaqs(product);
 
   return (
-    <section className="border-y border-border bg-surface-muted py-10">
+    <section className="border-y border-border bg-surface-muted py-12">
       <div className="container-page">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-xs font-medium uppercase tracking-wide text-primary">সাধারণ জিজ্ঞাসা</p>

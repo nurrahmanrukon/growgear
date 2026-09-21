@@ -5,7 +5,7 @@ import { toBengaliNumber } from "@/lib/format";
 
 export function BlogCategoryTiles() {
   return (
-    <section className="border-y border-border bg-surface-muted py-8">
+    <section className="border-y border-border bg-surface-muted py-10">
       <div className="container-page">
         <h2 className="text-center font-display text-lg font-bold text-foreground sm:text-xl">
           বিষয় অনুযায়ী ব্লগ দেখুন

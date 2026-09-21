@@ -1,6 +1,6 @@
 export function GrowGuideAuthorBioSection() {
   return (
-    <section className="border-y border-border bg-surface-muted py-10">
+    <section className="border-y border-border bg-surface-muted py-12">
       <div className="container-page">
         <div className="mx-auto max-w-md text-center">
           <span

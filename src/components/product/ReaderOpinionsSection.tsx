@@ -105,7 +105,7 @@ export function ReaderOpinionsSection({ product }: { product: Product }) {
   const [playingVideo, setPlayingVideo] = useState<ReaderOpinion | null>(null);
 
   return (
-    <section className="border-y border-border bg-surface-muted py-10">
+    <section className="border-y border-border bg-surface-muted py-12">
       <div className="container-page">
         <div className="text-center">
           <p className="text-xs font-medium uppercase tracking-wide text-primary">পাঠকদের মতামত</p>

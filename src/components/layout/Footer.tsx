@@ -47,7 +47,7 @@ export function Footer() {
         <ArrowUp size={14} /> উপরে যান
       </button>
 
-      <div className="container-page grid grid-cols-2 gap-8 py-10 sm:grid-cols-4">
+      <div className="container-page grid grid-cols-2 gap-8 py-12 sm:grid-cols-4">
         {columns.map((col) => (
           <div key={col.title}>
             <h3 className="mb-3 text-sm font-semibold text-background">{col.title}</h3>

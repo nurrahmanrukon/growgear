@@ -21,7 +21,7 @@ export function AuthorBioSection({ product }: { product: Product }) {
   }
 
   return (
-    <section className="border-y border-border bg-surface-muted py-10">
+    <section className="border-y border-border bg-surface-muted py-12">
       <div className="container-page">
         <div className="mx-auto max-w-md text-center">
           <p className="text-xs font-medium uppercase tracking-wide text-primary">যিনি লিখেছেন</p>
