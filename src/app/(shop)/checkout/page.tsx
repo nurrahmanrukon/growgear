@@ -1,7 +1,6 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Banknote, CreditCard, Smartphone, Tag, X } from "lucide-react";
 import { useCartStore, useHasHydrated } from "@/store/cart";
@@ -14,7 +13,6 @@ const areas = ["ঢাকার ভিতরে", "ঢাকার বাইর�
 const deliveryFees: Record<string, number> = { "ঢাকার ভিতরে": 70, "ঢাকার বাইরে": 130 };
 
 export default function CheckoutPage() {
-  const router = useRouter();
   const hydrated = useHasHydrated();
   const items = useCartStore((s) => s.items);
   const totalPrice = useCartStore((s) => s.totalPrice());
@@ -85,7 +83,8 @@ export default function CheckoutPage() {
         return;
       }
       clear();
-      router.push(`/order-success?orderId=${data.orderId}`);
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- intentional hard navigation, see comment on this line in OrderForm.tsx
+      window.location.assign(`/order-success?orderId=${data.orderId}`);
     } catch {
       setError("নেটওয়ার্ক সমস্যা হয়েছে, আবার চেষ্টা করুন।");
     } finally {

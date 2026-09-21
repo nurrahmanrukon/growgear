@@ -13,6 +13,7 @@ import { PremiumGate } from "@/components/blog/PremiumGate";
 import { BlogReviewsSection } from "@/components/blog/BlogReviewsSection";
 import { TOPIC_ICONS } from "@/components/blog/topicIcons";
 import { toBengaliNumber } from "@/lib/format";
+import { getLandingLockConfig } from "@/lib/server/landingLock";
 
 export const dynamic = "force-dynamic";
 
@@ -45,18 +46,21 @@ export default async function BlogPostPage({
     .filter((p) => p.id !== post.id)
     .slice(0, 3);
   const hiddenFormats = getHiddenFormats(post.slug);
+  const isFullyLocked = getLandingLockConfig("blog", post.slug).mode === "full";
 
   return (
     <>
       <article className="container-page max-w-3xl py-6">
-        <Breadcrumb
-          items={[
-            { label: "হোম", href: "/" },
-            { label: "ব্লগ", href: "/blog" },
-            { label: topicMeta?.label ?? post.category, href: `/blog?topic=${post.topicSlug}` },
-            { label: post.title },
-          ]}
-        />
+        {!isFullyLocked && (
+          <Breadcrumb
+            items={[
+              { label: "হোম", href: "/" },
+              { label: "ব্লগ", href: "/blog" },
+              { label: topicMeta?.label ?? post.category, href: `/blog?topic=${post.topicSlug}` },
+              { label: post.title },
+            ]}
+          />
+        )}
 
         <ArticleThumb
           topicSlug={post.topicSlug}
@@ -69,13 +73,20 @@ export default async function BlogPostPage({
         />
 
         <div className="mt-5 flex flex-wrap items-center gap-2">
-          <Link
-            href={`/blog?topic=${post.topicSlug}`}
-            className="flex w-fit items-center gap-1.5 rounded-full bg-primary-light px-2.5 py-1 text-xs font-medium text-primary-dark"
-          >
-            <TopicIcon size={12} />
-            {post.category}
-          </Link>
+          {isFullyLocked ? (
+            <span className="flex w-fit items-center gap-1.5 rounded-full bg-primary-light px-2.5 py-1 text-xs font-medium text-primary-dark">
+              <TopicIcon size={12} />
+              {post.category}
+            </span>
+          ) : (
+            <Link
+              href={`/blog?topic=${post.topicSlug}`}
+              className="flex w-fit items-center gap-1.5 rounded-full bg-primary-light px-2.5 py-1 text-xs font-medium text-primary-dark"
+            >
+              <TopicIcon size={12} />
+              {post.category}
+            </Link>
+          )}
           {post.premium && (
             <span className="flex w-fit items-center gap-1.5 rounded-full bg-foreground px-2.5 py-1 text-xs font-medium text-background">
               <Lock size={12} /> প্রিমিয়াম লেখা
@@ -92,15 +103,17 @@ export default async function BlogPostPage({
           <PremiumGate post={post} hiddenFormats={hiddenFormats} />
         </div>
 
-        <Link
-          href="/blog"
-          className="mt-8 inline-block text-sm text-link hover:text-link-hover hover:underline"
-        >
-          ← সব ব্লগ পোস্ট দেখুন
-        </Link>
+        {!isFullyLocked && (
+          <Link
+            href="/blog"
+            className="mt-8 inline-block text-sm text-link hover:text-link-hover hover:underline"
+          >
+            ← সব ব্লগ পোস্ট দেখুন
+          </Link>
+        )}
       </article>
 
-      {related.length > 0 && (
+      {!isFullyLocked && related.length > 0 && (
         <section className="container-page border-t border-border py-8">
           <h2 className="mb-4 font-display text-lg font-bold text-foreground">
             {topicMeta?.label} বিষয়ে আরও লেখা

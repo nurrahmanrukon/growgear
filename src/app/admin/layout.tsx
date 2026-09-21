@@ -16,6 +16,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin/nav-menu" className="hover:text-white">
             হেডার মেনু
           </Link>
+          <Link href="/admin/landing-lock" className="hover:text-white">
+            ল্যান্ডিং পেজ লক
+          </Link>
           <Link href="/admin/blog" className="hover:text-white">
             ব্লগ ফরম্যাট
           </Link>

@@ -1,7 +1,6 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Banknote, CreditCard, Smartphone } from "lucide-react";
 import { Product } from "@/lib/types";
 import { formatTaka, toBengaliNumber } from "@/lib/format";
@@ -26,7 +25,6 @@ export function OrderForm({ product, onOrdered }: { product: Product; onOrdered?
   const isEbook = product.category === "ebook";
   const allMethods = isEbook ? EBOOK_PAYMENT_METHODS : PHYSICAL_PAYMENT_METHODS;
 
-  const router = useRouter();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -83,7 +81,11 @@ export function OrderForm({ product, onOrdered }: { product: Product; onOrdered?
         return;
       }
       onOrdered?.();
-      router.push(`/order-success?orderId=${data.orderId}`);
+      // Hard navigation (not router.push): forces the shared layout to
+      // re-evaluate landing-lock state, so a locked page's restricted chrome
+      // never leaks onto the order-success page.
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- intentional
+      window.location.assign(`/order-success?orderId=${data.orderId}`);
     } catch {
       setError("নেটওয়ার্ক সমস্যা হয়েছে, আবার চেষ্টা করুন।");
     } finally {

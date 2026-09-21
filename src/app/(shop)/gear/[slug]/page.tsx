@@ -4,6 +4,7 @@ import { gear } from "@/lib/data/gear";
 import { getProductBySlugResolved, getRelatedProductsResolved } from "@/lib/server/contentText";
 import { ProductDetailView } from "@/components/product/ProductDetailView";
 import { getSectionConfig } from "@/lib/server/sectionOrder";
+import { getLandingLockConfig } from "@/lib/server/landingLock";
 
 export const dynamic = "force-dynamic";
 
@@ -31,10 +32,11 @@ export default async function GearDetailPage({
   if (!product || product.category !== "gear") notFound();
 
   const { order, hidden } = getSectionConfig(product.slug);
+  const isFullyLocked = getLandingLockConfig("gear", product.slug).mode === "full";
   return (
     <ProductDetailView
       product={product}
-      related={getRelatedProductsResolved(product)}
+      related={isFullyLocked ? [] : getRelatedProductsResolved(product)}
       sectionOrder={order}
       hiddenSections={hidden}
     />

@@ -4,6 +4,7 @@ import { ebooks } from "@/lib/data/ebooks";
 import { getProductBySlugResolved, getRelatedProductsResolved } from "@/lib/server/contentText";
 import { ProductDetailView } from "@/components/product/ProductDetailView";
 import { getSectionConfig } from "@/lib/server/sectionOrder";
+import { getLandingLockConfig } from "@/lib/server/landingLock";
 
 export const dynamic = "force-dynamic";
 
@@ -31,10 +32,11 @@ export default async function EbookDetailPage({
   if (!product || product.category !== "ebook") notFound();
 
   const { order, hidden } = getSectionConfig(product.slug);
+  const isFullyLocked = getLandingLockConfig("ebook", product.slug).mode === "full";
   return (
     <ProductDetailView
       product={product}
-      related={getRelatedProductsResolved(product)}
+      related={isFullyLocked ? [] : getRelatedProductsResolved(product)}
       sectionOrder={order}
       hiddenSections={hidden}
     />
