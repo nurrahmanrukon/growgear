@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { BlogAudioPlayer } from "@/components/blog/BlogAudioPlayer";
 import { StarRating } from "@/components/ui/StarRating";
 
-const FREE_PREVIEW_RATIO = 0.15;
+const FREE_PREVIEW_RATIO = 0.25;
 
 type Format = "text" | "audio";
 type Tier = "text" | "audio" | "both";
