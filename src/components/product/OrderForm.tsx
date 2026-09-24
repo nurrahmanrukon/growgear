@@ -95,10 +95,9 @@ export function OrderForm({ product, onOrdered }: { product: Product; onOrdered?
 
   return (
     <>
-      <h2 className="pr-6">
-        <span className="animate-order-cta inline-block max-w-full truncate rounded-md bg-primary px-3 py-1 text-sm font-bold text-white">
-          অর্ডার করুন — {product.title}
-        </span>
+      <h2 className="truncate pr-6 text-base">
+        <span className="font-bold text-foreground">অর্ডার করুন</span>
+        <span className="text-ink-soft"> — {product.title}</span>
       </h2>
 
       <form onSubmit={handleSubmit} className="mt-3 flex flex-col gap-2">

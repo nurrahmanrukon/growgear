@@ -158,15 +158,6 @@ h1, h2, h3, .font-display {
   display: none;
 }
 
-@keyframes order-cta-pop {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.08); }
-}
-
-.animate-order-cta {
-  display: inline-block;
-  animation: order-cta-pop 1.6s ease-in-out infinite;
-}
 .scrollbar-none {
   -ms-overflow-style: none;
   scrollbar-width: none;
