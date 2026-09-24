@@ -1,9 +1,10 @@
-"use client";
-
-import { WHATSAPP_NUMBER, WHATSAPP_DEFAULT_MESSAGE } from "@/lib/siteConfig";
+import { getWhatsAppSettings } from "@/lib/server/whatsappSettings";
 
 export function WhatsAppButton() {
-  const href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_DEFAULT_MESSAGE)}`;
+  const settings = getWhatsAppSettings();
+  if (!settings.enabled) return null;
+
+  const href = `https://wa.me/${settings.number}?text=${encodeURIComponent(settings.message)}`;
 
   return (
     <a

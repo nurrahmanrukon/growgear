@@ -37,6 +37,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin/media" className="hover:text-white">
             ছবি ও ভিডিও
           </Link>
+          <Link href="/admin/whatsapp" className="hover:text-white">
+            হোয়াটসঅ্যাপ
+          </Link>
           <Link href="/admin/orders" className="hover:text-white">
             অর্ডার
           </Link>
