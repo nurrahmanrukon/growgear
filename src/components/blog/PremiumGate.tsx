@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CreditCard, FileText, Headphones, Layers, Lock, Mail, Smartphone, X, Eye } from "lucide-react";
+import { ChevronDown, CreditCard, FileText, Headphones, Layers, Lock, Mail, Smartphone, X, Eye } from "lucide-react";
 import { BlogPost } from "@/lib/types";
 import { getPremiumPurchaseCount, getPremiumRating } from "@/lib/data/blog";
 import { toBengaliNumber, formatTaka } from "@/lib/format";
@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { BlogAudioPlayer } from "@/components/blog/BlogAudioPlayer";
 import { StarRating } from "@/components/ui/StarRating";
 
-const FREE_PREVIEW_RATIO = 0.25;
+const FREE_PREVIEW_RATIO = 0.15;
 
 type Format = "text" | "audio";
 type Tier = "text" | "audio" | "both";
@@ -56,7 +56,7 @@ export function PremiumGate({ post, hiddenFormats = [] }: { post: BlogPost; hidd
   const [selectedTier, setSelectedTier] = useState<Tier>(
     tiers.some((t) => t.id === "both") ? "both" : tiers[0].id
   );
-  const [dismissed, setDismissed] = useState(false);
+  const [showGate, setShowGate] = useState(false);
   const [showSample, setShowSample] = useState(false);
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState(false);
@@ -142,7 +142,7 @@ export function PremiumGate({ post, hiddenFormats = [] }: { post: BlogPost; hidd
   const paywallCard = (
     <div className="relative w-full max-w-sm rounded-lg border border-border bg-surface p-5 text-center shadow-sm">
       <button
-        onClick={() => setDismissed(true)}
+        onClick={() => setShowGate(false)}
         aria-label="বন্ধ করুন"
         className="absolute right-2 top-2 rounded-full p-1 text-ink-faint hover:bg-surface-muted hover:text-foreground"
       >
@@ -247,15 +247,15 @@ export function PremiumGate({ post, hiddenFormats = [] }: { post: BlogPost; hidd
                 ))}
               </div>
               <div className="absolute inset-0 flex items-end justify-center bg-gradient-to-t from-background via-background/95 to-transparent pb-2 pt-10">
-                {dismissed ? (
-                  <button
-                    onClick={() => setDismissed(false)}
-                    className="mb-2 flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-primary-dark"
-                  >
-                    <Lock size={13} /> সম্পূর্ণ পড়তে আনলক করুন
-                  </button>
-                ) : (
+                {showGate ? (
                   paywallCard
+                ) : (
+                  <button
+                    onClick={() => setShowGate(true)}
+                    className="mb-2 flex items-center gap-1.5 rounded-full border border-primary/30 bg-surface px-4 py-2 text-xs font-semibold text-primary shadow-sm hover:bg-primary-light"
+                  >
+                    <ChevronDown size={13} /> পুরোটা পড়তে চান? এখানে ক্লিক করুন
+                  </button>
                 )}
               </div>
             </div>
@@ -275,15 +275,15 @@ export function PremiumGate({ post, hiddenFormats = [] }: { post: BlogPost; hidd
 
       {format === "audio" &&
         (isLocked ? (
-          dismissed ? (
-            <button
-              onClick={() => setDismissed(false)}
-              className="flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-primary-dark"
-            >
-              <Lock size={13} /> অডিও আনলক করুন
-            </button>
-          ) : (
+          showGate ? (
             <div className="flex justify-center py-4">{paywallCard}</div>
+          ) : (
+            <button
+              onClick={() => setShowGate(true)}
+              className="flex items-center gap-1.5 rounded-full border border-primary/30 bg-surface px-4 py-2 text-xs font-semibold text-primary shadow-sm hover:bg-primary-light"
+            >
+              <ChevronDown size={13} /> পুরো অডিওটি শুনতে চান? এখানে ক্লিক করুন
+            </button>
           )
         ) : (
           <BlogAudioPlayer slug={post.slug} title={title} paragraphs={paragraphs} />
