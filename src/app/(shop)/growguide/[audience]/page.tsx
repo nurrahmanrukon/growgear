@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
+import Link from "next/link";
 import { Play } from "lucide-react";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { StarRating } from "@/components/ui/StarRating";
+import { GrowGuideHeroCarousel } from "@/components/growguide/GrowGuideHeroCarousel";
 import { GrowGuideSocialProofSection } from "@/components/growguide/GrowGuideSocialProofSection";
 import { GrowGuideReviewsSection } from "@/components/growguide/GrowGuideReviewsSection";
 import { GrowGuideFaqSection } from "@/components/growguide/GrowGuideFaqSection";
@@ -50,6 +52,25 @@ export default async function GrowGuideAudiencePage({
             {a.heroHeading}
           </h1>
           <p className="mx-auto mt-3 max-w-xl text-sm text-ink-soft sm:text-base">{a.heroSubtitle}</p>
+
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+            {GROWGUIDE_AUDIENCE.map((audience) => (
+              <Link
+                key={audience.slug}
+                href={`/growguide/${audience.slug}`}
+                className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                  audience.slug === a.slug
+                    ? "border-primary bg-primary-light text-primary"
+                    : "border-border bg-surface text-foreground hover:border-primary hover:text-primary"
+                }`}
+              >
+                <audience.icon size={14} className={audience.slug === a.slug ? "text-primary" : "text-primary"} />{" "}
+                {audience.label}
+              </Link>
+            ))}
+          </div>
+
+          <GrowGuideHeroCarousel />
         </div>
       </section>
 
