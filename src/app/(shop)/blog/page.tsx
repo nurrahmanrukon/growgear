@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import Link from "next/link";
 import { SEGMENTS, TOPICS } from "@/lib/data/blog";
 import { blogPostsResolved, getFeaturedPostsResolved, getPostsByTopicResolved, getFeaturedProductsResolved } from "@/lib/server/contentText";
 import { courses } from "@/lib/data/courses";
@@ -46,7 +47,7 @@ export default async function BlogPage({
 
     return (
       <>
-        <TopicNav activeTopic={topicMeta.slug} activeSegment={segmentMeta?.slug} />
+        <TopicNav activeTopic={topicMeta.slug} />
         <div className="container-page py-8">
           <div className="flex items-center gap-2.5">
             <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-light text-primary">
@@ -60,6 +61,34 @@ export default async function BlogPage({
               <p className="text-xs text-ink-faint">{toBengaliNumber(all.length)} টি লেখা</p>
             </div>
           </div>
+
+          {SEGMENTS[topicMeta.slug].length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Link
+                href={`/blog?topic=${topicMeta.slug}`}
+                className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                  !segmentMeta
+                    ? "border-primary bg-primary-light text-primary"
+                    : "border-border bg-surface text-foreground hover:border-primary hover:text-primary"
+                }`}
+              >
+                সব
+              </Link>
+              {SEGMENTS[topicMeta.slug].map((seg) => (
+                <Link
+                  key={seg.slug}
+                  href={`/blog?topic=${topicMeta.slug}&segment=${seg.slug}`}
+                  className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                    segmentMeta?.slug === seg.slug
+                      ? "border-primary bg-primary-light text-primary"
+                      : "border-border bg-surface text-foreground hover:border-primary hover:text-primary"
+                  }`}
+                >
+                  {seg.label}
+                </Link>
+              ))}
+            </div>
+          )}
 
           <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 lg:grid-cols-4">
             {pagePosts.map((post) => (
