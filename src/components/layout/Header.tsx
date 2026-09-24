@@ -7,7 +7,6 @@ import { Menu, Search, ShoppingCart, X } from "lucide-react";
 import clsx from "clsx";
 import { useCartStore, useHasHydrated } from "@/store/cart";
 import { toBengaliNumber } from "@/lib/format";
-import { TOPICS } from "@/lib/data/blog";
 import { GEAR_SUBCATEGORIES } from "@/lib/data/gear";
 
 const productSub = (basePath: string) => [
@@ -41,12 +40,7 @@ const navLinks: { key: string; label: string; href: string; sub?: { label: strin
   { key: "ebook", label: "ইবুক", href: "/ebooks", sub: productSub("/ebooks") },
   { key: "gear", label: "গিয়ার", href: "/gear", sub: gearSub },
   { key: "course", label: "কোর্স", href: "/course", sub: [{ label: "সব কোর্স", href: "/course" }] },
-  {
-    key: "blog",
-    label: "ব্লগ",
-    href: "/blog",
-    sub: [{ label: "সব লেখা", href: "/blog" }, ...TOPICS.map((t) => ({ label: t.label, href: `/blog?topic=${t.slug}` }))],
-  },
+  { key: "blog", label: "ব্লগ", href: "/blog" },
   {
     key: "growguide",
     label: "GrowGuide",
