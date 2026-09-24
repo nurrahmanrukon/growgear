@@ -65,11 +65,10 @@ export function LandingHero({ product }: { product: Product }) {
         </h2>
 
         {isEbook ? (
-          <div className="mx-auto mt-6 max-w-xl text-center">
-            <p className="text-xs font-medium text-white/85 sm:text-sm">
-              📥 পেমেন্ট সম্পন্ন হওয়ার সাথে সাথেই সম্পূর্ণ ফাইল ডাউনলোড করতে পারবেন
-            </p>
-            <p className="mt-1.5 text-[11px] text-white/60">অপেক্ষা নেই — এখনই পড়া শুরু করতে পারবেন, যেকোনো ডিভাইসে</p>
+          <div className="mx-auto mt-6 max-w-xl">
+            <div className="h-2 w-full overflow-hidden rounded-full bg-white/15">
+              <div className="h-full w-full rounded-full bg-gradient-to-r from-amber-400 via-rose-500 to-primary-dark" />
+            </div>
           </div>
         ) : (
           <div className="mx-auto mt-6 max-w-xl">
