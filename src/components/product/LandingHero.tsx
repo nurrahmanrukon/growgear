@@ -67,7 +67,10 @@ export function LandingHero({ product }: { product: Product }) {
         {isEbook ? (
           <div className="mx-auto mt-6 max-w-xl">
             <div className="h-2 w-full overflow-hidden rounded-full bg-white/15">
-              <div className="h-full w-full rounded-full bg-gradient-to-r from-amber-400 via-rose-500 to-primary-dark" />
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-amber-400 via-rose-500 to-primary-dark"
+                style={{ width: `${demand.stockSoldPercent}%` }}
+              />
             </div>
           </div>
         ) : (
@@ -85,7 +88,7 @@ export function LandingHero({ product }: { product: Product }) {
           </div>
         )}
 
-        <div className="mx-auto mt-5 flex max-w-xl items-center justify-center gap-3">
+        <div className={`mx-auto flex max-w-xl items-center justify-center gap-3 ${isEbook ? "mt-2" : "mt-5"}`}>
           <div className="flex -space-x-2">
             {demand.recentOrderInitials.map((initial, i) => (
               <div
