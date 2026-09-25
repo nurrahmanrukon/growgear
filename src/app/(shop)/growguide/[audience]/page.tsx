@@ -101,9 +101,9 @@ export default async function GrowGuideAudiencePage({
         </div>
       </section>
 
-      <GrowGuideSocialProofSection />
-
       <GrowGuideJoinForm />
+
+      <GrowGuideSocialProofSection />
 
       <section className="container-page py-10">
         <div className="mx-auto grid max-w-3xl gap-4 sm:grid-cols-3">
