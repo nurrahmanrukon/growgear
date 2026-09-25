@@ -45,6 +45,8 @@ export default async function GrowGuideAudiencePage({
         <Breadcrumb items={[{ label: "হোম", href: "/" }, { label: "GrowGuide", href: "/growguide" }, { label: a.label }]} />
       </div>
 
+      <GrowGuideJoinForm />
+
       <section className="border-b border-border bg-surface-muted">
         <div className="container-page py-10 text-center sm:py-14">
           <p className="text-xs font-medium uppercase tracking-wide text-primary">GrowGuide — {a.label}</p>
@@ -100,8 +102,6 @@ export default async function GrowGuideAudiencePage({
           </div>
         </div>
       </section>
-
-      <GrowGuideJoinForm />
 
       <GrowGuideSocialProofSection />
 
