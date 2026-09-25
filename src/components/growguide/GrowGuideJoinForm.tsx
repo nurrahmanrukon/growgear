@@ -14,16 +14,18 @@ const NEXT_SESSION_TIME = "রাত ৮:৩০";
 export function GrowGuideJoinForm() {
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState(false);
+  const [phone, setPhone] = useState("");
+  const [phoneError, setPhoneError] = useState(false);
   const [joined, setJoined] = useState(false);
   const [count, setCount] = useState(SEGMENT_JOINED);
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!EMAIL_PATTERN.test(email.trim())) {
-      setEmailError(true);
-      return;
-    }
-    setEmailError(false);
+    const validEmail = EMAIL_PATTERN.test(email.trim());
+    const validPhone = phone.trim().length >= 11;
+    setEmailError(!validEmail);
+    setPhoneError(!validPhone);
+    if (!validEmail || !validPhone) return;
     setJoined(true);
     setCount((c) => Math.min(SEGMENT_TARGET, c + 1));
   }
@@ -60,7 +62,7 @@ export function GrowGuideJoinForm() {
 
         {joined ? (
           <div className="mt-4 flex items-center justify-center gap-1.5 rounded-md bg-cta-light px-3 py-2.5 text-xs font-medium text-cta-dark">
-            <CheckCircle2 size={14} /> আপনি সফলভাবে যুক্ত হয়েছেন — {toBengaliNumber(SEGMENT_TARGET)} জন পূর্ণ হলে ওয়েবিনারের লিংক ইমেইলে পাঠানো হবে
+            <CheckCircle2 size={14} /> আপনি সফলভাবে যুক্ত হয়েছেন — {toBengaliNumber(SEGMENT_TARGET)} জন পূর্ণ হলে ওয়েবিনারের লিংক ইমেইল ও মোবাইলে পাঠানো হবে
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-2">
@@ -78,6 +80,20 @@ export function GrowGuideJoinForm() {
               }`}
             />
             {emailError && <p className="text-left text-[11px] text-price">সঠিক ইমেইল ঠিকানা দিন</p>}
+            <input
+              type="text"
+              inputMode="tel"
+              value={phone}
+              onChange={(e) => {
+                setPhone(e.target.value);
+                setPhoneError(false);
+              }}
+              placeholder="আপনার মোবাইল নম্বর"
+              className={`w-full rounded-md border bg-surface px-3 py-2.5 text-sm outline-none focus:ring-1 focus:ring-primary ${
+                phoneError ? "border-price" : "border-border"
+              }`}
+            />
+            {phoneError && <p className="text-left text-[11px] text-price">সঠিক মোবাইল নম্বর দিন</p>}
             <button
               type="submit"
               className="rounded-md bg-cta px-4 py-2.5 text-sm font-semibold text-white hover:bg-cta-dark"
