@@ -66,7 +66,7 @@ export function LandingHero({ product }: { product: Product }) {
 
         {isEbook ? (
           <div className="mx-auto mt-6 max-w-xl">
-            <div className="h-2 w-full overflow-hidden rounded-full bg-white/15">
+            <div className="h-2 w-full overflow-hidden rounded-full border border-white/20 bg-white/25">
               <div
                 className="h-full rounded-full bg-gradient-to-r from-amber-400 via-rose-500 to-primary-dark"
                 style={{ width: `${demand.stockSoldPercent}%` }}
