@@ -106,7 +106,14 @@ export default async function GrowGuideAudiencePage({
       <GrowGuideSocialProofSection />
 
       <section className="container-page py-10">
-        <div className="mx-auto grid max-w-3xl gap-4 sm:grid-cols-3">
+        <div className="mx-auto max-w-2xl text-center">
+          <p className="text-xs font-medium uppercase tracking-wide text-primary">কেন যোগ দেবেন</p>
+          <h2 className="mt-1.5 font-display text-xl font-bold text-foreground sm:text-2xl">
+            এই ওয়েবিনারে অংশ নিলে আপনার জীবনে যা বদলাবে
+          </h2>
+        </div>
+
+        <div className="mx-auto mt-6 grid max-w-3xl gap-4 sm:grid-cols-3">
           {a.benefits.map((b) => (
             <div key={b.title} className="rounded-lg border border-border bg-surface p-4">
               <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-light text-primary">
