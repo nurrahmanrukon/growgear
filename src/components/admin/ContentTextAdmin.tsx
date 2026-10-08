@@ -2,7 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { LogOut, Search, Sparkles, Check, Plus, X, RotateCcw, ExternalLink } from "lucide-react";
+import { LogOut, Search, Sparkles, Check, Plus, X, RotateCcw, ExternalLink, Tag } from "lucide-react";
+import { ALL_SEGMENTS } from "@/lib/data/segments";
 
 type ProductCategory = "book" | "ebook" | "gear";
 
@@ -26,6 +27,7 @@ interface ProductForm {
   bullets: string[];
   badge: string;
   category: ProductCategory;
+  segmentSlug: string;
 }
 interface BlogForm {
   title: string;
@@ -37,6 +39,19 @@ interface BlogForm {
 
 const CATEGORY_LABEL: Record<ProductCategory, string> = { book: "বই", ebook: "ইবুক", gear: "গিয়ার" };
 const CATEGORY_PATH: Record<ProductCategory, string> = { book: "/books", ebook: "/ebooks", gear: "/gear" };
+
+const SEGMENT_GROUPS: { topicLabel: string; options: { slug: string; label: string }[] }[] = (() => {
+  const groups: { topicLabel: string; options: { slug: string; label: string }[] }[] = [];
+  for (const seg of ALL_SEGMENTS) {
+    let group = groups.find((g) => g.topicLabel === seg.topicLabel);
+    if (!group) {
+      group = { topicLabel: seg.topicLabel, options: [] };
+      groups.push(group);
+    }
+    group.options.push({ slug: seg.slug, label: seg.label });
+  }
+  return groups;
+})();
 
 export function ContentTextAdmin({
   initialProducts,
@@ -96,6 +111,7 @@ export function ContentTextAdmin({
         bullets: c.bullets ?? [],
         badge: c.badge ?? "",
         category: c.category,
+        segmentSlug: c.segmentSlug ?? "",
       });
       setCustomized(data.customized);
     } catch {
@@ -145,6 +161,7 @@ export function ContentTextAdmin({
           description: productForm.description,
           bullets: productForm.bullets,
           badge: productForm.badge,
+          segmentSlug: productForm.segmentSlug,
         }),
       });
       const data = await res.json();
@@ -456,6 +473,32 @@ export function ContentTextAdmin({
                   value={productForm.badge}
                   onChange={(e) => setProductForm({ ...productForm, badge: e.target.value })}
                 />
+              </label>
+
+              <label className="block text-xs font-medium text-ink-soft">
+                <span className="flex items-center gap-1.5">
+                  <Tag size={13} /> ট্যাগ (হোম পেজে কোন কালেকশনে দেখাবে)
+                </span>
+                <select
+                  className={`mt-1 ${fieldClass}`}
+                  value={productForm.segmentSlug}
+                  onChange={(e) => setProductForm({ ...productForm, segmentSlug: e.target.value })}
+                >
+                  <option value="">স্বয়ংক্রিয় (ডিফল্ট)</option>
+                  {SEGMENT_GROUPS.map((group) => (
+                    <optgroup key={group.topicLabel} label={group.topicLabel}>
+                      {group.options.map((opt) => (
+                        <option key={opt.slug} value={opt.slug}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
+                <span className="mt-1 block text-[11px] font-normal text-ink-faint">
+                  কিছু না বেছে নিলে প্রোডাক্টটা স্বয়ংক্রিয়ভাবে একটা ট্যাগে বসে যাবে — নির্দিষ্ট করে দিলে সেটাই
+                  ব্যবহার হবে।
+                </span>
               </label>
 
               {error && <p className="text-sm text-price">{error}</p>}

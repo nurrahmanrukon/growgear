@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { allProducts, getProductBySlug, getRelatedProducts, getFeaturedProducts, getProductsBySegment } from "@/lib/data/products";
+import { allProducts, getProductBySlug, getRelatedProducts, getFeaturedProducts } from "@/lib/data/products";
 import { books } from "@/lib/data/books";
 import { ebooks } from "@/lib/data/ebooks";
 import { gear } from "@/lib/data/gear";
@@ -9,6 +9,7 @@ import { Product, BlogPost, ProductCategory } from "@/lib/types";
 import { getBlogImageUrl, getProductImageUrl, getProductVideoUrl } from "@/lib/server/mediaAssets";
 import { resolveInStock } from "@/lib/server/inventory";
 import { getSalesCounts } from "@/lib/server/orders";
+import { getSegmentMeta } from "@/lib/data/segments";
 
 const STORE_PATH = path.join(process.cwd(), "data", "content-text.json");
 
@@ -19,6 +20,7 @@ export interface ProductTextOverride {
   description?: string;
   bullets?: string[];
   badge?: string;
+  segmentSlug?: string;
 }
 
 export interface BlogTextOverride {
@@ -74,6 +76,7 @@ function mergeProduct(product: Product, override: ProductTextOverride, salesCoun
     description: override.description || product.description,
     bullets: override.bullets && override.bullets.length > 0 ? override.bullets : product.bullets,
     badge: override.badge ?? product.badge,
+    segmentSlug: override.segmentSlug || product.segmentSlug,
   };
   return {
     ...merged,
@@ -121,8 +124,18 @@ export function getBestSellersResolved(limit = 8): Product[] {
   return sortBySales(resolveProducts(allProducts)).slice(0, limit);
 }
 
+/** Resolves every product first (so an admin's manual tag override is respected), then
+ *  filters by segment — filtering the raw catalog first would miss products an admin
+ *  re-tagged away from their hash-assigned segment. */
 export function getProductsBySegmentResolved(segmentSlug: string, limit = 10): Product[] {
-  return sortBySales(resolveProducts(getProductsBySegment(segmentSlug))).slice(0, limit);
+  const matching = resolveProducts(allProducts).filter((p) => p.segmentSlug === segmentSlug);
+  return sortBySales(matching).slice(0, limit);
+}
+
+export function getProductCountByTopicResolved(topicSlug: string): number {
+  return resolveProducts(allProducts).filter(
+    (p) => p.segmentSlug && getSegmentMeta(p.segmentSlug)?.topicSlug === topicSlug
+  ).length;
 }
 
 export function getFeaturedProductsResolved(limit = 8): Product[] {
@@ -160,6 +173,9 @@ export function setProductOverride(slug: string, fields: ProductTextOverride) {
   if (fields.title !== undefined && !fields.title.trim()) {
     throw new Error("শিরোনাম খালি রাখা যাবে না");
   }
+  if (fields.segmentSlug && !getSegmentMeta(fields.segmentSlug)) {
+    throw new Error("অবৈধ ট্যাগ");
+  }
   const clean: ProductTextOverride = {
     title: fields.title?.trim() || undefined,
     author: fields.author?.trim() || undefined,
@@ -167,6 +183,7 @@ export function setProductOverride(slug: string, fields: ProductTextOverride) {
     description: fields.description?.trim() || undefined,
     bullets: cleanStrings(fields.bullets),
     badge: fields.badge?.trim() || undefined,
+    segmentSlug: fields.segmentSlug || undefined,
   };
   const store = readStore();
   store.products = store.products ?? {};

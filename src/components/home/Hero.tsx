@@ -1,11 +1,11 @@
 import { COLLECTIONS } from "@/lib/data/collections";
-import { getProductCountByTopic } from "@/lib/data/products";
+import { getProductCountByTopicResolved } from "@/lib/server/contentText";
 import { CollectionsRail } from "@/components/home/CollectionsRail";
 
 export function Hero() {
   const collections = COLLECTIONS.map((c) => {
     const Icon = c.icon;
-    return { ...c, icon: <Icon size={18} />, count: getProductCountByTopic(c.slug) };
+    return { ...c, icon: <Icon size={18} />, count: getProductCountByTopicResolved(c.slug) };
   });
 
   return (
