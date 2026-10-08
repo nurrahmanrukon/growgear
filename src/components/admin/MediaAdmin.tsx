@@ -562,14 +562,14 @@ export function MediaAdmin({
                 </p>
               )}
 
-              {selectedProduct.category === "book" && (
+              {(selectedProduct.category === "book" || selectedProduct.category === "ebook") && (
                 <MultiImageAdmin
                   key={`${selectedProduct.slug}-book-preview`}
                   adminEndpoint={`/api/admin/book-preview/${selectedProduct.slug}`}
                   mediaEndpoint={`/api/media/book-preview/${selectedProduct.slug}`}
                   icon={<BookOpen size={13} />}
-                  heading="বইয়ের পাতার প্রিভিউ (স্লাইড)"
-                  description='বইয়ের ভেতরের কয়েকটা পাতার ছবি (jpg/png/webp) আপলোড করুন — প্রোডাক্ট পেজে কাস্টমার স্লাইড করে দেখতে পারবে। PDF ফাইল সরাসরি আপলোড করা যাবে না — PDF-এর পাতাগুলোকে আগে ছবি (jpg/png) হিসেবে এক্সপোর্ট করে তারপর আপলোড করুন। কোনো পাতা না থাকলে এই সেকশন প্রোডাক্ট পেজে দেখাবে না।'
+                  heading="বই/ইবুকের পাতার প্রিভিউ (স্লাইড)"
+                  description='বই বা ইবুকের ভেতরের কয়েকটা পাতার ছবি (jpg/png/webp) আপলোড করুন — প্রোডাক্ট পেজে কাস্টমার স্লাইড করে দেখতে পারবে। PDF ফাইল সরাসরি আপলোড করা যাবে না — PDF-এর পাতাগুলোকে আগে ছবি (jpg/png) হিসেবে এক্সপোর্ট করে তারপর আপলোড করুন। কোনো পাতা না থাকলে এই সেকশন প্রোডাক্ট পেজে দেখাবে না।'
                   hint="jpg, png, webp — প্রতিটা সর্বোচ্চ ৮ এমবি, সর্বোচ্চ ৩০টি পাতা"
                   itemLabel="পাতা"
                 />

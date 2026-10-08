@@ -52,7 +52,7 @@ export function ProductDetailView({
       </>
     ),
     bookPreview: () =>
-      product.category === "book" ? (
+      isReadable ? (
         <>
           <BookPreviewSection product={product} />
           <InlineCtaBar product={product} />

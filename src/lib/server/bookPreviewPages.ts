@@ -7,9 +7,9 @@ export type BookPreviewPage = StoredImage;
 export const MAX_PAGE_BYTES = 8 * 1024 * 1024; // 8MB
 export const MAX_PAGES = 30;
 
-function isBookSlug(slug: string): boolean {
+function isReadableSlug(slug: string): boolean {
   const product = getProductBySlug(slug);
-  return Boolean(product && product.category === "book");
+  return Boolean(product && (product.category === "book" || product.category === "ebook"));
 }
 
 const store = createMultiImageStore({
@@ -19,8 +19,8 @@ const store = createMultiImageStore({
   maxBytes: MAX_PAGE_BYTES,
   maxCount: MAX_PAGES,
   maxCountError: `সর্বোচ্চ ${MAX_PAGES}টি পাতা যোগ করা যাবে`,
-  validateSlug: isBookSlug,
-  invalidSlugError: "শুধু বই এর জন্য পাতা যোগ করা যাবে",
+  validateSlug: isReadableSlug,
+  invalidSlugError: "শুধু বই/ইবুকের জন্য পাতা যোগ করা যাবে",
 });
 
 export const getPreviewPages = store.getEntries;

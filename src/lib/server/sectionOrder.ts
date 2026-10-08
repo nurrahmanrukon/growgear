@@ -20,7 +20,7 @@ interface StoredEntry {
 export const SECTION_CATALOG: SectionMeta[] = [
   { key: "video", label: "ভিডিও সেকশন" },
   { key: "socialProof", label: "সোশ্যাল মিডিয়া স্ক্রিনশট" },
-  { key: "bookPreview", label: "বইয়ের পাতার প্রিভিউ (স্লাইড)", note: "শুধু বইয়ের পেজে দেখা যাবে" },
+  { key: "bookPreview", label: "বইয়ের পাতার প্রিভিউ (স্লাইড)", note: "শুধু বই/ইবুকের পেজে দেখা যাবে" },
   { key: "expertOpinions", label: "বিশেষজ্ঞদের মতামত" },
   { key: "painPoints", label: "সমস্যা তুলে ধরা (পেইন পয়েন্টস)" },
   { key: "transformation", label: "রূপান্তর (ট্রান্সফরমেশন)" },
