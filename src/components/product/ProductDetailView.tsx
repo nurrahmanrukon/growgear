@@ -12,6 +12,7 @@ import { TransformationSection } from "@/components/product/TransformationSectio
 import { ExpertOpinionsSection } from "@/components/product/ExpertOpinionsSection";
 import { EditorialVideoReviewSection } from "@/components/product/EditorialVideoReviewSection";
 import { SocialProofScreenshotsSection } from "@/components/product/SocialProofScreenshotsSection";
+import { BookPreviewSection } from "@/components/product/BookPreviewSection";
 import { FaqSection } from "@/components/product/FaqSection";
 import { QuoteBanner } from "@/components/product/QuoteBanner";
 import { FinalOrderSection } from "@/components/product/FinalOrderSection";
@@ -50,6 +51,13 @@ export function ProductDetailView({
         <InlineCtaBar product={product} />
       </>
     ),
+    bookPreview: () =>
+      product.category === "book" ? (
+        <>
+          <BookPreviewSection product={product} />
+          <InlineCtaBar product={product} />
+        </>
+      ) : null,
     expertOpinions: () => (
       <>
         <ExpertOpinionsSection product={product} />

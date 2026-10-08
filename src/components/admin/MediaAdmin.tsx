@@ -1,8 +1,19 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
-import { LogOut, Search, Sparkles, UploadCloud, Trash2, ImageIcon, Film, ExternalLink } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import {
+  LogOut,
+  Search,
+  Sparkles,
+  UploadCloud,
+  Trash2,
+  ImageIcon,
+  Film,
+  ExternalLink,
+  GripVertical,
+  BookOpen,
+} from "lucide-react";
 
 type ProductCategory = "book" | "ebook" | "gear";
 
@@ -149,6 +160,174 @@ function MediaSlot({
           <Trash2 size={13} /> মুছে ফেলুন
         </button>
       )}
+
+      {error && <p className="mt-1.5 text-xs text-price">{error}</p>}
+    </div>
+  );
+}
+
+interface BookPreviewPage {
+  id: string;
+  fileName: string;
+  sizeBytes: number;
+}
+
+function BookPagesAdmin({ slug }: { slug: string }) {
+  const [pages, setPages] = useState<BookPreviewPage[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    fetch(`/api/admin/book-preview/${slug}`)
+      .then((res) => res.json())
+      .then((data) => setPages(data.pages ?? []))
+      .catch(() => setError("পাতাগুলো লোড করা যায়নি"))
+      .finally(() => setLoading(false));
+  }, [slug]);
+
+  async function uploadFiles(files: FileList | File[]) {
+    setError(null);
+    setUploading(true);
+    try {
+      for (const file of Array.from(files)) {
+        const form = new FormData();
+        form.append("file", file);
+        const res = await fetch(`/api/admin/book-preview/${slug}`, { method: "POST", body: form });
+        const data = await res.json();
+        if (!res.ok) {
+          setError(data?.error || "আপলোড করা যায়নি");
+          continue;
+        }
+        setPages((prev) => [...prev, data]);
+      }
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  async function removePage(id: string) {
+    setError(null);
+    const prev = pages;
+    setPages((p) => p.filter((pg) => pg.id !== id));
+    const res = await fetch(`/api/admin/book-preview/${slug}/${id}`, { method: "DELETE" });
+    if (!res.ok) {
+      setError("মুছে ফেলা যায়নি");
+      setPages(prev);
+    }
+  }
+
+  async function saveOrder(next: BookPreviewPage[]) {
+    const res = await fetch(`/api/admin/book-preview/${slug}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ order: next.map((p) => p.id) }),
+    });
+    if (!res.ok) setError("ক্রম সংরক্ষণ করা যায়নি");
+  }
+
+  function handleDrop(targetIndex: number) {
+    if (dragIndex === null || dragIndex === targetIndex) {
+      setDragIndex(null);
+      return;
+    }
+    setPages((prev) => {
+      const next = [...prev];
+      const [item] = next.splice(dragIndex, 1);
+      next.splice(targetIndex, 0, item);
+      saveOrder(next);
+      return next;
+    });
+    setDragIndex(null);
+  }
+
+  function handleDropFiles(e: React.DragEvent) {
+    e.preventDefault();
+    setDragOver(false);
+    if (e.dataTransfer.files?.length) uploadFiles(e.dataTransfer.files);
+  }
+
+  return (
+    <div className="rounded-lg border border-border bg-surface p-4">
+      <span className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-ink-soft">
+        <BookOpen size={13} /> বইয়ের পাতার প্রিভিউ (স্লাইড)
+      </span>
+      <p className="mb-3 text-[11px] text-ink-faint">
+        বইয়ের ভেতরের কয়েকটা পাতার ছবি (jpg/png/webp) আপলোড করুন — প্রোডাক্ট পেজে কাস্টমার স্লাইড করে দেখতে পারবে।
+        PDF ফাইল সরাসরি আপলোড করা যাবে না — PDF-এর পাতাগুলোকে আগে ছবি (jpg/png) হিসেবে এক্সপোর্ট করে তারপর আপলোড করুন।
+        কোনো পাতা না থাকলে এই সেকশন প্রোডাক্ট পেজে দেখাবে না।
+      </p>
+
+      {!loading && pages.length > 0 && (
+        <div className="mb-3 flex flex-col gap-2">
+          {pages.map((page, index) => (
+            <div
+              key={page.id}
+              draggable
+              onDragStart={() => setDragIndex(index)}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={() => handleDrop(index)}
+              onDragEnd={() => setDragIndex(null)}
+              className={`flex items-center gap-2 rounded-md border p-2 transition ${
+                dragIndex === index ? "opacity-40" : "border-border"
+              } bg-surface-muted`}
+            >
+              <span className="cursor-grab text-ink-faint active:cursor-grabbing" aria-hidden="true">
+                <GripVertical size={16} />
+              </span>
+              {/* eslint-disable-next-line @next/next/no-img-element -- admin preview of an uploaded file */}
+              <img
+                src={`/api/media/book-preview/${slug}/${page.id}`}
+                alt=""
+                className="h-12 w-9 shrink-0 rounded border border-border object-cover"
+              />
+              <span className="min-w-0 flex-1 truncate text-xs text-foreground">{page.fileName}</span>
+              <span className="shrink-0 text-[10px] text-ink-faint">পাতা {index + 1}</span>
+              <button
+                type="button"
+                onClick={() => removePage(page.id)}
+                aria-label="মুছে ফেলুন"
+                className="shrink-0 rounded-md border border-price/40 bg-price/10 p-1.5 text-price hover:bg-price/20"
+              >
+                <Trash2 size={13} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragOver(true);
+        }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={handleDropFiles}
+        onClick={() => fileInputRef.current?.click()}
+        className={`flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed p-4 text-center transition ${
+          dragOver ? "border-primary bg-primary-light" : "border-border bg-surface hover:border-primary/50"
+        }`}
+      >
+        <UploadCloud size={20} className="text-primary" />
+        <p className="text-xs font-medium text-foreground">
+          {uploading ? "আপলোড হচ্ছে..." : "পাতার ছবি ড্র্যাগ করুন, অথবা ক্লিক করে বেছে নিন (একাধিক নেয়া যাবে)"}
+        </p>
+        <p className="text-[10px] text-ink-faint">jpg, png, webp — প্রতিটা সর্বোচ্চ ৮ এমবি, সর্বোচ্চ ৩০টি পাতা</p>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+          multiple
+          className="hidden"
+          onChange={(e) => {
+            if (e.target.files?.length) uploadFiles(e.target.files);
+            e.target.value = "";
+          }}
+        />
+      </div>
 
       {error && <p className="mt-1.5 text-xs text-price">{error}</p>}
     </div>
@@ -366,6 +545,10 @@ export function MediaAdmin({
                   গিয়ারের ৫টা অ্যাঙ্গেল-ছবির স্লাইডারে (সামনে/পাশ/উপর ইত্যাদি) আপাতত এই একই কভার ছবিটা সবগুলো
                   অ্যাঙ্গেলে দেখাবে — প্রতিটা অ্যাঙ্গেলের জন্য আলাদা ছবি আপলোডের সুবিধা এখনো তৈরি হয়নি।
                 </p>
+              )}
+
+              {selectedProduct.category === "book" && (
+                <BookPagesAdmin key={selectedProduct.slug} slug={selectedProduct.slug} />
               )}
             </div>
           )}
