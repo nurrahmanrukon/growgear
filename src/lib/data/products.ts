@@ -1,7 +1,8 @@
-import { Product, ProductCategory } from "@/lib/types";
+import { Product, ProductCategory, BlogTopicSlug } from "@/lib/types";
 import { books } from "./books";
 import { ebooks } from "./ebooks";
 import { gear } from "./gear";
+import { getSegmentTopicSlug } from "./segments";
 
 export const allProducts: Product[] = [...books, ...ebooks, ...gear];
 
@@ -50,6 +51,14 @@ export function getBestSellers(limit = 8): Product[] {
 
 export function getProductsBySegment(segmentSlug: string): Product[] {
   return allProducts.filter((p) => p.segmentSlug === segmentSlug);
+}
+
+export function getProductsByTopic(topicSlug: BlogTopicSlug): Product[] {
+  return allProducts.filter((p) => p.segmentSlug && getSegmentTopicSlug(p.segmentSlug) === topicSlug);
+}
+
+export function getProductCountByTopic(topicSlug: BlogTopicSlug): number {
+  return getProductsByTopic(topicSlug).length;
 }
 
 export function getRelatedProducts(product: Product, limit = 6): Product[] {

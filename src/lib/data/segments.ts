@@ -25,3 +25,7 @@ const SEGMENT_BY_SLUG = new Map(ALL_SEGMENTS.map((s) => [s.slug, s]));
 export function getSegmentMeta(slug: string): SegmentMeta | undefined {
   return SEGMENT_BY_SLUG.get(slug);
 }
+
+export function getSegmentTopicSlug(segmentSlug: string): BlogTopicSlug | undefined {
+  return SEGMENT_BY_SLUG.get(segmentSlug)?.topicSlug;
+}

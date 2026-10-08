@@ -1,11 +1,8 @@
 import Link from "next/link";
-import { BookOpen, FileDown, Wrench } from "lucide-react";
-
-const tiles = [
-  { label: "হার্ডকভার বই", href: "/books", icon: BookOpen, cta: "এখনই দেখুন" },
-  { label: "ইনস্ট্যান্ট ইবুক", href: "/ebooks", icon: FileDown, cta: "ডাউনলোড করুন" },
-  { label: "প্রোডাক্টিভিটি গিয়ার", href: "/gear", icon: Wrench, cta: "অর্ডার করুন" },
-];
+import { TOPICS } from "@/lib/data/blog";
+import { TOPIC_ICONS } from "@/components/blog/topicIcons";
+import { getProductCountByTopic } from "@/lib/data/products";
+import { toBengaliNumber } from "@/lib/format";
 
 export function Hero() {
   return (
@@ -22,22 +19,22 @@ export function Hero() {
           আমাদের লক্ষ্য — প্রতিটি মানুষকে সঠিক দিকনির্দেশনার মাধ্যমে (guided way) নিজের জীবনে এগিয়ে যেতে সাহায্য করা।
         </p>
 
-        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-          {tiles.map((tile) => {
-            const Icon = tile.icon;
+        <p className="mt-8 text-xs font-medium uppercase tracking-wide text-ink-faint">আপনার আগ্রহ অনুযায়ী খুঁজুন</p>
+        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-5">
+          {TOPICS.map((topic) => {
+            const Icon = TOPIC_ICONS[topic.slug];
+            const count = getProductCountByTopic(topic.slug);
             return (
               <Link
-                key={tile.href}
-                href={tile.href}
-                className="group flex items-center justify-between rounded-lg border border-border bg-surface p-5 transition hover:border-primary hover:shadow-sm"
+                key={topic.slug}
+                href={`/search?topic=${topic.slug}`}
+                className="flex flex-col items-center gap-2 rounded-lg border border-border bg-surface p-4 text-center transition hover:border-primary hover:shadow-sm"
               >
-                <div>
-                  <p className="text-base font-semibold text-foreground">{tile.label}</p>
-                  <span className="mt-1 inline-block text-xs font-medium text-primary group-hover:underline">
-                    {tile.cta} →
-                  </span>
-                </div>
-                <Icon size={30} className="text-primary" strokeWidth={1.5} />
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-light text-primary">
+                  <Icon size={18} />
+                </span>
+                <span className="text-xs font-medium text-foreground">{topic.label}</span>
+                <span className="text-[11px] text-ink-faint">{toBengaliNumber(count)} টি প্রোডাক্ট</span>
               </Link>
             );
           })}
