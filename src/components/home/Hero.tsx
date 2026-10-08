@@ -1,12 +1,16 @@
-import Link from "next/link";
 import { COLLECTIONS } from "@/lib/data/collections";
 import { getProductCountByTopic } from "@/lib/data/products";
-import { toBengaliNumber } from "@/lib/format";
+import { CollectionsRail } from "@/components/home/CollectionsRail";
 
 export function Hero() {
+  const collections = COLLECTIONS.map((c) => {
+    const Icon = c.icon;
+    return { ...c, icon: <Icon size={18} />, count: getProductCountByTopic(c.slug) };
+  });
+
   return (
     <section className="border-b border-border bg-surface-muted">
-      <div className="container-page py-10 sm:py-14">
+      <div className="container-page pb-12 pt-10 sm:pb-16 sm:pt-14">
         <p className="text-xs font-medium uppercase tracking-wider text-primary">GrowGear</p>
         <h1 className="mt-2 max-w-2xl font-display text-3xl font-bold leading-tight text-foreground sm:text-4xl">
           ভালো বই, স্মার্ট টুলস — আপনার গ্রোথের জন্য সব একসাথে
@@ -19,27 +23,8 @@ export function Hero() {
         </p>
 
         <p className="mt-8 text-xs font-medium uppercase tracking-wide text-ink-faint">আপনার দরকার অনুযায়ী কিনুন</p>
-        <div className="-mx-1 mt-3 flex gap-3 overflow-x-auto px-1 pb-1 scrollbar-none">
-          {COLLECTIONS.map((c) => {
-            const Icon = c.icon;
-            const count = getProductCountByTopic(c.slug);
-            return (
-              <Link
-                key={c.slug}
-                href={`/search?topic=${c.slug}`}
-                className="flex w-32 shrink-0 flex-col justify-between gap-5 rounded-xl p-4 text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:w-36"
-                style={{ background: `linear-gradient(135deg, ${c.colorFrom}, ${c.colorTo})` }}
-              >
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20">
-                  <Icon size={18} />
-                </span>
-                <div>
-                  <p className="text-sm font-semibold leading-snug">{c.label}</p>
-                  <p className="mt-1 text-[11px] text-white/75">{toBengaliNumber(count)} টি প্রোডাক্ট</p>
-                </div>
-              </Link>
-            );
-          })}
+        <div className="mt-3">
+          <CollectionsRail collections={collections} />
         </div>
       </div>
     </section>
