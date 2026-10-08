@@ -62,6 +62,8 @@ export default async function BlogPage({
             </div>
           </div>
 
+          <p className="mt-3 max-w-xl text-sm text-ink-soft">{topicMeta.description}</p>
+
           {SEGMENTS[topicMeta.slug].length > 0 && (
             <div className="mt-4 flex flex-wrap gap-2">
               <Link

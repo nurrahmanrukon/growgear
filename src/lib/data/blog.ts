@@ -2,17 +2,17 @@ import { BlogPost, BlogTopicSlug } from "@/lib/types";
 import { MUTED_GRADIENTS as gradients } from "./palette";
 import { hashString } from "./social";
 
-export const TOPICS: { slug: BlogTopicSlug; label: string }[] = [
-  { slug: "business", label: "ব্যবসা" },
-  { slug: "productivity", label: "প্রোডাক্টিভিটি" },
-  { slug: "finance", label: "অর্থ ও ব্যক্তিগত ফাইন্যান্স" },
-  { slug: "branding", label: "ব্র্যান্ডিং" },
-  { slug: "marketing", label: "মার্কেটিং" },
-  { slug: "sales", label: "সেলস" },
-  { slug: "leadership", label: "নেতৃত্ব" },
-  { slug: "career", label: "ক্যারিয়ার" },
-  { slug: "communication", label: "যোগাযোগ দক্ষতা" },
-  { slug: "mindset", label: "মানসিকতা ও আত্ম-উন্নয়ন" },
+export const TOPICS: { slug: BlogTopicSlug; label: string; description: string }[] = [
+  { slug: "business", label: "ব্যবসা", description: "ব্যবসা শুরু করা, টিকিয়ে রাখা ও স্কেল করার বাস্তব অভিজ্ঞতা ও কৌশল।" },
+  { slug: "productivity", label: "প্রোডাক্টিভিটি", description: "ফোকাস ধরে রাখা, সময় ব্যবস্থাপনা ও কার্যকর রুটিন গড়ার প্রমাণিত কৌশল।" },
+  { slug: "finance", label: "অর্থ ও ব্যক্তিগত ফাইন্যান্স", description: "বাজেট, সঞ্চয়, বিনিয়োগ ও ঋণ ব্যবস্থাপনা নিয়ে সহজ ভাষায় ব্যবহারিক পরামর্শ।" },
+  { slug: "branding", label: "ব্র্যান্ডিং", description: "নিজের বা ব্যবসার একটা স্মরণীয় পরিচিতি তৈরির পেছনের ভাবনা ও কাঠামো।" },
+  { slug: "marketing", label: "মার্কেটিং", description: "কনটেন্ট, সোশ্যাল মিডিয়া ও ডিজিটাল চ্যানেলে কার্যকরভাবে পৌঁছানোর কৌশল।" },
+  { slug: "sales", label: "সেলস", description: "বিশ্বাস তৈরি করে, চাপ ছাড়াই বিক্রি বাড়ানোর বাস্তবসম্মত পদ্ধতি।" },
+  { slug: "leadership", label: "নেতৃত্ব", description: "টিমের আস্থা অর্জন, সিদ্ধান্ত নেওয়া ও একজন ভালো নেতা হয়ে ওঠার পথ।" },
+  { slug: "career", label: "ক্যারিয়ার", description: "ক্যারিয়ারে এগিয়ে যাওয়া, সঠিক সময়ে সঠিক সিদ্ধান্ত নেওয়ার প্র্যাক্টিক্যাল গাইড।" },
+  { slug: "communication", label: "যোগাযোগ দক্ষতা", description: "স্পষ্ট করে বলা, মন দিয়ে শোনা ও সম্পর্ক গড়ে তোলার যোগাযোগ কৌশল।" },
+  { slug: "mindset", label: "মানসিকতা ও আত্ম-উন্নয়ন", description: "মানসিকতা বদলে জীবনের গতিপথ বদলে দেওয়ার মতো উপলব্ধি ও অভ্যাস।" },
 ];
 
 /** Layer-2 sub-segments per topic, so readers can drill into their exact stage/interest. */
