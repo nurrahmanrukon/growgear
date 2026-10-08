@@ -13,6 +13,7 @@ import {
   ExternalLink,
   GripVertical,
   BookOpen,
+  UserRound,
 } from "lucide-react";
 
 type ProductCategory = "book" | "ebook" | "gear";
@@ -166,14 +167,30 @@ function MediaSlot({
   );
 }
 
-interface BookPreviewPage {
+interface MultiImageEntry {
   id: string;
   fileName: string;
   sizeBytes: number;
 }
 
-function BookPagesAdmin({ slug }: { slug: string }) {
-  const [pages, setPages] = useState<BookPreviewPage[]>([]);
+function MultiImageAdmin({
+  adminEndpoint,
+  mediaEndpoint,
+  icon,
+  heading,
+  description,
+  hint,
+  itemLabel,
+}: {
+  adminEndpoint: string;
+  mediaEndpoint: string;
+  icon: React.ReactNode;
+  heading: string;
+  description: string;
+  hint: string;
+  itemLabel: string;
+}) {
+  const [items, setItems] = useState<MultiImageEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
@@ -182,12 +199,12 @@ function BookPagesAdmin({ slug }: { slug: string }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    fetch(`/api/admin/book-preview/${slug}`)
+    fetch(adminEndpoint)
       .then((res) => res.json())
-      .then((data) => setPages(data.pages ?? []))
-      .catch(() => setError("পাতাগুলো লোড করা যায়নি"))
+      .then((data) => setItems(data.pages ?? data.photos ?? []))
+      .catch(() => setError("লোড করা যায়নি"))
       .finally(() => setLoading(false));
-  }, [slug]);
+  }, [adminEndpoint]);
 
   async function uploadFiles(files: FileList | File[]) {
     setError(null);
@@ -196,35 +213,35 @@ function BookPagesAdmin({ slug }: { slug: string }) {
       for (const file of Array.from(files)) {
         const form = new FormData();
         form.append("file", file);
-        const res = await fetch(`/api/admin/book-preview/${slug}`, { method: "POST", body: form });
+        const res = await fetch(adminEndpoint, { method: "POST", body: form });
         const data = await res.json();
         if (!res.ok) {
           setError(data?.error || "আপলোড করা যায়নি");
           continue;
         }
-        setPages((prev) => [...prev, data]);
+        setItems((prev) => [...prev, data]);
       }
     } finally {
       setUploading(false);
     }
   }
 
-  async function removePage(id: string) {
+  async function removeItem(id: string) {
     setError(null);
-    const prev = pages;
-    setPages((p) => p.filter((pg) => pg.id !== id));
-    const res = await fetch(`/api/admin/book-preview/${slug}/${id}`, { method: "DELETE" });
+    const prev = items;
+    setItems((p) => p.filter((it) => it.id !== id));
+    const res = await fetch(`${adminEndpoint}/${id}`, { method: "DELETE" });
     if (!res.ok) {
       setError("মুছে ফেলা যায়নি");
-      setPages(prev);
+      setItems(prev);
     }
   }
 
-  async function saveOrder(next: BookPreviewPage[]) {
-    const res = await fetch(`/api/admin/book-preview/${slug}`, {
+  async function saveOrder(next: MultiImageEntry[]) {
+    const res = await fetch(adminEndpoint, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ order: next.map((p) => p.id) }),
+      body: JSON.stringify({ order: next.map((it) => it.id) }),
     });
     if (!res.ok) setError("ক্রম সংরক্ষণ করা যায়নি");
   }
@@ -234,7 +251,7 @@ function BookPagesAdmin({ slug }: { slug: string }) {
       setDragIndex(null);
       return;
     }
-    setPages((prev) => {
+    setItems((prev) => {
       const next = [...prev];
       const [item] = next.splice(dragIndex, 1);
       next.splice(targetIndex, 0, item);
@@ -253,19 +270,15 @@ function BookPagesAdmin({ slug }: { slug: string }) {
   return (
     <div className="rounded-lg border border-border bg-surface p-4">
       <span className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-ink-soft">
-        <BookOpen size={13} /> বইয়ের পাতার প্রিভিউ (স্লাইড)
+        {icon} {heading}
       </span>
-      <p className="mb-3 text-[11px] text-ink-faint">
-        বইয়ের ভেতরের কয়েকটা পাতার ছবি (jpg/png/webp) আপলোড করুন — প্রোডাক্ট পেজে কাস্টমার স্লাইড করে দেখতে পারবে।
-        PDF ফাইল সরাসরি আপলোড করা যাবে না — PDF-এর পাতাগুলোকে আগে ছবি (jpg/png) হিসেবে এক্সপোর্ট করে তারপর আপলোড করুন।
-        কোনো পাতা না থাকলে এই সেকশন প্রোডাক্ট পেজে দেখাবে না।
-      </p>
+      <p className="mb-3 text-[11px] text-ink-faint">{description}</p>
 
-      {!loading && pages.length > 0 && (
+      {!loading && items.length > 0 && (
         <div className="mb-3 flex flex-col gap-2">
-          {pages.map((page, index) => (
+          {items.map((item, index) => (
             <div
-              key={page.id}
+              key={item.id}
               draggable
               onDragStart={() => setDragIndex(index)}
               onDragOver={(e) => e.preventDefault()}
@@ -280,15 +293,17 @@ function BookPagesAdmin({ slug }: { slug: string }) {
               </span>
               {/* eslint-disable-next-line @next/next/no-img-element -- admin preview of an uploaded file */}
               <img
-                src={`/api/media/book-preview/${slug}/${page.id}`}
+                src={`${mediaEndpoint}/${item.id}`}
                 alt=""
                 className="h-12 w-9 shrink-0 rounded border border-border object-cover"
               />
-              <span className="min-w-0 flex-1 truncate text-xs text-foreground">{page.fileName}</span>
-              <span className="shrink-0 text-[10px] text-ink-faint">পাতা {index + 1}</span>
+              <span className="min-w-0 flex-1 truncate text-xs text-foreground">{item.fileName}</span>
+              <span className="shrink-0 text-[10px] text-ink-faint">
+                {itemLabel} {index + 1}
+              </span>
               <button
                 type="button"
-                onClick={() => removePage(page.id)}
+                onClick={() => removeItem(item.id)}
                 aria-label="মুছে ফেলুন"
                 className="shrink-0 rounded-md border border-price/40 bg-price/10 p-1.5 text-price hover:bg-price/20"
               >
@@ -313,9 +328,9 @@ function BookPagesAdmin({ slug }: { slug: string }) {
       >
         <UploadCloud size={20} className="text-primary" />
         <p className="text-xs font-medium text-foreground">
-          {uploading ? "আপলোড হচ্ছে..." : "পাতার ছবি ড্র্যাগ করুন, অথবা ক্লিক করে বেছে নিন (একাধিক নেয়া যাবে)"}
+          {uploading ? "আপলোড হচ্ছে..." : "ছবি ড্র্যাগ করুন, অথবা ক্লিক করে বেছে নিন (একাধিক নেয়া যাবে)"}
         </p>
-        <p className="text-[10px] text-ink-faint">jpg, png, webp — প্রতিটা সর্বোচ্চ ৮ এমবি, সর্বোচ্চ ৩০টি পাতা</p>
+        <p className="text-[10px] text-ink-faint">{hint}</p>
         <input
           ref={fileInputRef}
           type="file"
@@ -548,7 +563,29 @@ export function MediaAdmin({
               )}
 
               {selectedProduct.category === "book" && (
-                <BookPagesAdmin key={selectedProduct.slug} slug={selectedProduct.slug} />
+                <MultiImageAdmin
+                  key={`${selectedProduct.slug}-book-preview`}
+                  adminEndpoint={`/api/admin/book-preview/${selectedProduct.slug}`}
+                  mediaEndpoint={`/api/media/book-preview/${selectedProduct.slug}`}
+                  icon={<BookOpen size={13} />}
+                  heading="বইয়ের পাতার প্রিভিউ (স্লাইড)"
+                  description='বইয়ের ভেতরের কয়েকটা পাতার ছবি (jpg/png/webp) আপলোড করুন — প্রোডাক্ট পেজে কাস্টমার স্লাইড করে দেখতে পারবে। PDF ফাইল সরাসরি আপলোড করা যাবে না — PDF-এর পাতাগুলোকে আগে ছবি (jpg/png) হিসেবে এক্সপোর্ট করে তারপর আপলোড করুন। কোনো পাতা না থাকলে এই সেকশন প্রোডাক্ট পেজে দেখাবে না।'
+                  hint="jpg, png, webp — প্রতিটা সর্বোচ্চ ৮ এমবি, সর্বোচ্চ ৩০টি পাতা"
+                  itemLabel="পাতা"
+                />
+              )}
+
+              {(selectedProduct.category === "book" || selectedProduct.category === "ebook") && (
+                <MultiImageAdmin
+                  key={`${selectedProduct.slug}-author-photos`}
+                  adminEndpoint={`/api/admin/author-photos/${selectedProduct.slug}`}
+                  mediaEndpoint={`/api/media/author-photos/${selectedProduct.slug}`}
+                  icon={<UserRound size={13} />}
+                  heading="লেখকের ছবি (যিনি লিখেছেন সেকশন)"
+                  description="লেখকের আসল ছবি (jpg/png/webp) আপলোড করুন — প্রোডাক্ট পেজের 'যিনি লিখেছেন' অংশে এগুলো দেখাবে। কোনো ছবি না থাকলে একটা সাধারণ প্লেসহোল্ডার আইকন দেখাবে।"
+                  hint="jpg, png, webp — প্রতিটা সর্বোচ্চ ৮ এমবি, সর্বোচ্চ ১০টি ছবি"
+                  itemLabel="ছবি"
+                />
               )}
             </div>
           )}
