@@ -65,8 +65,27 @@ function writeStore(data: Record<string, StoredEntry>) {
 
 function sanitizeOrder(order: string[] | undefined): string[] {
   const cleaned = (order ?? []).filter((k) => VALID_KEYS.has(k));
+  if (cleaned.length === 0) return DEFAULT_ORDER;
+
+  // Insert any catalog keys missing from a stored (possibly older) order right after
+  // their nearest preceding sibling from DEFAULT_ORDER, instead of dumping them at the
+  // end — so newly-added sections (like bookPreview) land in their intended spot even
+  // for products whose order was customized before that section existed.
+  const result = [...cleaned];
   const missing = DEFAULT_ORDER.filter((k) => !cleaned.includes(k));
-  return [...cleaned, ...missing];
+  for (const key of missing) {
+    const catalogIndex = DEFAULT_ORDER.indexOf(key);
+    let insertAt = result.length;
+    for (let i = catalogIndex - 1; i >= 0; i--) {
+      const idx = result.indexOf(DEFAULT_ORDER[i]);
+      if (idx !== -1) {
+        insertAt = idx + 1;
+        break;
+      }
+    }
+    result.splice(insertAt, 0, key);
+  }
+  return result;
 }
 
 function sanitizeHidden(hidden: string[] | undefined): string[] {
