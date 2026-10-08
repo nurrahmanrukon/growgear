@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { allProductsResolved } from "@/lib/server/contentText";
 import { ProductListing } from "@/components/product/ProductListing";
 import { getSegmentMeta, getSegmentTopicSlug } from "@/lib/data/segments";
-import { TOPICS } from "@/lib/data/blog";
+import { COLLECTIONS } from "@/lib/data/collections";
 
 export const metadata: Metadata = { title: "সার্চ ফলাফল — GrowGear" };
 export const dynamic = "force-dynamic";
@@ -15,7 +15,7 @@ export default async function SearchPage({
   const { q = "", badge, segment, topic } = await searchParams;
   const query = q.trim().toLowerCase();
   const segmentMeta = segment ? getSegmentMeta(segment) : undefined;
-  const topicMeta = !segmentMeta && topic ? TOPICS.find((t) => t.slug === topic) : undefined;
+  const topicMeta = !segmentMeta && topic ? COLLECTIONS.find((t) => t.slug === topic) : undefined;
   let results = allProductsResolved();
   if (query) {
     results = results.filter(

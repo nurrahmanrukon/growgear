@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { TOPICS } from "@/lib/data/blog";
-import { TOPIC_ICONS } from "@/components/blog/topicIcons";
+import { COLLECTIONS } from "@/lib/data/collections";
 import { getProductCountByTopic } from "@/lib/data/products";
 import { toBengaliNumber } from "@/lib/format";
 
@@ -19,22 +18,25 @@ export function Hero() {
           আমাদের লক্ষ্য — প্রতিটি মানুষকে সঠিক দিকনির্দেশনার মাধ্যমে (guided way) নিজের জীবনে এগিয়ে যেতে সাহায্য করা।
         </p>
 
-        <p className="mt-8 text-xs font-medium uppercase tracking-wide text-ink-faint">আপনার আগ্রহ অনুযায়ী খুঁজুন</p>
-        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-5">
-          {TOPICS.map((topic) => {
-            const Icon = TOPIC_ICONS[topic.slug];
-            const count = getProductCountByTopic(topic.slug);
+        <p className="mt-8 text-xs font-medium uppercase tracking-wide text-ink-faint">আপনার দরকার অনুযায়ী কিনুন</p>
+        <div className="-mx-1 mt-3 flex gap-3 overflow-x-auto px-1 pb-1 scrollbar-none">
+          {COLLECTIONS.map((c) => {
+            const Icon = c.icon;
+            const count = getProductCountByTopic(c.slug);
             return (
               <Link
-                key={topic.slug}
-                href={`/search?topic=${topic.slug}`}
-                className="flex flex-col items-center gap-2 rounded-lg border border-border bg-surface p-4 text-center transition hover:border-primary hover:shadow-sm"
+                key={c.slug}
+                href={`/search?topic=${c.slug}`}
+                className="flex w-32 shrink-0 flex-col justify-between gap-5 rounded-xl p-4 text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:w-36"
+                style={{ background: `linear-gradient(135deg, ${c.colorFrom}, ${c.colorTo})` }}
               >
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-light text-primary">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20">
                   <Icon size={18} />
                 </span>
-                <span className="text-xs font-medium text-foreground">{topic.label}</span>
-                <span className="text-[11px] text-ink-faint">{toBengaliNumber(count)} টি প্রোডাক্ট</span>
+                <div>
+                  <p className="text-sm font-semibold leading-snug">{c.label}</p>
+                  <p className="mt-1 text-[11px] text-white/75">{toBengaliNumber(count)} টি প্রোডাক্ট</p>
+                </div>
               </Link>
             );
           })}
