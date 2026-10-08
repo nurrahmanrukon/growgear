@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { allProducts, getProductBySlug, getRelatedProducts, getBestSellers, getFeaturedProducts, getProductsBySegment } from "@/lib/data/products";
+import { allProducts, getProductBySlug, getRelatedProducts, getFeaturedProducts, getProductsBySegment } from "@/lib/data/products";
 import { books } from "@/lib/data/books";
 import { ebooks } from "@/lib/data/ebooks";
 import { gear } from "@/lib/data/gear";
@@ -8,6 +8,7 @@ import { blogPosts, getBlogPostBySlug, getPostsByTopic, getFeaturedPosts } from 
 import { Product, BlogPost, ProductCategory } from "@/lib/types";
 import { getBlogImageUrl, getProductImageUrl, getProductVideoUrl } from "@/lib/server/mediaAssets";
 import { resolveInStock } from "@/lib/server/inventory";
+import { getSalesCounts } from "@/lib/server/orders";
 
 const STORE_PATH = path.join(process.cwd(), "data", "content-text.json");
 
@@ -64,7 +65,7 @@ export function isProductTextCustomized(slug: string): boolean {
   return Object.keys(getProductOverride(slug)).length > 0;
 }
 
-function mergeProduct(product: Product, override: ProductTextOverride): Product {
+function mergeProduct(product: Product, override: ProductTextOverride, salesCount: number): Product {
   const merged = Object.keys(override).length === 0 ? product : {
     ...product,
     title: override.title || product.title,
@@ -79,16 +80,31 @@ function mergeProduct(product: Product, override: ProductTextOverride): Product 
     inStock: resolveInStock(product.slug, merged.inStock),
     coverImageUrl: getProductImageUrl(product.slug),
     videoUrl: getProductVideoUrl(product.slug),
+    salesCount,
   };
 }
 
+/** Real sales first (units sold, from actual orders), then the seeded "bestSeller" flag,
+ *  then rating — so listings stay sensibly ordered even before any real sales exist. */
+export function sortBySales(products: Product[]): Product[] {
+  return [...products].sort((a, b) => {
+    const sa = a.salesCount ?? 0;
+    const sb = b.salesCount ?? 0;
+    if (sb !== sa) return sb - sa;
+    if (Number(b.bestSeller) !== Number(a.bestSeller)) return Number(b.bestSeller) - Number(a.bestSeller);
+    return b.rating - a.rating;
+  });
+}
+
 export function resolveProduct(product: Product): Product {
-  return mergeProduct(product, getProductOverride(product.slug));
+  const salesCount = getSalesCounts()[product.id] ?? 0;
+  return mergeProduct(product, getProductOverride(product.slug), salesCount);
 }
 
 export function resolveProducts(products: Product[]): Product[] {
   const store = readStore().products ?? {};
-  return products.map((p) => mergeProduct(p, store[p.slug] ?? {}));
+  const salesMap = getSalesCounts();
+  return products.map((p) => mergeProduct(p, store[p.slug] ?? {}, salesMap[p.id] ?? 0));
 }
 
 export function getProductBySlugResolved(slug: string): Product | undefined {
@@ -100,12 +116,13 @@ export function getRelatedProductsResolved(product: Product, limit = 6): Product
   return resolveProducts(getRelatedProducts(product, limit));
 }
 
+/** Real top-sellers across the whole catalog (any category), ranked by actual units sold. */
 export function getBestSellersResolved(limit = 8): Product[] {
-  return resolveProducts(getBestSellers(limit));
+  return sortBySales(resolveProducts(allProducts)).slice(0, limit);
 }
 
 export function getProductsBySegmentResolved(segmentSlug: string, limit = 10): Product[] {
-  return resolveProducts(getProductsBySegment(segmentSlug, limit));
+  return sortBySales(resolveProducts(getProductsBySegment(segmentSlug))).slice(0, limit);
 }
 
 export function getFeaturedProductsResolved(limit = 8): Product[] {

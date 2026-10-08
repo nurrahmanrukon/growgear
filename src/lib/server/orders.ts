@@ -87,6 +87,20 @@ export function getOrder(orderId: string): OrderRecord | undefined {
   return readStore()[orderId];
 }
 
+/** Aggregate quantity sold per product across orders, so listings can surface real
+ *  best-sellers instead of the seeded "bestSeller" flag. Rejected orders never happened,
+ *  so they're excluded; pending/confirmed/delivered all reflect demonstrated demand. */
+export function getSalesCounts(): Record<string, number> {
+  const counts: Record<string, number> = {};
+  for (const order of Object.values(readStore())) {
+    if (order.status === "rejected") continue;
+    for (const item of order.items) {
+      counts[item.productId] = (counts[item.productId] ?? 0) + item.quantity;
+    }
+  }
+  return counts;
+}
+
 export function getAllOrders(): OrderRecord[] {
   return Object.values(readStore()).sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()

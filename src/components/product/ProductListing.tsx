@@ -56,7 +56,13 @@ export function ProductListing({
         list = [...list].sort((a, b) => b.rating - a.rating);
         break;
       default:
-        list = [...list].sort((a, b) => Number(b.featured) - Number(a.featured));
+        list = [...list].sort((a, b) => {
+          const sa = a.salesCount ?? 0;
+          const sb = b.salesCount ?? 0;
+          if (sb !== sa) return sb - sa;
+          if (Number(b.featured) !== Number(a.featured)) return Number(b.featured) - Number(a.featured);
+          return b.rating - a.rating;
+        });
     }
     return list;
   }, [products, sortBy, priceBandIndex, minRating, initialBadge, initialSubcategory]);
@@ -88,7 +94,7 @@ export function ProductListing({
             onChange={(e) => setSortBy(e.target.value as SortKey)}
             className="rounded border border-border bg-surface px-2 py-1 text-xs outline-none"
           >
-            <option value="featured">সাজান: ফিচার্ড</option>
+            <option value="featured">সাজান: বেস্ট সেলিং</option>
             <option value="price-asc">দাম: কম থেকে বেশি</option>
             <option value="price-desc">দাম: বেশি থেকে কম</option>
             <option value="rating">রেটিং</option>

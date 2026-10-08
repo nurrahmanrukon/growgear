@@ -27,6 +27,8 @@ export interface Product {
   inStock: boolean;
   colorFrom: string;
   colorTo: string;
+  /** Set only by the server-side resolver from real order data (units sold, excluding rejected orders). */
+  salesCount?: number;
   /** Set only by the server-side resolver when an admin has uploaded real media; absent otherwise. */
   coverImageUrl?: string;
   videoUrl?: string;
