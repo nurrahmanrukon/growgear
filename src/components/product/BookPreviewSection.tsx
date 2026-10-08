@@ -1,10 +1,10 @@
+import { ImageIcon } from "lucide-react";
 import { Product } from "@/lib/types";
 import { getPreviewPageUrls } from "@/lib/server/bookPreviewPages";
 import { BookPreviewCarousel } from "@/components/product/BookPreviewCarousel";
 
 export function BookPreviewSection({ product }: { product: Product }) {
   const pageUrls = getPreviewPageUrls(product.slug);
-  if (pageUrls.length === 0) return null;
 
   return (
     <section className="border-y border-border bg-surface-muted py-12">
@@ -20,7 +20,17 @@ export function BookPreviewSection({ product }: { product: Product }) {
         </div>
 
         <div className="mt-6">
-          <BookPreviewCarousel pageUrls={pageUrls} title={product.title} />
+          {pageUrls.length > 0 ? (
+            <BookPreviewCarousel pageUrls={pageUrls} title={product.title} />
+          ) : (
+            <div
+              className="mx-auto flex aspect-[3/4] w-64 flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-star text-white/85 sm:w-80"
+              style={{ background: `linear-gradient(135deg, ${product.colorFrom}, ${product.colorTo})` }}
+            >
+              <ImageIcon size={22} />
+              <span className="text-xs">পাতার ছবি শীঘ্রই আসছে</span>
+            </div>
+          )}
         </div>
       </div>
     </section>
