@@ -48,6 +48,10 @@ export function getBestSellers(limit = 8): Product[] {
   return allProducts.filter((p) => p.bestSeller).slice(0, limit);
 }
 
+export function getProductsBySegment(segmentSlug: string, limit = 10): Product[] {
+  return allProducts.filter((p) => p.segmentSlug === segmentSlug).slice(0, limit);
+}
+
 export function getRelatedProducts(product: Product, limit = 6): Product[] {
   return catalogByCategory[product.category]
     .filter((p) => p.id !== product.id)

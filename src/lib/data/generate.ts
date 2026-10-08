@@ -1,5 +1,7 @@
 import { Product, ProductCategory, ProductSpec } from "@/lib/types";
 import { MUTED_GRADIENTS as gradients } from "./palette";
+import { hashString } from "./social";
+import { ALL_SEGMENTS } from "./segments";
 
 interface RawItem {
   title: string;
@@ -35,9 +37,12 @@ export function buildCatalog(
     else if (i % 7 === 0) badge = "নতুন";
     else if (hasDiscount && i % 5 === 0) badge = "লিমিটেড অফার";
 
+    const id = `${category}-${i + 1}`;
+    const segmentSlug = ALL_SEGMENTS[hashString(`${id}:segment`) % ALL_SEGMENTS.length].slug;
+
     return {
-      id: `${category}-${i + 1}`,
-      slug: `${category}-${i + 1}`,
+      id,
+      slug: id,
       category,
       title: item.title,
       author: item.author,
@@ -51,6 +56,7 @@ export function buildCatalog(
       specs: opts.specsBase,
       badge,
       subcategorySlug: item.subcategorySlug,
+      segmentSlug,
       featured: i % 6 === 0,
       bestSeller: i % 11 === 0,
       inStock: i % 23 !== 22,

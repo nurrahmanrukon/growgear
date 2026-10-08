@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { allProducts, getProductBySlug, getRelatedProducts, getBestSellers, getFeaturedProducts } from "@/lib/data/products";
+import { allProducts, getProductBySlug, getRelatedProducts, getBestSellers, getFeaturedProducts, getProductsBySegment } from "@/lib/data/products";
 import { books } from "@/lib/data/books";
 import { ebooks } from "@/lib/data/ebooks";
 import { gear } from "@/lib/data/gear";
@@ -102,6 +102,10 @@ export function getRelatedProductsResolved(product: Product, limit = 6): Product
 
 export function getBestSellersResolved(limit = 8): Product[] {
   return resolveProducts(getBestSellers(limit));
+}
+
+export function getProductsBySegmentResolved(segmentSlug: string, limit = 10): Product[] {
+  return resolveProducts(getProductsBySegment(segmentSlug, limit));
 }
 
 export function getFeaturedProductsResolved(limit = 8): Product[] {

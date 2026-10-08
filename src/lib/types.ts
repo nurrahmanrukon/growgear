@@ -21,6 +21,7 @@ export interface Product {
   specs: ProductSpec[];
   badge?: string;
   subcategorySlug?: string;
+  segmentSlug?: string;
   featured?: boolean;
   bestSeller?: boolean;
   inStock: boolean;
