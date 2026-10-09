@@ -45,7 +45,9 @@ export default async function GrowGuideAudiencePage({
         <Breadcrumb items={[{ label: "হোম", href: "/" }, { label: "GrowGuide", href: "/growguide" }, { label: a.label }]} />
       </div>
 
-      <GrowGuideJoinForm />
+      <GrowGuideJoinForm
+        audience={{ heroHeading: a.heroHeading, heroSubtitle: a.heroSubtitle, benefits: a.benefits }}
+      />
 
       <section className="border-b border-border bg-surface-muted">
         <div className="container-page py-10 text-center sm:py-14">

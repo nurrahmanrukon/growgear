@@ -11,7 +11,11 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const NEXT_SESSION_DATE = "৩ অক্টোবর";
 const NEXT_SESSION_TIME = "রাত ৮:৩০";
 
-export function GrowGuideJoinForm() {
+export function GrowGuideJoinForm({
+  audience,
+}: {
+  audience: { heroHeading: string; heroSubtitle: string; benefits: { title: string; body: string }[] };
+}) {
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState(false);
   const [phone, setPhone] = useState("");
@@ -34,14 +38,27 @@ export function GrowGuideJoinForm() {
 
   return (
     <section className="container-page py-10">
-      <div className="mx-auto max-w-md rounded-lg border border-border bg-surface p-6 text-center shadow-sm">
-        <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-cta-light text-cta">
-          <Users size={20} />
-        </span>
-        <h2 className="mt-3 font-display text-lg font-bold text-foreground">ফ্রি ওয়েবিনারে জয়েন করুন</h2>
-        <p className="mt-1.5 text-xs text-ink-soft">
-          {SEGMENT_LABEL}-এ {toBengaliNumber(SEGMENT_TARGET)} জন হলেই ওয়েবিনার শুরু হবে
-        </p>
+      <div className="mx-auto max-w-md rounded-lg border border-border bg-surface p-6 shadow-sm">
+        <div className="text-center">
+          <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-cta-light text-cta">
+            <Users size={20} />
+          </span>
+          <p className="mt-3 text-xs font-medium uppercase tracking-wide text-primary">ফ্রি লাইভ ওয়েবিনার</p>
+          <h2 className="mt-1 font-display text-lg font-bold text-foreground">{audience.heroHeading}</h2>
+          <p className="mt-1.5 text-sm text-ink-soft">{audience.heroSubtitle}</p>
+        </div>
+
+        <div className="mt-4 rounded-md bg-surface-muted p-3.5">
+          <p className="text-xs font-bold text-foreground">এই ওয়েবিনারে যা থাকছে</p>
+          <div className="mt-2 flex flex-col gap-1.5">
+            {audience.benefits.map((b) => (
+              <div key={b.title} className="flex items-start gap-1.5 text-left">
+                <CheckCircle2 size={14} className="mt-0.5 shrink-0 text-cta" />
+                <span className="text-xs text-ink-soft">{b.title}</span>
+              </div>
+            ))}
+          </div>
+        </div>
 
         <div className="mt-4 flex items-center justify-center gap-2 rounded-md bg-cta px-4 py-2.5 text-white shadow-sm">
           <CalendarClock size={16} className="shrink-0" />
@@ -58,6 +75,9 @@ export function GrowGuideJoinForm() {
           <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-surface-muted">
             <div className="h-full rounded-full bg-cta transition-all" style={{ width: `${pct}%` }} />
           </div>
+          <p className="mt-1.5 text-center text-xs text-ink-soft">
+            {SEGMENT_LABEL}-এ {toBengaliNumber(SEGMENT_TARGET)} জন হলেই ওয়েবিনার শুরু হবে
+          </p>
         </div>
 
         {joined ? (
@@ -102,7 +122,7 @@ export function GrowGuideJoinForm() {
             </button>
           </form>
         )}
-        <p className="mt-3 text-[11px] text-ink-faint">সম্পূর্ণ ফ্রি — কোনো পেমেন্ট লাগবে না</p>
+        <p className="mt-3 text-center text-[11px] text-ink-faint">সম্পূর্ণ ফ্রি — কোনো পেমেন্ট লাগবে না</p>
       </div>
     </section>
   );
