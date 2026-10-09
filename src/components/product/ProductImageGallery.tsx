@@ -40,13 +40,13 @@ export function ProductImageGallery({ product }: { product: Product }) {
     ));
 
   return (
-    <div className="flex flex-col items-center gap-3">
-      <div className="relative">
+    <div className="mx-auto flex w-full max-w-md flex-col items-center gap-3">
+      <div className="relative w-full">
         <button
           type="button"
           onClick={() => setZoomOpen(true)}
           aria-label="ছবি বড় করে দেখুন"
-          className="block"
+          className="block w-full"
         >
           <ProductImage
             title={product.title}
@@ -55,7 +55,7 @@ export function ProductImageGallery({ product }: { product: Product }) {
             colorTo={product.colorTo}
             iconSize={76}
             imageUrl={product.coverImageUrl}
-            className="aspect-[3/4] w-64 rounded-lg shadow-2xl transition hover:brightness-105 sm:w-80"
+            className="aspect-[3/4] w-full rounded-lg shadow-2xl transition hover:brightness-105"
           />
         </button>
         <span className="pointer-events-none absolute left-2 top-2 rounded-full bg-black/50 px-2 py-0.5 text-[10px] font-medium text-white">
