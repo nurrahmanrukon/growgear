@@ -82,7 +82,7 @@ export function GrowGuideJoinForm({
 
         {joined ? (
           <div className="mt-4 flex items-center justify-center gap-1.5 rounded-md bg-cta-light px-3 py-2.5 text-xs font-medium text-cta-dark">
-            <CheckCircle2 size={14} /> আপনি সফলভাবে যুক্ত হয়েছেন — {toBengaliNumber(SEGMENT_TARGET)} জন পূর্ণ হলে ওয়েবিনারের লিংক ইমেইল ও মোবাইলে পাঠানো হবে
+            <CheckCircle2 size={14} /> আপনি সফলভাবে যুক্ত হয়েছেন — {toBengaliNumber(SEGMENT_TARGET)} জন পূর্ণ হলে ওয়েবিনারের লিংক ইমেইল ও হোয়াটসঅ্যাপে পাঠানো হবে
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-2">
@@ -108,12 +108,12 @@ export function GrowGuideJoinForm({
                 setPhone(e.target.value);
                 setPhoneError(false);
               }}
-              placeholder="আপনার মোবাইল নম্বর"
+              placeholder="আপনার হোয়াটসঅ্যাপ নম্বর"
               className={`w-full rounded-md border bg-surface px-3 py-2.5 text-sm outline-none focus:ring-1 focus:ring-primary ${
                 phoneError ? "border-price" : "border-border"
               }`}
             />
-            {phoneError && <p className="text-left text-[11px] text-price">সঠিক মোবাইল নম্বর দিন</p>}
+            {phoneError && <p className="text-left text-[11px] text-price">সঠিক হোয়াটসঅ্যাপ নম্বর দিন</p>}
             <button
               type="submit"
               className="rounded-md bg-cta px-4 py-2.5 text-sm font-semibold text-white hover:bg-cta-dark"
