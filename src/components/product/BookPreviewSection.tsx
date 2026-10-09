@@ -19,12 +19,12 @@ export function BookPreviewSection({ product }: { product: Product }) {
           </p>
         </div>
 
-        <div className="mt-6">
+        <div className="mx-auto mt-6 max-w-md">
           {pageUrls.length > 0 ? (
             <BookPreviewCarousel pageUrls={pageUrls} title={product.title} />
           ) : (
             <div
-              className="mx-auto flex aspect-[3/4] w-64 flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-star text-white/85 sm:w-80"
+              className="flex aspect-[3/4] w-full flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-star text-white/85"
               style={{ background: `linear-gradient(135deg, ${product.colorFrom}, ${product.colorTo})` }}
             >
               <ImageIcon size={22} />

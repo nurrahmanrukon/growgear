@@ -52,7 +52,7 @@ export function BookPreviewCarousel({ pageUrls, title }: { pageUrls: string[]; t
   return (
     <div className="flex flex-col items-center gap-3">
       <div
-        className="relative"
+        className="relative w-full"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
@@ -60,13 +60,13 @@ export function BookPreviewCarousel({ pageUrls, title }: { pageUrls: string[]; t
           type="button"
           onClick={() => setZoomOpen(true)}
           aria-label="পাতা বড় করে দেখুন"
-          className="block overflow-hidden rounded-lg border border-border shadow-2xl"
+          className="block w-full overflow-hidden rounded-lg border border-border shadow-2xl"
         >
           {/* eslint-disable-next-line @next/next/no-img-element -- admin-uploaded book page, served from /api/media */}
           <img
             src={pageUrls[active]}
             alt={`${title} — পাতা ${toBengaliNumber(active + 1)}`}
-            className="aspect-[3/4] w-64 object-cover transition hover:brightness-105 sm:w-80"
+            className="aspect-[3/4] w-full object-cover transition hover:brightness-105"
           />
         </button>
         <span className="pointer-events-none absolute left-2 top-2 rounded-full bg-black/50 px-2 py-0.5 text-[10px] font-medium text-white">
