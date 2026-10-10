@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { FormEvent, Suspense, useEffect, useRef, useState } from "react";
-import { Menu, Search, ShoppingCart, X } from "lucide-react";
+import { Menu, Search, ShoppingCart, User, X } from "lucide-react";
 import clsx from "clsx";
 import { useCartStore, useHasHydrated } from "@/store/cart";
 import { toBengaliNumber } from "@/lib/format";
@@ -183,9 +183,14 @@ export function Header({ visibleKeys }: { visibleKeys?: string[] } = {}) {
             {mobileSearchOpen ? <X size={20} /> : <Search size={20} />}
           </button>
 
+          <Link href="/profile" className="flex items-center gap-1.5 rounded p-1.5 hover:bg-white/10 sm:ml-2">
+            <User size={20} />
+            <span className="hidden text-sm font-medium sm:block">প্রোফাইল</span>
+          </Link>
+
           <Link
             href="/cart"
-            className="relative flex items-center gap-1.5 rounded p-1.5 hover:bg-white/10 sm:ml-2"
+            className="relative flex items-center gap-1.5 rounded p-1.5 hover:bg-white/10"
           >
             <span className="relative">
               <ShoppingCart size={22} />

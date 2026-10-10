@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChevronDown, CreditCard, FileText, Headphones, Layers, Lock, Mail, Smartphone, X, Eye } from "lucide-react";
+import { ChevronDown, CreditCard, FileText, Headphones, Layers, Lock, Smartphone, UserCheck, X, Eye } from "lucide-react";
+import Link from "next/link";
 import { BlogPost } from "@/lib/types";
 import { getPremiumPurchaseCount, getPremiumRating } from "@/lib/data/blog";
 import { toBengaliNumber, formatTaka } from "@/lib/format";
@@ -9,6 +10,7 @@ import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { BlogAudioPlayer } from "@/components/blog/BlogAudioPlayer";
 import { StarRating } from "@/components/ui/StarRating";
+import { AuthedProfile, ProfileAuthModal } from "@/components/profile/ProfileAuthModal";
 
 const FREE_PREVIEW_RATIO = 0.25;
 
@@ -58,10 +60,10 @@ export function PremiumGate({ post, hiddenFormats = [] }: { post: BlogPost; hidd
   );
   const [showGate, setShowGate] = useState(false);
   const [showSample, setShowSample] = useState(false);
-  const [email, setEmail] = useState("");
-  const [emailError, setEmailError] = useState(false);
-  const [emailedTo, setEmailedTo] = useState<string | null>(null);
   const [hiddenPayment, setHiddenPayment] = useState<string[]>([]);
+  const [profile, setProfile] = useState<AuthedProfile | null>(null);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [pendingTier, setPendingTier] = useState<Tier | null>(null);
 
   useEffect(() => {
     if (!premium) return;
@@ -77,13 +79,29 @@ export function PremiumGate({ post, hiddenFormats = [] }: { post: BlogPost; hidd
     };
   }, [post.slug, premium]);
 
+  useEffect(() => {
+    if (!premium) return;
+    let cancelled = false;
+    fetch("/api/profile/me")
+      .then((res) => res.json())
+      .then((data) => {
+        if (cancelled || !data.profile) return;
+        setProfile({ email: data.profile.email, name: data.profile.name, whatsapp: data.profile.whatsapp });
+        const purchase = (data.profile.purchases ?? []).find((p: { slug: string }) => p.slug === post.slug);
+        if (purchase) unlockTier(purchase.tier as Tier);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [post.slug, premium]);
+
   const showBkash = !hiddenPayment.includes("bkash");
   const showCard = !hiddenPayment.includes("card");
 
   const isLocked = Boolean(premium) && !unlockedFormats.has(format);
   const purchaseCount = getPremiumPurchaseCount(post);
   const { rating } = getPremiumRating(post);
-  const tierNeedsEmail = (tier: Tier) => tier === "text" || tier === "both";
   const selectedTierMeta = tiers.find((t) => t.id === selectedTier) ?? tiers[0];
 
   function unlockTier(tier: Tier) {
@@ -100,14 +118,31 @@ export function PremiumGate({ post, hiddenFormats = [] }: { post: BlogPost; hidd
     setShowSample(false);
   }
 
+  function persistUnlock(tier: Tier) {
+    fetch("/api/blog/unlock", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ slug: post.slug, tier }),
+    }).catch(() => {});
+    unlockTier(tier);
+  }
+
   function attemptUnlock(tier: Tier) {
-    if (tierNeedsEmail(tier) && !email.trim()) {
-      setEmailError(true);
+    if (!profile) {
+      setPendingTier(tier);
+      setAuthModalOpen(true);
       return;
     }
-    setEmailError(false);
-    if (tierNeedsEmail(tier)) setEmailedTo(email.trim());
-    unlockTier(tier);
+    persistUnlock(tier);
+  }
+
+  function handleAuthSuccess(authedProfile: AuthedProfile) {
+    setProfile(authedProfile);
+    setAuthModalOpen(false);
+    if (pendingTier) {
+      persistUnlock(pendingTier);
+      setPendingTier(null);
+    }
   }
 
   const { free, locked } = premium ? splitFreeContent(paragraphs, FREE_PREVIEW_RATIO) : { free: paragraphs, locked: [] };
@@ -185,22 +220,14 @@ export function PremiumGate({ post, hiddenFormats = [] }: { post: BlogPost; hidd
 
       <p className="mt-2.5 text-[11px] text-ink-faint">{toBengaliNumber(purchaseCount)} জন এই লেখাটি কিনেছেন</p>
 
-      {tierNeedsEmail(selectedTier) && (
-        <div className="mt-3 text-left">
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              setEmailError(false);
-            }}
-            placeholder="ইমেইল ঠিকানা * — PDF এখানে পাঠানো হবে"
-            className={`w-full rounded border px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-primary ${
-              emailError ? "border-price" : "border-border"
-            }`}
-          />
-          {emailError && <p className="mt-1 text-[10px] text-price">PDF পাঠানোর জন্য ইমেইল আবশ্যক</p>}
-        </div>
+      {profile ? (
+        <p className="mt-3 flex items-center justify-center gap-1.5 rounded-md bg-surface-muted px-3 py-2 text-[11px] text-ink-soft">
+          <UserCheck size={13} className="text-cta" /> {profile.name} — {profile.email}
+        </p>
+      ) : (
+        <p className="mt-3 text-[11px] text-ink-faint">
+          পে করার আগে একটি প্রোফাইল তৈরি করতে হবে, যাতে পরে যেকোনো সময় পড়তে পারেন
+        </p>
       )}
 
       <div className="mt-3 flex flex-col gap-2">
@@ -262,9 +289,14 @@ export function PremiumGate({ post, hiddenFormats = [] }: { post: BlogPost; hidd
           </>
         ) : (
           <>
-            {premium && emailedTo && (
-              <div className="mb-3 flex items-center gap-1.5 rounded-md bg-primary-light px-3 py-2 text-xs font-medium text-primary-dark">
-                <Mail size={13} /> সম্পূর্ণ লেখার PDF পাঠানো হয়েছে {emailedTo} ঠিকানায়
+            {premium && profile && (
+              <div className="mb-3 flex items-center justify-between gap-2 rounded-md bg-primary-light px-3 py-2 text-xs font-medium text-primary-dark">
+                <span className="flex items-center gap-1.5">
+                  <UserCheck size={13} /> আনলক করা হয়েছে — আপনার প্রোফাইল থেকে যেকোনো সময় পড়তে পারবেন
+                </span>
+                <Link href="/profile" className="shrink-0 underline hover:no-underline">
+                  প্রোফাইল দেখুন
+                </Link>
               </div>
             )}
             {paragraphs.map((para, i) => (
@@ -299,23 +331,6 @@ export function PremiumGate({ post, hiddenFormats = [] }: { post: BlogPost; hidd
         </div>
         <div className="mt-5 rounded-md border border-dashed border-border bg-surface-muted p-3 text-center">
           <p className="text-xs text-ink-faint">সম্পূর্ণ লেখা পড়তে/শুনতে আনলক করুন — ৳{selectedTier === "both" ? "২৯" : selectedTier === "audio" ? "২৫" : "২০"} থেকে শুরু।</p>
-          {tierNeedsEmail(selectedTier) && (
-            <div className="mt-3 text-left">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  setEmailError(false);
-                }}
-                placeholder="ইমেইল ঠিকানা * — PDF এখানে পাঠানো হবে"
-                className={`w-full rounded border px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-primary ${
-                  emailError ? "border-price" : "border-border"
-                }`}
-              />
-              {emailError && <p className="mt-1 text-[10px] text-price">PDF পাঠানোর জন্য ইমেইল আবশ্যক</p>}
-            </div>
-          )}
           <div className="mt-3 flex flex-col gap-2">
             {showBkash && (
               <Button variant="primary" fullWidth onClick={() => attemptUnlock(selectedTier)}>
@@ -330,6 +345,15 @@ export function PremiumGate({ post, hiddenFormats = [] }: { post: BlogPost; hidd
           </div>
         </div>
       </Modal>
+
+      <ProfileAuthModal
+        open={authModalOpen}
+        onClose={() => {
+          setAuthModalOpen(false);
+          setPendingTier(null);
+        }}
+        onSuccess={handleAuthSuccess}
+      />
     </>
   );
 }
