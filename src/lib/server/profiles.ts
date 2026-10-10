@@ -9,12 +9,20 @@ export interface ProfilePurchase {
   unlockedAt: string;
 }
 
+export interface EbookPurchase {
+  slug: string;
+  title: string;
+  orderId: string;
+  purchasedAt: string;
+}
+
 export interface ProfileRecord {
   email: string;
   name: string;
   whatsapp: string;
   createdAt: string;
   purchases: ProfilePurchase[];
+  ebooks: EbookPurchase[];
 }
 
 const STORE_PATH = path.join(process.cwd(), "data", "profiles.json");
@@ -50,6 +58,7 @@ export function upsertProfile(input: { email: string; name: string; whatsapp: st
     whatsapp: input.whatsapp.trim(),
     createdAt: existing?.createdAt ?? new Date().toISOString(),
     purchases: existing?.purchases ?? [],
+    ebooks: existing?.ebooks ?? [],
   };
   store[key] = profile;
   writeStore(store);
@@ -79,4 +88,24 @@ export function addPurchase(email: string, slug: string, tier: PremiumTier): Pro
 
 export function getPurchaseTier(email: string, slug: string): PremiumTier | null {
   return getProfile(email)?.purchases.find((p) => p.slug === slug)?.tier ?? null;
+}
+
+export function addEbookPurchase(email: string, purchase: { slug: string; title: string; orderId: string }): ProfileRecord {
+  const store = readStore();
+  const key = normalizeEmail(email);
+  const profile = store[key];
+  if (!profile) throw new Error("প্রোফাইল পাওয়া যায়নি");
+
+  profile.ebooks = profile.ebooks || [];
+  if (!profile.ebooks.some((e) => e.slug === purchase.slug)) {
+    profile.ebooks.push({ ...purchase, purchasedAt: new Date().toISOString() });
+  }
+
+  store[key] = profile;
+  writeStore(store);
+  return profile;
+}
+
+export function hasEbookPurchase(email: string, slug: string): boolean {
+  return !!getProfile(email)?.ebooks?.some((e) => e.slug === slug);
 }

@@ -1,13 +1,14 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
-import { Banknote, CreditCard, Smartphone, Tag, X } from "lucide-react";
+import { Banknote, CreditCard, Smartphone, Tag, UserCheck, X } from "lucide-react";
 import { useCartStore, useHasHydrated } from "@/store/cart";
 import { Button } from "@/components/ui/Button";
 import { formatTaka, toBengaliNumber } from "@/lib/format";
 import { validatePromoCode, PromoCode } from "@/lib/data/promo";
 import { PromoGiftModal } from "@/components/checkout/PromoGiftModal";
+import { AuthedProfile, ProfileAuthModal } from "@/components/profile/ProfileAuthModal";
 
 const areas = ["ঢাকার ভিতরে", "ঢাকার বাইরে"];
 const deliveryFees: Record<string, number> = { "ঢাকার ভিতরে": 70, "ঢাকার বাইরে": 130 };
@@ -18,6 +19,9 @@ export default function CheckoutPage() {
   const totalPrice = useCartStore((s) => s.totalPrice());
   const clear = useCartStore((s) => s.clear);
 
+  const hasEbook = items.some((i) => i.category === "ebook");
+  const hasPhysical = items.some((i) => i.category !== "ebook");
+
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
@@ -25,13 +29,31 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState<"cod" | "online">("cod");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [profile, setProfile] = useState<AuthedProfile | null>(null);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
 
   const [promoInput, setPromoInput] = useState("");
   const [promo, setPromo] = useState<PromoCode | null>(null);
   const [promoError, setPromoError] = useState<string | null>(null);
   const [showGiftModal, setShowGiftModal] = useState(false);
 
-  const deliveryFee = deliveryFees[area];
+  useEffect(() => {
+    if (!hasEbook) return;
+    let cancelled = false;
+    fetch("/api/profile/me")
+      .then((res) => res.json())
+      .then((data) => {
+        if (!cancelled && data.profile) {
+          setProfile({ email: data.profile.email, name: data.profile.name, whatsapp: data.profile.whatsapp });
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [hasEbook]);
+
+  const deliveryFee = hasPhysical ? deliveryFees[area] : 0;
   const discount = promo ? Math.round((totalPrice * promo.discountPercent) / 100) : 0;
   const grandTotal = totalPrice - discount + deliveryFee;
 
@@ -53,8 +75,7 @@ export default function CheckoutPage() {
     setPromoError(null);
   }
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
+  async function submitOrder() {
     setError(null);
     setSubmitting(true);
     try {
@@ -64,7 +85,7 @@ export default function CheckoutPage() {
         body: JSON.stringify({
           name,
           phone,
-          address,
+          address: hasPhysical ? address : undefined,
           area,
           paymentMethod,
           promoCode: promo?.code ?? null,
@@ -92,6 +113,21 @@ export default function CheckoutPage() {
     }
   }
 
+  function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (hasEbook && !profile) {
+      setAuthModalOpen(true);
+      return;
+    }
+    submitOrder();
+  }
+
+  function handleAuthSuccess(authedProfile: AuthedProfile) {
+    setProfile(authedProfile);
+    setAuthModalOpen(false);
+    submitOrder();
+  }
+
   if (!hydrated) return <div className="container-page py-10" />;
 
   if (items.length === 0) {
@@ -112,7 +148,7 @@ export default function CheckoutPage() {
       <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-5 lg:flex-row">
         <div className="flex-1 space-y-5">
           <div className="rounded-lg border border-border bg-surface p-4">
-            <h2 className="mb-3 text-sm font-bold text-foreground">ডেলিভারির তথ্য</h2>
+            <h2 className="mb-3 text-sm font-bold text-foreground">{hasPhysical ? "ডেলিভারির তথ্য" : "যোগাযোগের তথ্য"}</h2>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <input
                 required
@@ -129,26 +165,55 @@ export default function CheckoutPage() {
                 className="rounded border border-border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange"
               />
             </div>
-            <textarea
-              required
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              placeholder="সম্পূর্ণ ঠিকানা * (বাসা/হোল্ডিং নং, রোড, এলাকা, থানা, জেলা)"
-              rows={3}
-              className="mt-3 w-full rounded border border-border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange"
-            />
-            <select
-              value={area}
-              onChange={(e) => setArea(e.target.value)}
-              className="mt-3 w-full rounded border border-border px-3 py-2 text-sm outline-none sm:w-64"
-            >
-              {areas.map((a) => (
-                <option key={a} value={a}>
-                  {a} (ডেলিভারি {formatTaka(deliveryFees[a])})
-                </option>
-              ))}
-            </select>
+            {hasPhysical ? (
+              <>
+                <textarea
+                  required
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder="সম্পূর্ণ ঠিকানা * (বাসা/হোল্ডিং নং, রোড, এলাকা, থানা, জেলা)"
+                  rows={3}
+                  className="mt-3 w-full rounded border border-border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange"
+                />
+                <select
+                  value={area}
+                  onChange={(e) => setArea(e.target.value)}
+                  className="mt-3 w-full rounded border border-border px-3 py-2 text-sm outline-none sm:w-64"
+                >
+                  {areas.map((a) => (
+                    <option key={a} value={a}>
+                      {a} (ডেলিভারি {formatTaka(deliveryFees[a])})
+                    </option>
+                  ))}
+                </select>
+              </>
+            ) : (
+              <p className="mt-3 text-xs text-ink-soft">
+                ইবুক ডিজিটাল পণ্য — কোনো ডেলিভারি লাগবে না, কেনার সাথে সাথেই আপনার প্রোফাইলে পাওয়া যাবে।
+              </p>
+            )}
           </div>
+
+          {hasEbook && (
+            <div className="rounded-lg border border-border bg-surface p-4">
+              <h2 className="mb-3 text-sm font-bold text-foreground">ইবুক প্রোফাইল</h2>
+              {profile ? (
+                <p className="flex items-center gap-1.5 text-xs text-ink-soft">
+                  <UserCheck size={14} className="text-cta" /> {profile.name} — {profile.email}
+                </p>
+              ) : (
+                <>
+                  <p className="text-xs text-ink-soft">
+                    ইবুক কেনার পর আপনার প্রোফাইল থেকে যেকোনো সময় পড়তে পারবেন — অর্ডার কনফার্ম করার আগে প্রোফাইলে
+                    লগইন করতে হবে।
+                  </p>
+                  <Button type="button" variant="secondary" className="mt-2.5" onClick={() => setAuthModalOpen(true)}>
+                    লগইন / প্রোফাইল তৈরি করুন
+                  </Button>
+                </>
+              )}
+            </div>
+          )}
 
           <div className="rounded-lg border border-border bg-surface p-4">
             <h2 className="mb-3 text-sm font-bold text-foreground">পেমেন্ট পদ্ধতি</h2>
@@ -270,6 +335,7 @@ export default function CheckoutPage() {
       </form>
 
       <PromoGiftModal open={showGiftModal} onClose={() => setShowGiftModal(false)} />
+      <ProfileAuthModal open={authModalOpen} onClose={() => setAuthModalOpen(false)} onSuccess={handleAuthSuccess} />
     </div>
   );
 }

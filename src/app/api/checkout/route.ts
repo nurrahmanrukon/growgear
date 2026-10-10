@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { allProducts } from "@/lib/data/products";
 import { createOrder, OrderItem } from "@/lib/server/orders";
 import { getStockOverride } from "@/lib/server/inventory";
+import { verifyProfileSessionToken, PROFILE_COOKIE } from "@/lib/server/profileAuth";
+import { addEbookPurchase } from "@/lib/server/profiles";
 
 interface CheckoutPayload {
   name: string;
@@ -26,22 +28,20 @@ export async function POST(req: NextRequest) {
   }
 
   const { name, phone, email, address, area, paymentMethod, items } = body;
-  const hasDelivery = address?.trim() || email?.trim();
-  if (!name?.trim() || !phone?.trim() || !hasDelivery || !items?.length) {
-    return NextResponse.json(
-      { error: "নাম, ফোন নম্বর, ঠিকানা/ইমেইল এবং কার্ট আইটেম আবশ্যক" },
-      { status: 400 }
-    );
+  if (!name?.trim() || !phone?.trim() || !items?.length) {
+    return NextResponse.json({ error: "নাম, ফোন নম্বর এবং কার্ট আইটেম আবশ্যক" }, { status: 400 });
   }
 
   // Re-price every item server-side against the live product catalog — never trust client-sent prices.
   const resolvedItems: OrderItem[] = [];
+  const resolvedProducts: (typeof allProducts)[number][] = [];
   for (const item of items) {
     const product = allProducts.find((p) => p.id === item.productId);
     if (!product) {
       return NextResponse.json({ error: "একটি প্রোডাক্ট পাওয়া যায়নি" }, { status: 400 });
     }
     const quantity = Math.max(1, Math.floor(item.quantity) || 1);
+    resolvedProducts.push(product);
     resolvedItems.push({
       productId: product.id,
       slug: product.slug,
@@ -59,6 +59,23 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // Ebooks have no physical delivery — instead they're attached to the buyer's profile
+  // for anytime access, so an ebook purchase requires being logged into a profile.
+  const hasEbookItem = resolvedProducts.some((p) => p.category === "ebook");
+  const hasPhysicalItem = resolvedProducts.some((p) => p.category !== "ebook");
+
+  let profileEmail: string | null = null;
+  if (hasEbookItem) {
+    profileEmail = verifyProfileSessionToken(req.cookies.get(PROFILE_COOKIE)?.value);
+    if (!profileEmail) {
+      return NextResponse.json({ error: "ইবুক কিনতে আগে প্রোফাইলে লগইন করতে হবে" }, { status: 401 });
+    }
+  }
+
+  if (hasPhysicalItem && !address?.trim()) {
+    return NextResponse.json({ error: "ঠিকানা আবশ্যক" }, { status: 400 });
+  }
+
   const subtotal = resolvedItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
   const deliveryFee = address?.trim() ? DELIVERY_FEES[area ?? ""] ?? 130 : 0;
   const discount = Math.max(0, Math.min(Number(body.discount) || 0, subtotal));
@@ -68,7 +85,7 @@ export async function POST(req: NextRequest) {
     customer: {
       name: name.trim(),
       phone: phone.trim(),
-      email: email?.trim() || undefined,
+      email: profileEmail || email?.trim() || undefined,
       address: address?.trim() || undefined,
       area: area?.trim() || undefined,
     },
@@ -80,6 +97,14 @@ export async function POST(req: NextRequest) {
     promoCode: body.promoCode?.trim() || undefined,
     total,
   });
+
+  if (profileEmail) {
+    for (const product of resolvedProducts) {
+      if (product.category === "ebook") {
+        addEbookPurchase(profileEmail, { slug: product.slug, title: product.title, orderId: order.orderId });
+      }
+    }
+  }
 
   return NextResponse.json({ orderId: order.orderId }, { status: 200 });
 }

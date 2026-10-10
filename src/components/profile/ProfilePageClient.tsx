@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
-import { BookOpen, Headphones, LogOut, Mail, Phone, User, Layers } from "lucide-react";
+import { BookOpen, Download, Headphones, LogOut, Mail, Phone, User, Layers } from "lucide-react";
 import { ProfileAuthModal, AuthedProfile } from "@/components/profile/ProfileAuthModal";
 import { Button } from "@/components/ui/Button";
 
@@ -12,6 +12,12 @@ export interface PurchasedPostView {
   title: string;
   tier: "text" | "audio" | "both";
   unlockedAt: string;
+}
+
+export interface PurchasedEbookView {
+  slug: string;
+  title: string;
+  purchasedAt: string;
 }
 
 const TIER_LABEL: Record<PurchasedPostView["tier"], string> = {
@@ -29,9 +35,11 @@ const TIER_ICON: Record<PurchasedPostView["tier"], typeof BookOpen> = {
 export function ProfilePageClient({
   initialProfile,
   purchasedPosts,
+  purchasedEbooks,
 }: {
   initialProfile: AuthedProfile | null;
   purchasedPosts: PurchasedPostView[];
+  purchasedEbooks: PurchasedEbookView[];
 }) {
   const router = useRouter();
   const [profile, setProfile] = useState(initialProfile);
@@ -119,6 +127,31 @@ export function ProfilePageClient({
                 </Link>
               );
             })}
+          </div>
+        )}
+      </div>
+
+      <div>
+        <h2 className="font-display text-sm font-bold text-foreground">আপনার কেনা ইবুক</h2>
+        {purchasedEbooks.length === 0 ? (
+          <p className="mt-2 text-sm text-ink-soft">এখনো কোনো ইবুক কেনা হয়নি।</p>
+        ) : (
+          <div className="mt-3 flex flex-col gap-2">
+            {purchasedEbooks.map((e) => (
+              <Link
+                key={e.slug}
+                href={`/ebooks/${e.slug}/read`}
+                className="flex items-center gap-3 rounded-md border border-border bg-surface p-3 transition hover:border-primary"
+              >
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-light text-primary">
+                  <Download size={15} />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium text-foreground">{e.title}</p>
+                  <p className="text-xs text-ink-faint">পড়ুন / ডাউনলোড</p>
+                </div>
+              </Link>
+            ))}
           </div>
         )}
       </div>

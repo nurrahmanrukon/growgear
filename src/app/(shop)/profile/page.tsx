@@ -3,8 +3,8 @@ import { Metadata } from "next";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { verifyProfileSessionToken, PROFILE_COOKIE } from "@/lib/server/profileAuth";
 import { getProfile } from "@/lib/server/profiles";
-import { getBlogPostBySlugResolved } from "@/lib/server/contentText";
-import { ProfilePageClient, PurchasedPostView } from "@/components/profile/ProfilePageClient";
+import { getBlogPostBySlugResolved, getProductBySlugResolved } from "@/lib/server/contentText";
+import { ProfilePageClient, PurchasedEbookView, PurchasedPostView } from "@/components/profile/ProfilePageClient";
 
 export const dynamic = "force-dynamic";
 
@@ -23,12 +23,19 @@ export default async function ProfilePage() {
     })
     .filter((x): x is PurchasedPostView => x !== null);
 
+  const purchasedEbooks: PurchasedEbookView[] = (profile?.ebooks ?? []).map((purchase) => ({
+    slug: purchase.slug,
+    title: getProductBySlugResolved(purchase.slug)?.title ?? purchase.title,
+    purchasedAt: purchase.purchasedAt,
+  }));
+
   return (
     <div className="container-page max-w-2xl py-8">
       <Breadcrumb items={[{ label: "হোম", href: "/" }, { label: "আমার প্রোফাইল" }]} />
       <ProfilePageClient
         initialProfile={profile ? { email: profile.email, name: profile.name, whatsapp: profile.whatsapp } : null}
         purchasedPosts={purchasedPosts}
+        purchasedEbooks={purchasedEbooks}
       />
     </div>
   );

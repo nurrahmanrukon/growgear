@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { getOrder } from "@/lib/server/orders";
+import { allProducts } from "@/lib/data/products";
 
 export default async function OrderSuccessPage({
   searchParams,
@@ -8,6 +10,10 @@ export default async function OrderSuccessPage({
   searchParams: Promise<{ orderId?: string }>;
 }) {
   const { orderId } = await searchParams;
+  const order = orderId ? getOrder(orderId) : undefined;
+  const hasEbook = order?.items.some(
+    (item) => allProducts.find((p) => p.id === item.productId)?.category === "ebook"
+  );
 
   return (
     <div className="container-page flex flex-col items-center gap-3 py-20 text-center">
@@ -21,6 +27,15 @@ export default async function OrderSuccessPage({
       <p className="max-w-md text-sm text-neutral-500">
         আমাদের একজন প্রতিনিধি শীঘ্রই আপনার সাথে যোগাযোগ করবেন। পণ্য হাতে পেয়ে টাকা পরিশোধ করুন।
       </p>
+      {hasEbook && (
+        <p className="max-w-md text-sm text-primary">
+          আপনার কেনা ইবুক এখন আপনার প্রোফাইলে পাওয়া যাবে — পড়তে{" "}
+          <Link href="/profile" className="font-semibold underline hover:no-underline">
+            আমার প্রোফাইল
+          </Link>{" "}
+          থেকে যান।
+        </p>
+      )}
       <Link href="/" className="mt-2">
         <Button variant="primary">কেনাকাটা চালিয়ে যান</Button>
       </Link>

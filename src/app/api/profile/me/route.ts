@@ -15,6 +15,7 @@ export async function GET(req: NextRequest) {
       name: profile.name,
       whatsapp: profile.whatsapp,
       purchases: profile.purchases,
+      ebooks: profile.ebooks,
     },
   });
 }
