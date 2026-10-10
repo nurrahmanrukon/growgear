@@ -6,6 +6,8 @@ import { Download, FileText, Lock } from "lucide-react";
 import { getProductBySlugResolved } from "@/lib/server/contentText";
 import { verifyProfileSessionToken, PROFILE_COOKIE } from "@/lib/server/profileAuth";
 import { hasEbookPurchase } from "@/lib/server/profiles";
+import { getMediaEntry } from "@/lib/server/mediaAssets";
+import { toBengaliNumber } from "@/lib/format";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { Button } from "@/components/ui/Button";
 
@@ -29,6 +31,7 @@ export default async function EbookReadPage({ params }: { params: Promise<{ slug
   const token = (await cookies()).get(PROFILE_COOKIE)?.value;
   const email = verifyProfileSessionToken(token);
   const owned = email ? hasEbookPurchase(email, slug) : false;
+  const pdf = getMediaEntry("ebook-pdf", slug);
 
   if (!owned) {
     return (
@@ -71,14 +74,29 @@ export default async function EbookReadPage({ params }: { params: Promise<{ slug
         </ul>
       </div>
 
-      <div className="mt-5 flex flex-col items-center gap-2 rounded-lg border border-dashed border-border bg-surface-muted p-6 text-center">
-        <FileText size={28} className="text-ink-faint" />
-        <p className="text-sm font-medium text-foreground">সম্পূর্ণ PDF ডাউনলোড শীঘ্রই আসছে</p>
-        <p className="text-xs text-ink-soft">ইবুকটি আপনার কেনা — অ্যাডমিন PDF আপলোড করলেই এখান থেকে ডাউনলোড করতে পারবেন।</p>
-        <Button variant="outline" disabled className="mt-1">
-          <Download size={14} /> ডাউনলোড (শীঘ্রই)
-        </Button>
-      </div>
+      {pdf ? (
+        <div className="mt-5 flex flex-col items-center gap-2 rounded-lg border border-border bg-surface-muted p-6 text-center">
+          <FileText size={28} className="text-primary" />
+          <p className="text-sm font-medium text-foreground">সম্পূর্ণ PDF প্রস্তুত</p>
+          <p className="text-xs text-ink-soft">
+            {pdf.fileName} · {toBengaliNumber((pdf.sizeBytes / (1024 * 1024)).toFixed(1))} এমবি
+          </p>
+          <a href={`/api/ebook-download/${slug}`}>
+            <Button variant="primary" className="mt-1">
+              <Download size={14} /> ডাউনলোড করুন
+            </Button>
+          </a>
+        </div>
+      ) : (
+        <div className="mt-5 flex flex-col items-center gap-2 rounded-lg border border-dashed border-border bg-surface-muted p-6 text-center">
+          <FileText size={28} className="text-ink-faint" />
+          <p className="text-sm font-medium text-foreground">সম্পূর্ণ PDF ডাউনলোড শীঘ্রই আসছে</p>
+          <p className="text-xs text-ink-soft">ইবুকটি আপনার কেনা — অ্যাডমিন PDF আপলোড করলেই এখান থেকে ডাউনলোড করতে পারবেন।</p>
+          <Button variant="outline" disabled className="mt-1">
+            <Download size={14} /> ডাউনলোড (শীঘ্রই)
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

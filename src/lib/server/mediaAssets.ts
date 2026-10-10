@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { allProducts } from "@/lib/data/products";
 import { blogPosts } from "@/lib/data/blog";
 
-export type MediaKind = "product-image" | "product-video" | "blog-image";
+export type MediaKind = "product-image" | "product-video" | "blog-image" | "ebook-pdf";
 
 export interface MediaEntry {
   fileName: string;
@@ -29,6 +29,8 @@ function dirFor(kind: MediaKind): string {
       return path.join(process.cwd(), "data", "media", "product-videos");
     case "blog-image":
       return path.join(process.cwd(), "data", "media", "blog-images");
+    case "ebook-pdf":
+      return path.join(process.cwd(), "data", "media", "ebook-pdfs");
   }
 }
 
@@ -44,15 +46,20 @@ const VIDEO_TYPES: Record<string, string> = {
   webm: "video/webm",
   mov: "video/quicktime",
 };
+const PDF_TYPES: Record<string, string> = {
+  pdf: "application/pdf",
+};
 
 const ALLOWED_FOR: Record<MediaKind, Record<string, string>> = {
   "product-image": IMAGE_TYPES,
   "blog-image": IMAGE_TYPES,
   "product-video": VIDEO_TYPES,
+  "ebook-pdf": PDF_TYPES,
 };
 
 export const MAX_IMAGE_BYTES = 8 * 1024 * 1024; // 8MB
 export const MAX_VIDEO_BYTES = 60 * 1024 * 1024; // 60MB
+export const MAX_PDF_BYTES = 50 * 1024 * 1024; // 50MB
 
 type Store = Partial<Record<MediaKind, Record<string, MediaEntry>>>;
 
@@ -71,6 +78,7 @@ function writeStore(store: Store) {
 
 function validSlug(kind: MediaKind, slug: string): boolean {
   if (kind === "blog-image") return blogPosts.some((p) => p.slug === slug);
+  if (kind === "ebook-pdf") return allProducts.some((p) => p.slug === slug && p.category === "ebook");
   return allProducts.some((p) => p.slug === slug);
 }
 
@@ -83,6 +91,8 @@ function filePath(kind: MediaKind, slug: string, ext: string): string {
       return path.join(process.cwd(), "data", "media", "product-videos", fname);
     case "blog-image":
       return path.join(process.cwd(), "data", "media", "blog-images", fname);
+    case "ebook-pdf":
+      return path.join(process.cwd(), "data", "media", "ebook-pdfs", fname);
   }
 }
 
@@ -148,6 +158,7 @@ export function getAllProductMediaEntries() {
     category: p.category,
     hasImage: Boolean(store["product-image"]?.[p.slug]),
     hasVideo: Boolean(store["product-video"]?.[p.slug]),
+    hasPdf: p.category === "ebook" && Boolean(store["ebook-pdf"]?.[p.slug]),
   }));
 }
 
@@ -180,6 +191,7 @@ const MAX_BYTES_FOR: Record<MediaKind, number> = {
   "product-image": MAX_IMAGE_BYTES,
   "blog-image": MAX_IMAGE_BYTES,
   "product-video": MAX_VIDEO_BYTES,
+  "ebook-pdf": MAX_PDF_BYTES,
 };
 
 /** Parses+validates an upload POST body for a given media kind. Returns either the saved entry or an error response. */

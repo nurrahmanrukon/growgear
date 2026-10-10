@@ -10,6 +10,7 @@ import {
   Trash2,
   ImageIcon,
   Film,
+  FileText,
   ExternalLink,
   GripVertical,
   BookOpen,
@@ -24,6 +25,7 @@ interface ProductListItem {
   category: ProductCategory;
   hasImage: boolean;
   hasVideo: boolean;
+  hasPdf: boolean;
 }
 interface BlogListItem {
   slug: string;
@@ -49,7 +51,7 @@ function MediaSlot({
   previewUrl: string;
   accept: string;
   hint: string;
-  kind: "image" | "video";
+  kind: "image" | "video" | "pdf";
   hasMedia: boolean;
   onChanged: (hasMedia: boolean) => void;
 }) {
@@ -107,7 +109,7 @@ function MediaSlot({
   return (
     <div>
       <span className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-ink-soft">
-        {kind === "image" ? <ImageIcon size={13} /> : <Film size={13} />} {label}
+        {kind === "image" ? <ImageIcon size={13} /> : kind === "video" ? <Film size={13} /> : <FileText size={13} />} {label}
       </span>
 
       {hasMedia && (
@@ -115,8 +117,17 @@ function MediaSlot({
           {kind === "image" ? (
             // eslint-disable-next-line @next/next/no-img-element -- admin preview of an uploaded file
             <img key={cacheBust} src={`${previewUrl}?t=${cacheBust}`} alt="" className="max-h-56 w-full object-contain" />
-          ) : (
+          ) : kind === "video" ? (
             <video key={cacheBust} src={`${previewUrl}?t=${cacheBust}`} controls className="max-h-56 w-full bg-black" />
+          ) : (
+            <a
+              href={`${previewUrl}?t=${cacheBust}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 bg-surface-muted p-3 text-xs font-medium text-primary hover:underline"
+            >
+              <FileText size={16} /> আপলোড করা PDF দেখুন <ExternalLink size={11} />
+            </a>
           )}
         </div>
       )}
@@ -554,6 +565,22 @@ export function MediaAdmin({
                   setProducts((prev) => prev.map((p) => (p.slug === selectedProduct.slug ? { ...p, hasVideo: has } : p)))
                 }
               />
+
+              {selectedProduct.category === "ebook" && (
+                <MediaSlot
+                  key={`${selectedProduct.slug}-pdf`}
+                  label="সম্পূর্ণ ইবুক (PDF)"
+                  endpoint={`/api/admin/media/products/${selectedProduct.slug}/pdf`}
+                  previewUrl={`/api/admin/media/products/${selectedProduct.slug}/pdf`}
+                  accept="application/pdf,.pdf"
+                  hint="pdf — সর্বোচ্চ ৫০ এমবি"
+                  kind="pdf"
+                  hasMedia={selectedProduct.hasPdf}
+                  onChanged={(has) =>
+                    setProducts((prev) => prev.map((p) => (p.slug === selectedProduct.slug ? { ...p, hasPdf: has } : p)))
+                  }
+                />
+              )}
 
               {selectedProduct.category === "gear" && (
                 <p className="text-[11px] text-ink-faint">
