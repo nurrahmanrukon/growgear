@@ -178,6 +178,75 @@ function MediaSlot({
   );
 }
 
+function DownloadToggle({ slug }: { slug: string }) {
+  const [enabled, setEnabled] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch(`/api/admin/ebook-download-setting/${slug}`)
+      .then((res) => res.json())
+      .then((data) => setEnabled(Boolean(data.enabled)))
+      .catch(() => setError("লোড করা যায়নি"))
+      .finally(() => setLoading(false));
+  }, [slug]);
+
+  async function toggle() {
+    const next = !enabled;
+    setSaving(true);
+    setError(null);
+    setEnabled(next);
+    try {
+      const res = await fetch(`/api/admin/ebook-download-setting/${slug}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ enabled: next }),
+      });
+      if (!res.ok) {
+        setEnabled(!next);
+        setError("পরিবর্তন সংরক্ষণ করা যায়নি");
+      }
+    } catch {
+      setEnabled(!next);
+      setError("পরিবর্তন সংরক্ষণ করা যায়নি — ইন্টারনেট সংযোগ চেক করুন");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="mt-3 rounded-lg border border-border bg-surface p-4">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-xs font-medium text-ink-soft">ডাউনলোড অপশন</p>
+          <p className="mt-0.5 text-[11px] text-ink-faint">
+            বন্ধ থাকলে কাস্টমার শুধু ওয়েবসাইটেই ইবুকটা পড়তে পারবে, ডাউনলোড বাটন দেখাবে না। চালু করলে ডাউনলোডও করতে
+            পারবে।
+          </p>
+        </div>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={enabled}
+          onClick={toggle}
+          disabled={loading || saving}
+          className={`relative h-6 w-11 shrink-0 rounded-full transition disabled:opacity-50 ${
+            enabled ? "bg-cta" : "bg-border"
+          }`}
+        >
+          <span
+            className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition ${
+              enabled ? "left-5" : "left-0.5"
+            }`}
+          />
+        </button>
+      </div>
+      {error && <p className="mt-2 text-[11px] text-price">{error}</p>}
+    </div>
+  );
+}
+
 interface MultiImageEntry {
   id: string;
   fileName: string;
@@ -580,6 +649,10 @@ export function MediaAdmin({
                     setProducts((prev) => prev.map((p) => (p.slug === selectedProduct.slug ? { ...p, hasPdf: has } : p)))
                   }
                 />
+              )}
+
+              {selectedProduct.category === "ebook" && selectedProduct.hasPdf && (
+                <DownloadToggle key={`${selectedProduct.slug}-download-toggle`} slug={selectedProduct.slug} />
               )}
 
               {selectedProduct.category === "gear" && (

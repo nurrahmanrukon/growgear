@@ -7,6 +7,7 @@ import { getProductBySlugResolved } from "@/lib/server/contentText";
 import { verifyProfileSessionToken, PROFILE_COOKIE } from "@/lib/server/profileAuth";
 import { hasEbookPurchase } from "@/lib/server/profiles";
 import { getMediaEntry } from "@/lib/server/mediaAssets";
+import { isDownloadEnabled } from "@/lib/server/ebookDownloadSettings";
 import { toBengaliNumber } from "@/lib/format";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { Button } from "@/components/ui/Button";
@@ -32,6 +33,7 @@ export default async function EbookReadPage({ params }: { params: Promise<{ slug
   const email = verifyProfileSessionToken(token);
   const owned = email ? hasEbookPurchase(email, slug) : false;
   const pdf = getMediaEntry("ebook-pdf", slug);
+  const downloadAllowed = pdf ? isDownloadEnabled(slug) : false;
 
   if (!owned) {
     return (
@@ -75,17 +77,26 @@ export default async function EbookReadPage({ params }: { params: Promise<{ slug
       </div>
 
       {pdf ? (
-        <div className="mt-5 flex flex-col items-center gap-2 rounded-lg border border-border bg-surface-muted p-6 text-center">
-          <FileText size={28} className="text-primary" />
-          <p className="text-sm font-medium text-foreground">সম্পূর্ণ PDF প্রস্তুত</p>
-          <p className="text-xs text-ink-soft">
-            {pdf.fileName} · {toBengaliNumber((pdf.sizeBytes / (1024 * 1024)).toFixed(1))} এমবি
-          </p>
-          <a href={`/api/ebook-download/${slug}`}>
-            <Button variant="primary" className="mt-1">
-              <Download size={14} /> ডাউনলোড করুন
-            </Button>
-          </a>
+        <div className="mt-5">
+          <div className="flex flex-wrap items-center justify-between gap-2 rounded-t-lg border border-b-0 border-border bg-surface-muted px-4 py-2.5">
+            <p className="text-xs text-ink-soft">
+              {pdf.fileName} · {toBengaliNumber((pdf.sizeBytes / (1024 * 1024)).toFixed(1))} এমবি
+            </p>
+            {downloadAllowed ? (
+              <a href={`/api/ebook-download/${slug}`}>
+                <Button variant="outline" className="text-xs">
+                  <Download size={13} /> ডাউনলোড করুন
+                </Button>
+              </a>
+            ) : (
+              <span className="text-[11px] text-ink-faint">শুধু ওয়েবসাইটেই পড়া যাবে</span>
+            )}
+          </div>
+          <iframe
+            src={`/api/ebook-view/${slug}`}
+            title={product.title}
+            className="h-[80vh] w-full rounded-b-lg border border-border bg-surface-muted"
+          />
         </div>
       ) : (
         <div className="mt-5 flex flex-col items-center gap-2 rounded-lg border border-dashed border-border bg-surface-muted p-6 text-center">
