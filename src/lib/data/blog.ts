@@ -311,6 +311,20 @@ export function getFeaturedPosts(limit = 3): BlogPost[] {
 }
 
 /**
+ * Deterministic per-post read count used to rank the "most popular" rail.
+ * No real analytics backend exists yet — swap this out for real page-view
+ * data once one does; every caller already reads through this function.
+ */
+export function getBlogReadCount(post: BlogPost): number {
+  const seed = hashString(post.id + ":read-count");
+  return 800 + (seed % 9200);
+}
+
+export function getMostPopularPosts(limit = 4): BlogPost[] {
+  return [...blogPosts].sort((a, b) => getBlogReadCount(b) - getBlogReadCount(a)).slice(0, limit);
+}
+
+/**
  * Deterministic per-post "X জন কিনেছেন" count for the premium paywall.
  * No real backend exists yet — swap this out for an actual purchase-count
  * lookup once one does; every caller already reads through this function.

@@ -4,7 +4,7 @@ import { allProducts, getProductBySlug, getRelatedProducts, getFeaturedProducts 
 import { books } from "@/lib/data/books";
 import { ebooks } from "@/lib/data/ebooks";
 import { gear } from "@/lib/data/gear";
-import { blogPosts, getBlogPostBySlug, getPostsByTopic, getFeaturedPosts } from "@/lib/data/blog";
+import { blogPosts, getBlogPostBySlug, getPostsByTopic, getFeaturedPosts, getMostPopularPosts } from "@/lib/data/blog";
 import { Product, BlogPost, ProductCategory } from "@/lib/types";
 import { getBlogImageUrl, getProductImageUrl, getProductVideoUrl } from "@/lib/server/mediaAssets";
 import { resolveInStock } from "@/lib/server/inventory";
@@ -245,6 +245,10 @@ export function getPostsByTopicResolved(topicSlug: string, segmentSlug?: string)
 
 export function getFeaturedPostsResolved(limit = 3): BlogPost[] {
   return resolveBlogPosts(getFeaturedPosts(limit));
+}
+
+export function getMostPopularPostsResolved(limit = 4): BlogPost[] {
+  return resolveBlogPosts(getMostPopularPosts(limit));
 }
 
 export function getAllBlogTextEntries(): { slug: string; title: string; customized: boolean }[] {

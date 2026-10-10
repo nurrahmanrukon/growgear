@@ -2,19 +2,20 @@
 
 import { FormEvent, useState } from "react";
 import Link from "next/link";
-import { CheckCircle2, Mail } from "lucide-react";
+import { CheckCircle2, Mail, TrendingUp } from "lucide-react";
 import { BlogPost } from "@/lib/types";
-import { blogPosts } from "@/lib/data/blog";
+import { blogPosts, getBlogReadCount } from "@/lib/data/blog";
+import { toBengaliNumber } from "@/lib/format";
 import { ArticleThumb } from "./ArticleThumb";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const giftPost = blogPosts.find((p) => p.premium) ?? blogPosts[0];
 
-export function BlogHero({ featured }: { featured: BlogPost[] }) {
+export function BlogHero({ popular }: { popular: BlogPost[] }) {
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState(false);
   const [subscribedTo, setSubscribedTo] = useState<string | null>(null);
-  const [hero, ...rest] = featured;
+  const [top, ...rest] = popular;
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -29,55 +30,56 @@ export function BlogHero({ featured }: { featured: BlogPost[] }) {
   return (
     <div className="border-b border-border bg-surface-muted">
       <div className="container-page py-8 sm:py-10">
-        <p className="text-xs font-medium uppercase tracking-wide text-primary">GrowGear ব্লগ</p>
+        <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-primary">
+          <TrendingUp size={13} /> সবচেয়ে জনপ্রিয় লেখা
+        </p>
         <h1 className="mt-1.5 font-display text-2xl font-bold text-foreground sm:text-3xl">
-          বিজনেস, প্রোডাক্টিভিটি ও গ্রোথ নিয়ে ইনসাইট
+          যা পাঠকরা সবচেয়ে বেশি পড়ছেন
         </h1>
         <p className="mt-2 max-w-xl text-sm text-ink-soft">
-          ব্যবসা, প্রোডাক্টিভিটি, ফাইন্যান্স, ব্র্যান্ডিং, মার্কেটিং ও সেলস নিয়ে প্র্যাক্টিক্যাল লেখা — প্রতি সপ্তাহে।
+          এখান থেকেই শুরু করুন — আমাদের পাঠকদের মধ্যে সবচেয়ে জনপ্রিয় লেখাগুলো।
         </p>
 
-        {hero && (
+        {top && (
           <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
-            <Link href={`/blog/${hero.slug}`} className="group lg:col-span-2">
+            <Link href={`/blog/${top.slug}`} className="group lg:col-span-2">
               <ArticleThumb
-                topicSlug={hero.topicSlug}
-                colorFrom={hero.colorFrom}
-                colorTo={hero.colorTo}
-                imageUrl={hero.coverImageUrl}
+                topicSlug={top.topicSlug}
+                colorFrom={top.colorFrom}
+                colorTo={top.colorTo}
+                imageUrl={top.coverImageUrl}
                 className="aspect-[16/8] w-full"
                 iconSize={40}
-                premium={hero.premium}
+                premium={top.premium}
               />
-              <p className="mt-3 text-xs font-medium uppercase tracking-wide text-primary">{hero.category}</p>
+              <p className="mt-3 text-xs font-medium uppercase tracking-wide text-primary">{top.category}</p>
               <h2 className="mt-1 text-xl font-bold text-foreground group-hover:text-link-hover sm:text-2xl">
-                {hero.title}
+                {top.title}
               </h2>
-              <p className="mt-1.5 line-clamp-2 text-sm text-ink-soft">{hero.excerpt}</p>
+              <p className="mt-1.5 line-clamp-2 text-sm text-ink-soft">{top.excerpt}</p>
               <p className="mt-2 text-xs text-ink-faint">
-                {hero.author} · {hero.date}
+                {top.author} · {top.date} ·{" "}
+                <span className="font-medium text-primary">
+                  {toBengaliNumber(getBlogReadCount(top))} বার পড়া হয়েছে
+                </span>
               </p>
             </Link>
 
             <div>
-              <h3 className="text-sm font-bold text-foreground">ফিচার্ড আর্টিকেল</h3>
+              <h3 className="text-sm font-bold text-foreground">আরও জনপ্রিয় লেখা</h3>
               <div className="mt-3 space-y-4">
-                {rest.map((post) => (
+                {rest.map((post, i) => (
                   <Link key={post.id} href={`/blog/${post.slug}`} className="group flex gap-3">
-                    <ArticleThumb
-                      topicSlug={post.topicSlug}
-                      colorFrom={post.colorFrom}
-                      colorTo={post.colorTo}
-                      imageUrl={post.coverImageUrl}
-                      className="h-16 w-20 shrink-0"
-                      iconSize={18}
-                      premium={post.premium}
-                    />
+                    <span className="flex w-7 shrink-0 items-center justify-center font-display text-lg font-bold text-ink-faint/60">
+                      {toBengaliNumber(i + 2)}
+                    </span>
                     <div className="min-w-0">
                       <p className="line-clamp-2 text-sm font-medium text-foreground group-hover:text-link-hover">
                         {post.title}
                       </p>
-                      <p className="mt-1 text-[11px] text-ink-faint">{post.date}</p>
+                      <p className="mt-1 text-[11px] text-ink-faint">
+                        {toBengaliNumber(getBlogReadCount(post))} বার পড়া হয়েছে
+                      </p>
                     </div>
                   </Link>
                 ))}

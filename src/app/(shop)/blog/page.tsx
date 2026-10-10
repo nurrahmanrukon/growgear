@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { SEGMENTS, TOPICS } from "@/lib/data/blog";
-import { blogPostsResolved, getFeaturedPostsResolved, getPostsByTopicResolved, getFeaturedProductsResolved } from "@/lib/server/contentText";
+import { blogPostsResolved, getMostPopularPostsResolved, getPostsByTopicResolved, getFeaturedProductsResolved } from "@/lib/server/contentText";
 import { courses } from "@/lib/data/courses";
 import { BlogTopicSlug } from "@/lib/types";
 import { TopicNav } from "@/components/blog/TopicNav";
@@ -113,14 +113,14 @@ export default async function BlogPage({
   }
 
   const allPosts = blogPostsResolved();
-  const featured = getFeaturedPostsResolved(4);
+  const popularPosts = getMostPopularPostsResolved(4);
   const totalPages = Math.ceil(allPosts.length / PAGE_SIZE);
   const pagePosts = allPosts.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   return (
     <>
       <TopicNav />
-      <BlogHero featured={featured} />
+      <BlogHero popular={popularPosts} />
 
       <section className="container-page py-8">
         <h2 className="mb-4 font-display text-lg font-bold text-foreground">সাম্প্রতিক লেখা</h2>
