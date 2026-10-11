@@ -35,6 +35,8 @@ interface BlogForm {
   content: string[];
   author: string;
   category: string;
+  date: string;
+  readCount: number;
 }
 
 const CATEGORY_LABEL: Record<ProductCategory, string> = { book: "বই", ebook: "ইবুক", gear: "গিয়ার" };
@@ -137,6 +139,8 @@ export function ContentTextAdmin({
         content: c.content ?? [],
         author: c.author,
         category: c.category,
+        date: c.date,
+        readCount: c.readCount ?? 0,
       });
       setCustomized(data.customized);
     } catch {
@@ -194,6 +198,8 @@ export function ContentTextAdmin({
           content: blogForm.content,
           author: blogForm.author,
           category: blogForm.category,
+          date: blogForm.date,
+          readCount: blogForm.readCount,
         }),
       });
       const data = await res.json();
@@ -567,6 +573,28 @@ export function ContentTextAdmin({
                     className={`mt-1 ${fieldClass}`}
                     value={blogForm.category}
                     onChange={(e) => setBlogForm({ ...blogForm, category: e.target.value })}
+                  />
+                </label>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <label className="block text-xs font-medium text-ink-soft">
+                  তারিখ (date)
+                  <input
+                    className={`mt-1 ${fieldClass}`}
+                    placeholder="যেমন: ৪ সেপ্টেম্বর, ২০২৬"
+                    value={blogForm.date}
+                    onChange={(e) => setBlogForm({ ...blogForm, date: e.target.value })}
+                  />
+                </label>
+                <label className="block text-xs font-medium text-ink-soft">
+                  কতবার পড়া হয়েছে (সংখ্যা)
+                  <input
+                    type="number"
+                    min={0}
+                    className={`mt-1 ${fieldClass}`}
+                    value={blogForm.readCount}
+                    onChange={(e) => setBlogForm({ ...blogForm, readCount: Math.max(0, Number(e.target.value) || 0) })}
                   />
                 </label>
               </div>

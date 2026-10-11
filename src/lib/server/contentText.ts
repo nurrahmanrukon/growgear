@@ -4,7 +4,7 @@ import { allProducts, getProductBySlug, getRelatedProducts, getFeaturedProducts 
 import { books } from "@/lib/data/books";
 import { ebooks } from "@/lib/data/ebooks";
 import { gear } from "@/lib/data/gear";
-import { blogPosts, getBlogPostBySlug, getPostsByTopic, getFeaturedPosts, getMostPopularPosts } from "@/lib/data/blog";
+import { blogPosts, getBlogPostBySlug, getPostsByTopic, getFeaturedPosts, getBlogReadCount } from "@/lib/data/blog";
 import { Product, BlogPost, ProductCategory } from "@/lib/types";
 import { getBlogImageUrl, getProductImageUrl, getProductVideoUrl } from "@/lib/server/mediaAssets";
 import { resolveInStock } from "@/lib/server/inventory";
@@ -29,6 +29,8 @@ export interface BlogTextOverride {
   content?: string[];
   author?: string;
   category?: string;
+  date?: string;
+  readCount?: number;
 }
 
 interface Store {
@@ -217,8 +219,13 @@ function mergeBlogPost(post: BlogPost, override: BlogTextOverride): BlogPost {
     content: override.content && override.content.length > 0 ? override.content : post.content,
     author: override.author || post.author,
     category: override.category || post.category,
+    date: override.date || post.date,
   };
-  return { ...merged, coverImageUrl: getBlogImageUrl(post.slug) };
+  return {
+    ...merged,
+    coverImageUrl: getBlogImageUrl(post.slug),
+    readCount: override.readCount ?? getBlogReadCount(post),
+  };
 }
 
 export function resolveBlogPost(post: BlogPost): BlogPost {
@@ -247,8 +254,8 @@ export function getFeaturedPostsResolved(limit = 3): BlogPost[] {
   return resolveBlogPosts(getFeaturedPosts(limit));
 }
 
-export function getMostPopularPostsResolved(limit = 4): BlogPost[] {
-  return resolveBlogPosts(getMostPopularPosts(limit));
+export function getMostPopularPostsResolved(limit = 6): BlogPost[] {
+  return [...blogPostsResolved()].sort((a, b) => (b.readCount ?? 0) - (a.readCount ?? 0)).slice(0, limit);
 }
 
 export function getAllBlogTextEntries(): { slug: string; title: string; customized: boolean }[] {
@@ -274,6 +281,11 @@ export function setBlogOverride(slug: string, fields: BlogTextOverride) {
     content: cleanStrings(fields.content),
     author: fields.author?.trim() || undefined,
     category: fields.category?.trim() || undefined,
+    date: fields.date?.trim() || undefined,
+    readCount:
+      typeof fields.readCount === "number" && Number.isFinite(fields.readCount) && fields.readCount >= 0
+        ? Math.round(fields.readCount)
+        : undefined,
   };
   const store = readStore();
   store.blog = store.blog ?? {};

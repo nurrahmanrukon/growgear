@@ -311,17 +311,15 @@ export function getFeaturedPosts(limit = 3): BlogPost[] {
 }
 
 /**
- * Deterministic per-post read count used to rank the "most popular" rail.
- * No real analytics backend exists yet — swap this out for real page-view
- * data once one does; every caller already reads through this function.
+ * Deterministic per-post read count used to rank the "most popular" rail —
+ * the default when an admin hasn't set one. No real analytics backend exists
+ * yet; resolveBlogPost()/mergeBlogPost() in contentText.ts applies an admin
+ * override on top of this and every display/ranking caller reads the
+ * resolved post's `readCount` field instead of calling this directly.
  */
 export function getBlogReadCount(post: BlogPost): number {
   const seed = hashString(post.id + ":read-count");
   return 800 + (seed % 9200);
-}
-
-export function getMostPopularPosts(limit = 4): BlogPost[] {
-  return [...blogPosts].sort((a, b) => getBlogReadCount(b) - getBlogReadCount(a)).slice(0, limit);
 }
 
 /**

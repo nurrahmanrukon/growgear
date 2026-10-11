@@ -3,7 +3,7 @@
 import { FormEvent, useState } from "react";
 import { CheckCircle2, Mail, TrendingUp } from "lucide-react";
 import { BlogPost } from "@/lib/types";
-import { blogPosts, getBlogReadCount } from "@/lib/data/blog";
+import { blogPosts } from "@/lib/data/blog";
 import { toBengaliNumber } from "@/lib/format";
 import { ArticleCard } from "./ArticleCard";
 
@@ -46,7 +46,7 @@ export function BlogHero({ popular }: { popular: BlogPost[] }) {
                 post={post}
                 meta={
                   <span className="font-medium text-primary">
-                    {toBengaliNumber(getBlogReadCount(post))} বার পড়া হয়েছে
+                    {toBengaliNumber(post.readCount ?? 0)} বার পড়া হয়েছে
                   </span>
                 }
               />

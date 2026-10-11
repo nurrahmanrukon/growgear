@@ -81,4 +81,6 @@ export interface BlogPost {
   colorTo: string;
   /** Set only by the server-side resolver when an admin has uploaded a real image; absent otherwise. */
   coverImageUrl?: string;
+  /** Set only by the server-side resolver: an admin's override if set, else the deterministic default. */
+  readCount?: number;
 }
