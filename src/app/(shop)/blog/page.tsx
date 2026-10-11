@@ -113,7 +113,7 @@ export default async function BlogPage({
   }
 
   const allPosts = blogPostsResolved();
-  const popularPosts = getMostPopularPostsResolved(4);
+  const popularPosts = getMostPopularPostsResolved(6);
   const totalPages = Math.ceil(allPosts.length / PAGE_SIZE);
   const pagePosts = allPosts.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
