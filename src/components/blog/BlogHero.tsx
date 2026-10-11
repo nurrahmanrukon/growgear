@@ -4,7 +4,6 @@ import { FormEvent, useState } from "react";
 import { CheckCircle2, Mail, TrendingUp } from "lucide-react";
 import { BlogPost } from "@/lib/types";
 import { blogPosts } from "@/lib/data/blog";
-import { toBengaliNumber } from "@/lib/format";
 import { ArticleCard } from "./ArticleCard";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -41,15 +40,7 @@ export function BlogHero({ popular }: { popular: BlogPost[] }) {
         {popular.length > 0 && (
           <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
             {popular.map((post) => (
-              <ArticleCard
-                key={post.id}
-                post={post}
-                meta={
-                  <span className="font-medium text-primary">
-                    {toBengaliNumber(post.readCount ?? 0)} বার পড়া হয়েছে
-                  </span>
-                }
-              />
+              <ArticleCard key={post.id} post={post} />
             ))}
           </div>
         )}

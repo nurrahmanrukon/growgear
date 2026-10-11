@@ -1,17 +1,23 @@
-import { ReactNode } from "react";
 import Link from "next/link";
 import { BlogPost } from "@/lib/types";
+import { toBengaliNumber } from "@/lib/format";
 import { ArticleThumb } from "./ArticleThumb";
+
+function MetaLine({ post }: { post: BlogPost }) {
+  return (
+    <p className="mt-1 text-xs text-ink-faint">
+      {post.author} · {post.date} ·{" "}
+      <span className="font-medium text-primary">{toBengaliNumber(post.readCount ?? 0)} বার পড়া হয়েছে</span>
+    </p>
+  );
+}
 
 export function ArticleCard({
   post,
   variant = "horizontal",
-  meta,
 }: {
   post: BlogPost;
   variant?: "horizontal" | "vertical";
-  /** Extra text appended after author/date, e.g. a read count — omitted by default. */
-  meta?: ReactNode;
 }) {
   if (variant === "vertical") {
     return (
@@ -31,10 +37,7 @@ export function ArticleCard({
         <p className="mt-2.5 line-clamp-2 text-sm font-medium text-foreground group-hover:text-link-hover">
           {post.title}
         </p>
-        <p className="mt-1 text-xs text-ink-faint">
-          {post.author} · {post.date}
-          {meta && <> · {meta}</>}
-        </p>
+        <MetaLine post={post} />
       </Link>
     );
   }
@@ -54,10 +57,7 @@ export function ArticleCard({
         <p className="line-clamp-2 text-sm font-medium text-foreground group-hover:text-link-hover">
           {post.title}
         </p>
-        <p className="mt-1 text-xs text-ink-faint">
-          {post.author} · {post.date}
-          {meta && <> · {meta}</>}
-        </p>
+        <MetaLine post={post} />
       </div>
     </Link>
   );
