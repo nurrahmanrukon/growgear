@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 import Link from "next/link";
 import { BlogPost } from "@/lib/types";
 import { ArticleThumb } from "./ArticleThumb";
@@ -5,9 +6,12 @@ import { ArticleThumb } from "./ArticleThumb";
 export function ArticleCard({
   post,
   variant = "horizontal",
+  meta,
 }: {
   post: BlogPost;
   variant?: "horizontal" | "vertical";
+  /** Extra text appended after author/date, e.g. a read count — omitted by default. */
+  meta?: ReactNode;
 }) {
   if (variant === "vertical") {
     return (
@@ -29,6 +33,7 @@ export function ArticleCard({
         </p>
         <p className="mt-1 text-xs text-ink-faint">
           {post.author} · {post.date}
+          {meta && <> · {meta}</>}
         </p>
       </Link>
     );
@@ -51,6 +56,7 @@ export function ArticleCard({
         </p>
         <p className="mt-1 text-xs text-ink-faint">
           {post.author} · {post.date}
+          {meta && <> · {meta}</>}
         </p>
       </div>
     </Link>
