@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { FormEvent, Suspense, useEffect, useRef, useState } from "react";
-import { Menu, Search, ShoppingCart, User, X } from "lucide-react";
+import { Search, ShoppingCart, User, X } from "lucide-react";
 import clsx from "clsx";
 import { useCartStore, useHasHydrated } from "@/store/cart";
 import { toBengaliNumber } from "@/lib/format";
@@ -100,20 +100,10 @@ function getActiveCategoryKey(pathname: string): string {
   return "home";
 }
 
-const utilityLinks = [
-  { label: "আজকের অফার", href: "/" },
-  { label: "গ্রাহক সেবা", href: "/" },
-  { label: "প্রিমিয়াম ব্লগ", href: "/blog" },
-  { label: "গিফট কার্ড", href: "/" },
-  { label: "বিক্রি করুন", href: "/" },
-  { label: "উইশলিস্ট", href: "/" },
-];
-
 export function Header({ visibleKeys }: { visibleKeys?: string[] } = {}) {
   const router = useRouter();
   const pathname = usePathname();
   const [query, setQuery] = useState("");
-  const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const mobileSearchInputRef = useRef<HTMLInputElement>(null);
   const hydrated = useHasHydrated();
@@ -141,14 +131,6 @@ export function Header({ visibleKeys }: { visibleKeys?: string[] } = {}) {
       {/* Top bar */}
       <div style={{ background: "#131921" }} className="text-white">
         <div className="container-page flex items-center gap-3 py-2.5">
-          <button
-            className="-ml-1 rounded p-1.5 hover:bg-white/10 lg:hidden"
-            aria-label="মেনু খুলুন"
-            onClick={() => setMobileOpen((v) => !v)}
-          >
-            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
-
           <Link href="/" className="shrink-0 rounded border border-transparent px-1 py-1 font-display text-lg font-bold hover:border-white/40 sm:text-xl">
             Grow<span style={{ color: "#febd69" }}>Gear</span>
           </Link>
@@ -243,19 +225,6 @@ export function Header({ visibleKeys }: { visibleKeys?: string[] } = {}) {
               {link.label}
             </Link>
           ))}
-          <span className="hidden h-4 w-px shrink-0 bg-white/20 lg:block" aria-hidden />
-          {utilityLinks.map((link, i) => (
-            <Link
-              key={link.label}
-              href={link.href}
-              className={clsx(
-                "hidden shrink-0 rounded border px-1.5 py-1 text-white/90 hover:border-white/40 hover:text-white lg:inline-block",
-                i === 0 ? "border-white" : "border-transparent"
-              )}
-            >
-              {link.label}
-            </Link>
-          ))}
         </div>
         {/* Sub-category bar (layer 2) — subcategories of the currently active menu item */}
         {activeCategory?.sub && activeCategory.sub.length > 0 && (
@@ -278,31 +247,6 @@ export function Header({ visibleKeys }: { visibleKeys?: string[] } = {}) {
           </div>
         )}
       </div>
-
-      {/* Mobile-only dropdown: utility links (categories are already always visible above) */}
-      <nav
-        className={clsx(
-          "border-t border-white/10 lg:hidden",
-          mobileOpen ? "block" : "hidden"
-        )}
-        style={{ background: "#232f3e" }}
-      >
-        <div className="container-page flex flex-col py-1">
-          {utilityLinks.map((link, i) => (
-            <Link
-              key={link.label}
-              href={link.href}
-              onClick={() => setMobileOpen(false)}
-              className={clsx(
-                "border-b border-white/10 py-2.5 text-sm text-white/90 last:border-none hover:text-white",
-                i === 0 && "font-semibold text-white"
-              )}
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
-      </nav>
     </header>
   );
 }
