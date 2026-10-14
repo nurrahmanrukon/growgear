@@ -128,14 +128,17 @@ export function OrderForm({ product, onOrdered }: { product: Product; onOrdered?
             className="w-full rounded border border-border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
           />
         ) : (
-          <textarea
-            required
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            placeholder="সম্পূর্ণ ঠিকানা লিখুন *"
-            rows={2}
-            className="w-full resize-none rounded border border-border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
-          />
+          <div>
+            <textarea
+              required
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="সম্পূর্ণ ঠিকানা লিখুন *"
+              rows={2}
+              className="w-full resize-none rounded border border-border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+            />
+            <p className="mt-1 text-[11px] text-ink-faint">যত বিস্তারিত লিখবেন, তত দ্রুত হাতে পাবেন</p>
+          </div>
         )}
 
         <div className={isEbook ? "grid grid-cols-1" : "grid grid-cols-2 gap-2"}>

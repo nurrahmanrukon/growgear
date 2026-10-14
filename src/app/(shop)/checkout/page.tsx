@@ -175,6 +175,7 @@ export default function CheckoutPage() {
                   rows={3}
                   className="mt-3 w-full rounded border border-border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange"
                 />
+                <p className="mt-1 text-[11px] text-ink-faint">যত বিস্তারিত লিখবেন, তত দ্রুত হাতে পাবেন</p>
                 <select
                   value={area}
                   onChange={(e) => setArea(e.target.value)}
