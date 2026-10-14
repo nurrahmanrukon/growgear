@@ -184,8 +184,19 @@ export function ExpertOpinionsSection({ product, featuredIndex = 0 }: { product:
                 {playingVideo.name} — ভিডিও রিভিউ (শীঘ্রই যুক্ত হবে)
               </span>
             </div>
-            <p className="mt-3 text-sm font-medium text-foreground">{playingVideo.name}</p>
+            <div className="mt-3 flex items-center gap-2">
+              <p className="text-sm font-medium text-foreground">{playingVideo.name}</p>
+              {playingVideo.verified && (
+                <span className="flex items-center gap-0.5 text-[10px] text-success">
+                  <BadgeCheck size={10} /> স্বীকৃত বিশেষজ্ঞ
+                </span>
+              )}
+            </div>
             <p className="text-xs text-ink-faint">{playingVideo.title}</p>
+            <div className="mt-2">
+              <StarRating rating={playingVideo.rating} size={13} />
+            </div>
+            <p className="mt-2 text-sm text-ink-soft">&ldquo;{playingVideo.quote}&rdquo;</p>
           </>
         )}
       </Modal>
