@@ -57,6 +57,48 @@ function TextReaderCard({ reader, product }: { reader: ReaderOpinion; product: P
   );
 }
 
+function FeaturedVideoReaderCard({
+  reader,
+  product,
+  onPlay,
+}: {
+  reader: ReaderOpinion;
+  product: Product;
+  onPlay: () => void;
+}) {
+  return (
+    <div className="mb-3 rounded-lg border border-border bg-surface p-4">
+      <button
+        onClick={onPlay}
+        aria-label={`${reader.name} এর ভিডিও রিভিউ চালু করুন`}
+        className="group relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-lg"
+        style={{ background: `linear-gradient(135deg, ${product.colorFrom}, ${product.colorTo})` }}
+      >
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-surface/90 shadow-sm transition group-hover:scale-105">
+          <Play size={24} className="ml-1 text-foreground" fill="currentColor" />
+        </div>
+        <span className="absolute bottom-3 left-4 text-xs font-medium text-white/85">
+          {reader.name} — ভিডিও রিভিউ (শীঘ্রই যুক্ত হবে)
+        </span>
+      </button>
+
+      <div className="mt-3 flex items-center gap-2">
+        <p className="text-sm font-medium text-foreground">{reader.name}</p>
+        {reader.verified && (
+          <span className="flex items-center gap-0.5 text-[10px] text-success">
+            <BadgeCheck size={10} /> যাচাইকৃত পাঠক
+          </span>
+        )}
+      </div>
+      <p className="text-xs text-ink-faint">{reader.location}</p>
+      <div className="mt-2">
+        <StarRating rating={reader.rating} size={13} />
+      </div>
+      <p className="mt-2 text-sm text-ink-soft">&ldquo;{reader.quote}&rdquo;</p>
+    </div>
+  );
+}
+
 function VideoReaderThumb({
   reader,
   product,
@@ -87,7 +129,8 @@ function VideoReaderThumb({
 
 export function ReaderOpinionsSection({ product }: { product: Product }) {
   const textReviews = getReaderOpinions(product, MIXED_PREVIEW_COUNT);
-  const videoReviews = getReaderVideoOpinions(product, MIXED_PREVIEW_COUNT);
+  const videoReviews = getReaderVideoOpinions(product, MIXED_PREVIEW_COUNT + 1);
+  const [featuredVideo, ...thumbVideos] = videoReviews;
   const [playingVideo, setPlayingVideo] = useState<ReaderOpinion | null>(null);
 
   return (
@@ -107,11 +150,16 @@ export function ReaderOpinionsSection({ product }: { product: Product }) {
             ))}
           </div>
 
-          {videoReviews.length > 0 && (
+          {featuredVideo && (
             <div className="mt-5">
               <p className="mb-2.5 text-xs font-medium text-ink-soft">ভিডিও রিভিউ</p>
+              <FeaturedVideoReaderCard
+                reader={featuredVideo}
+                product={product}
+                onPlay={() => setPlayingVideo(featuredVideo)}
+              />
               <div className="flex gap-3">
-                {videoReviews.map((r, i) => (
+                {thumbVideos.map((r, i) => (
                   <VideoReaderThumb key={`v-${i}`} reader={r} product={product} onPlay={() => setPlayingVideo(r)} />
                 ))}
               </div>
