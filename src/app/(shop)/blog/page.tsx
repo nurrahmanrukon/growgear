@@ -3,6 +3,7 @@ import Link from "next/link";
 import { SEGMENTS, TOPICS, searchPosts, relevantTopicsForQuery } from "@/lib/data/blog";
 import { blogPostsResolved, getMostPopularPostsResolved, getPostsByTopicResolved, getFeaturedProductsResolved } from "@/lib/server/contentText";
 import { getCategoryIntro } from "@/lib/server/categoryIntro";
+import { getBlogSearchSettings } from "@/lib/server/blogSearchSettings";
 import { courses } from "@/lib/data/courses";
 import { BlogTopicSlug } from "@/lib/types";
 import { CategoryHero } from "@/components/product/CategoryHero";
@@ -25,6 +26,18 @@ export const dynamic = "force-dynamic";
 const PAGE_SIZE = 6;
 const TOPIC_PAGE_SIZE = 9;
 
+function SearchBand({ initialQuery }: { initialQuery?: string }) {
+  return (
+    <div className="border-b border-border bg-surface-muted py-5">
+      <div className="container-page">
+        <div className="mx-auto max-w-xl">
+          <BlogSearchBar initialQuery={initialQuery} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default async function BlogPage({
   searchParams,
 }: {
@@ -32,8 +45,9 @@ export default async function BlogPage({
 }) {
   const { topic, segment, page, q } = await searchParams;
   const currentPage = Math.max(1, Number(page) || 1);
+  const searchEnabled = getBlogSearchSettings().enabled;
 
-  if (q && q.trim()) {
+  if (searchEnabled && q && q.trim()) {
     const query = q.trim();
     const allPosts = blogPostsResolved();
     const results = searchPosts(allPosts, query);
@@ -45,12 +59,9 @@ export default async function BlogPage({
       <>
         <CategoryHero intro={getCategoryIntro("blog")} />
         <TopicNav />
+        <SearchBand initialQuery={query} />
         <div className="container-page py-8">
-          <div className="mx-auto max-w-xl">
-            <BlogSearchBar initialQuery={query} />
-          </div>
-
-          <h1 className="mt-6 font-display text-xl font-bold text-foreground sm:text-2xl">
+          <h1 className="font-display text-xl font-bold text-foreground sm:text-2xl">
             &ldquo;{query}&rdquo; এর জন্য {toBengaliNumber(results.length)} টি লেখা পাওয়া গেছে
           </h1>
 
@@ -115,11 +126,8 @@ export default async function BlogPage({
       <>
         <CategoryHero intro={getCategoryIntro("blog")} />
         <TopicNav activeTopic={topicMeta.slug} />
+        {searchEnabled && <SearchBand />}
         <div className="container-page py-8">
-          <div className="mx-auto mb-6 max-w-xl">
-            <BlogSearchBar />
-          </div>
-
           <div className="flex items-center gap-2.5">
             <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-light text-primary">
               <Icon size={18} />
@@ -192,13 +200,7 @@ export default async function BlogPage({
     <>
       <CategoryHero intro={getCategoryIntro("blog")} />
       <TopicNav />
-      <div className="border-b border-border bg-surface-muted py-5">
-        <div className="container-page">
-          <div className="mx-auto max-w-xl">
-            <BlogSearchBar />
-          </div>
-        </div>
-      </div>
+      {searchEnabled && <SearchBand />}
       <BlogHero popular={popularPosts} />
 
       <section className="container-page py-8">
