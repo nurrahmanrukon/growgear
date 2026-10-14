@@ -310,6 +310,45 @@ export function getFeaturedPosts(limit = 3): BlogPost[] {
   return blogPosts.filter((p) => p.featured).slice(0, limit);
 }
 
+function topicLabel(topicSlug: BlogTopicSlug): string {
+  return TOPICS.find((t) => t.slug === topicSlug)?.label ?? "";
+}
+
+export function searchPosts(posts: BlogPost[], query: string): BlogPost[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return [];
+  return posts.filter(
+    (p) =>
+      p.title.toLowerCase().includes(q) ||
+      p.excerpt.toLowerCase().includes(q) ||
+      p.category.toLowerCase().includes(q) ||
+      topicLabel(p.topicSlug).toLowerCase().includes(q)
+  );
+}
+
+/** Topics relevant to a search query — matched by topic name/description, plus any
+ *  topic that has matching posts even when the query text itself doesn't hit the
+ *  topic's own label (e.g. searching a specific technique surfaces its parent topic). */
+export function relevantTopicsForQuery(
+  posts: BlogPost[],
+  query: string,
+  limit = 5
+): { slug: BlogTopicSlug; label: string; description: string; count: number }[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return [];
+  const matchedPosts = searchPosts(posts, query);
+  const countByTopic = new Map<string, number>();
+  matchedPosts.forEach((p) => countByTopic.set(p.topicSlug, (countByTopic.get(p.topicSlug) ?? 0) + 1));
+
+  const directMatch = (t: (typeof TOPICS)[number]) =>
+    t.label.toLowerCase().includes(q) || t.description.toLowerCase().includes(q);
+
+  return TOPICS.filter((t) => directMatch(t) || countByTopic.has(t.slug))
+    .map((t) => ({ ...t, count: countByTopic.get(t.slug) ?? 0 }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, limit);
+}
+
 /**
  * Deterministic per-post read count used to rank the "most popular" rail —
  * the default when an admin hasn't set one. No real analytics backend exists

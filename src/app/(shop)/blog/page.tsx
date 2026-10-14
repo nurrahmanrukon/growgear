@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { SEGMENTS, TOPICS } from "@/lib/data/blog";
+import { SEGMENTS, TOPICS, searchPosts, relevantTopicsForQuery } from "@/lib/data/blog";
 import { blogPostsResolved, getMostPopularPostsResolved, getPostsByTopicResolved, getFeaturedProductsResolved } from "@/lib/server/contentText";
 import { getCategoryIntro } from "@/lib/server/categoryIntro";
 import { courses } from "@/lib/data/courses";
@@ -8,6 +8,7 @@ import { BlogTopicSlug } from "@/lib/types";
 import { CategoryHero } from "@/components/product/CategoryHero";
 import { TopicNav } from "@/components/blog/TopicNav";
 import { BlogHero } from "@/components/blog/BlogHero";
+import { BlogSearchBar } from "@/components/blog/BlogSearchBar";
 import { ArticleCard } from "@/components/blog/ArticleCard";
 import { TopicSection } from "@/components/blog/TopicSection";
 import { BlogCategoryTiles } from "@/components/blog/BlogCategoryTiles";
@@ -27,10 +28,73 @@ const TOPIC_PAGE_SIZE = 9;
 export default async function BlogPage({
   searchParams,
 }: {
-  searchParams: Promise<{ topic?: string; segment?: string; page?: string }>;
+  searchParams: Promise<{ topic?: string; segment?: string; page?: string; q?: string }>;
 }) {
-  const { topic, segment, page } = await searchParams;
+  const { topic, segment, page, q } = await searchParams;
   const currentPage = Math.max(1, Number(page) || 1);
+
+  if (q && q.trim()) {
+    const query = q.trim();
+    const allPosts = blogPostsResolved();
+    const results = searchPosts(allPosts, query);
+    const relevantTopics = relevantTopicsForQuery(allPosts, query);
+    const totalPages = Math.ceil(results.length / TOPIC_PAGE_SIZE);
+    const pagePosts = results.slice((currentPage - 1) * TOPIC_PAGE_SIZE, currentPage * TOPIC_PAGE_SIZE);
+
+    return (
+      <>
+        <CategoryHero intro={getCategoryIntro("blog")} />
+        <TopicNav />
+        <div className="container-page py-8">
+          <div className="mx-auto max-w-xl">
+            <BlogSearchBar initialQuery={query} />
+          </div>
+
+          <h1 className="mt-6 font-display text-xl font-bold text-foreground sm:text-2xl">
+            &ldquo;{query}&rdquo; এর জন্য {toBengaliNumber(results.length)} টি লেখা পাওয়া গেছে
+          </h1>
+
+          {relevantTopics.length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {relevantTopics.map((t) => {
+                const Icon = TOPIC_ICONS[t.slug];
+                return (
+                  <Link
+                    key={t.slug}
+                    href={`/blog?topic=${t.slug}`}
+                    className="flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground transition hover:border-primary hover:text-primary"
+                  >
+                    <Icon size={13} /> {t.label}
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+
+          {results.length > 0 ? (
+            <>
+              <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 lg:grid-cols-4">
+                {pagePosts.map((post) => (
+                  <ArticleCard key={post.id} post={post} variant="vertical" />
+                ))}
+              </div>
+              <Pagination
+                totalPages={totalPages}
+                currentPage={currentPage}
+                hrefFor={(p) => `/blog?q=${encodeURIComponent(query)}${p > 1 ? `&page=${p}` : ""}`}
+              />
+            </>
+          ) : (
+            <p className="mt-3 max-w-md text-sm text-ink-soft">
+              এই লেখায় কিছু পাওয়া যায়নি। অন্য কোনো শব্দ দিয়ে খুঁজে দেখুন, অথবা নিচের বিষয়গুলো দেখতে পারেন।
+            </p>
+          )}
+        </div>
+        <BlogCategoryTiles />
+        <NewsletterSection />
+      </>
+    );
+  }
 
   if (topic) {
     const topicMeta = TOPICS.find((t) => t.slug === topic);
@@ -52,6 +116,10 @@ export default async function BlogPage({
         <CategoryHero intro={getCategoryIntro("blog")} />
         <TopicNav activeTopic={topicMeta.slug} />
         <div className="container-page py-8">
+          <div className="mx-auto mb-6 max-w-xl">
+            <BlogSearchBar />
+          </div>
+
           <div className="flex items-center gap-2.5">
             <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-light text-primary">
               <Icon size={18} />
@@ -124,6 +192,13 @@ export default async function BlogPage({
     <>
       <CategoryHero intro={getCategoryIntro("blog")} />
       <TopicNav />
+      <div className="border-b border-border bg-surface-muted py-5">
+        <div className="container-page">
+          <div className="mx-auto max-w-xl">
+            <BlogSearchBar />
+          </div>
+        </div>
+      </div>
       <BlogHero popular={popularPosts} />
 
       <section className="container-page py-8">
