@@ -160,7 +160,7 @@ export function ReaderOpinionsSection({ product, featuredIndex = 0 }: { product:
                 product={product}
                 onPlay={() => setPlayingVideo(featuredVideo)}
               />
-              <div className="flex gap-3">
+              <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-1 scrollbar-none">
                 {thumbVideos.map((r, i) => (
                   <VideoReaderThumb key={`v-${i}`} reader={r} product={product} onPlay={() => setPlayingVideo(r)} />
                 ))}
