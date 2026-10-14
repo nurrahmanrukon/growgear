@@ -29,6 +29,12 @@ interface ProductForm {
   category: ProductCategory;
   segmentSlug: string;
   tableOfContents: string[];
+  featuredReaderVideoIndex: number;
+  featuredExpertVideoIndex: number;
+}
+interface VideoOption {
+  index: number;
+  name: string;
 }
 interface BlogForm {
   title: string;
@@ -71,6 +77,10 @@ export function ContentTextAdmin({
   const [categoryFilter, setCategoryFilter] = useState<"all" | ProductCategory>("all");
   const [selected, setSelected] = useState<string | null>(null);
   const [productForm, setProductForm] = useState<ProductForm | null>(null);
+  const [videoOptions, setVideoOptions] = useState<{ reader: VideoOption[]; expert: VideoOption[] }>({
+    reader: [],
+    expert: [],
+  });
   const [blogForm, setBlogForm] = useState<BlogForm | null>(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -106,6 +116,7 @@ export function ContentTextAdmin({
       const res = await fetch(`/api/admin/content-text/products/${slug}`);
       const data = await res.json();
       const c = data.current;
+      const ov = data.override ?? {};
       setProductForm({
         title: c.title,
         author: c.author ?? "",
@@ -116,7 +127,10 @@ export function ContentTextAdmin({
         category: c.category,
         segmentSlug: c.segmentSlug ?? "",
         tableOfContents: c.tableOfContents ?? [],
+        featuredReaderVideoIndex: ov.featuredReaderVideoIndex ?? 0,
+        featuredExpertVideoIndex: ov.featuredExpertVideoIndex ?? 0,
       });
+      setVideoOptions({ reader: data.readerVideoOptions ?? [], expert: data.expertVideoOptions ?? [] });
       setCustomized(data.customized);
     } catch {
       setError("লোড করা যায়নি");
@@ -169,6 +183,8 @@ export function ContentTextAdmin({
           badge: productForm.badge,
           segmentSlug: productForm.segmentSlug,
           tableOfContents: productForm.tableOfContents,
+          featuredReaderVideoIndex: productForm.featuredReaderVideoIndex,
+          featuredExpertVideoIndex: productForm.featuredExpertVideoIndex,
         }),
       });
       const data = await res.json();
@@ -519,6 +535,44 @@ export function ContentTextAdmin({
                     </button>
                   </div>
                 </div>
+              )}
+
+              {productForm.category !== "gear" && videoOptions.reader.length > 0 && (
+                <label className="block text-xs font-medium text-ink-soft">
+                  পাঠক ভিডিও রিভিউ — কোনটা উপরে বড় করে দেখাবে
+                  <select
+                    className={`mt-1 ${fieldClass}`}
+                    value={productForm.featuredReaderVideoIndex}
+                    onChange={(e) =>
+                      setProductForm({ ...productForm, featuredReaderVideoIndex: Number(e.target.value) })
+                    }
+                  >
+                    {videoOptions.reader.map((v) => (
+                      <option key={v.index} value={v.index}>
+                        {v.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
+
+              {videoOptions.expert.length > 0 && (
+                <label className="block text-xs font-medium text-ink-soft">
+                  বিশেষজ্ঞ ভিডিও রিভিউ — কোনটা উপরে বড় করে দেখাবে
+                  <select
+                    className={`mt-1 ${fieldClass}`}
+                    value={productForm.featuredExpertVideoIndex}
+                    onChange={(e) =>
+                      setProductForm({ ...productForm, featuredExpertVideoIndex: Number(e.target.value) })
+                    }
+                  >
+                    {videoOptions.expert.map((v) => (
+                      <option key={v.index} value={v.index}>
+                        {v.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
               )}
 
               <label className="block text-xs font-medium text-ink-soft">

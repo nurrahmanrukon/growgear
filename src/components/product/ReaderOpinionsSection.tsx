@@ -8,6 +8,7 @@ import { StarRating } from "@/components/ui/StarRating";
 import { Modal } from "@/components/ui/Modal";
 
 const MIXED_PREVIEW_COUNT = 3;
+const VIDEO_THUMB_COUNT = 5;
 
 function ReaderCardShell({
   reader,
@@ -127,10 +128,11 @@ function VideoReaderThumb({
   );
 }
 
-export function ReaderOpinionsSection({ product }: { product: Product }) {
+export function ReaderOpinionsSection({ product, featuredIndex = 0 }: { product: Product; featuredIndex?: number }) {
   const textReviews = getReaderOpinions(product, MIXED_PREVIEW_COUNT);
-  const videoReviews = getReaderVideoOpinions(product, MIXED_PREVIEW_COUNT + 1);
-  const [featuredVideo, ...thumbVideos] = videoReviews;
+  const allVideos = getReaderVideoOpinions(product, Math.max(VIDEO_THUMB_COUNT + 1, featuredIndex + 1));
+  const featuredVideo = allVideos[featuredIndex] ?? allVideos[0];
+  const thumbVideos = allVideos.filter((_, i) => i !== featuredIndex).slice(0, VIDEO_THUMB_COUNT);
   const [playingVideo, setPlayingVideo] = useState<ReaderOpinion | null>(null);
 
   return (

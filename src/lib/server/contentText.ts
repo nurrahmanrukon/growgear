@@ -23,6 +23,8 @@ export interface ProductTextOverride {
   badge?: string;
   segmentSlug?: string;
   tableOfContents?: string[];
+  featuredReaderVideoIndex?: number;
+  featuredExpertVideoIndex?: number;
 }
 
 export interface BlogTextOverride {
@@ -59,12 +61,24 @@ function cleanStrings(arr: string[] | undefined): string[] | undefined {
   return cleaned.length > 0 ? cleaned : undefined;
 }
 
+function cleanVideoIndex(idx: number | undefined): number | undefined {
+  return typeof idx === "number" && Number.isInteger(idx) && idx >= 0 ? idx : undefined;
+}
+
 // ---------------------------------------------------------------------------
 // Products
 // ---------------------------------------------------------------------------
 
 export function getProductOverride(slug: string): ProductTextOverride {
   return readStore().products?.[slug] ?? {};
+}
+
+/** Index of the video review an admin pinned to the large "featured" slot above the
+ *  thumbnail strip (reader/expert opinions sections) — 0 (the first one) if unset. */
+export function getFeaturedVideoIndex(slug: string, kind: "reader" | "expert"): number {
+  const override = getProductOverride(slug);
+  const idx = kind === "reader" ? override.featuredReaderVideoIndex : override.featuredExpertVideoIndex;
+  return typeof idx === "number" && Number.isInteger(idx) && idx >= 0 ? idx : 0;
 }
 
 export function isProductTextCustomized(slug: string): boolean {
@@ -195,6 +209,8 @@ export function setProductOverride(slug: string, fields: ProductTextOverride) {
     badge: fields.badge?.trim() || undefined,
     segmentSlug: fields.segmentSlug || undefined,
     tableOfContents: cleanStrings(fields.tableOfContents),
+    featuredReaderVideoIndex: cleanVideoIndex(fields.featuredReaderVideoIndex),
+    featuredExpertVideoIndex: cleanVideoIndex(fields.featuredExpertVideoIndex),
   };
   const store = readStore();
   store.products = store.products ?? {};

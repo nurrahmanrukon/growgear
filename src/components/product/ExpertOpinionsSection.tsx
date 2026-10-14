@@ -8,6 +8,7 @@ import { StarRating } from "@/components/ui/StarRating";
 import { Modal } from "@/components/ui/Modal";
 
 const MIXED_PREVIEW_COUNT = 3;
+const VIDEO_THUMB_COUNT = 5;
 
 function ExpertCardShell({
   expert,
@@ -127,10 +128,11 @@ function VideoReviewThumb({
   );
 }
 
-export function ExpertOpinionsSection({ product }: { product: Product }) {
+export function ExpertOpinionsSection({ product, featuredIndex = 0 }: { product: Product; featuredIndex?: number }) {
   const textReviews = getExpertOpinions(product, MIXED_PREVIEW_COUNT);
-  const videoReviews = getExpertVideoOpinions(product, MIXED_PREVIEW_COUNT + 1);
-  const [featuredVideo, ...thumbVideos] = videoReviews;
+  const allVideos = getExpertVideoOpinions(product, Math.max(VIDEO_THUMB_COUNT + 1, featuredIndex + 1));
+  const featuredVideo = allVideos[featuredIndex] ?? allVideos[0];
+  const thumbVideos = allVideos.filter((_, i) => i !== featuredIndex).slice(0, VIDEO_THUMB_COUNT);
   const [playingVideo, setPlayingVideo] = useState<ExpertOpinion | null>(null);
 
   return (
