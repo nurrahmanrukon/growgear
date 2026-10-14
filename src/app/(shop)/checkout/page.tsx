@@ -9,9 +9,12 @@ import { formatTaka, toBengaliNumber } from "@/lib/format";
 import { validatePromoCode, PromoCode } from "@/lib/data/promo";
 import { PromoGiftModal } from "@/components/checkout/PromoGiftModal";
 import { AuthedProfile, ProfileAuthModal } from "@/components/profile/ProfileAuthModal";
+import { AreaSelector, DeliveryZone } from "@/components/product/AreaSelector";
 
-const areas = ["ঢাকার ভিতরে", "ঢাকার বাইরে"];
-const deliveryFees: Record<string, number> = { "ঢাকার ভিতরে": 70, "ঢাকার বাইরে": 130 };
+const FALLBACK_ZONES: DeliveryZone[] = [
+  { key: "inside-dhaka", label: "ঢাকার ভিতরে", days: "২-৩ দিন", fee: 70 },
+  { key: "outside-dhaka", label: "ঢাকার বাইরে", days: "৪-৬ দিন", fee: 130 },
+];
 
 export default function CheckoutPage() {
   const hydrated = useHasHydrated();
@@ -25,7 +28,8 @@ export default function CheckoutPage() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
-  const [area, setArea] = useState(areas[0]);
+  const [zones, setZones] = useState<DeliveryZone[]>(FALLBACK_ZONES);
+  const [area, setArea] = useState(FALLBACK_ZONES[0].label);
   const [paymentMethod, setPaymentMethod] = useState<"cod" | "online">("cod");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,7 +57,22 @@ export default function CheckoutPage() {
     };
   }, [hasEbook]);
 
-  const deliveryFee = hasPhysical ? deliveryFees[area] : 0;
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/order-form-settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (cancelled || !Array.isArray(data.deliveryZones) || data.deliveryZones.length === 0) return;
+        setZones(data.deliveryZones);
+        setArea(data.deliveryZones[0].label);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const deliveryFee = hasPhysical ? zones.find((z) => z.label === area)?.fee ?? zones[0]?.fee ?? 0 : 0;
   const discount = promo ? Math.round((totalPrice * promo.discountPercent) / 100) : 0;
   const grandTotal = totalPrice - discount + deliveryFee;
 
@@ -175,17 +194,9 @@ export default function CheckoutPage() {
                   rows={3}
                   className="mt-3 w-full rounded border border-border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange"
                 />
-                <select
-                  value={area}
-                  onChange={(e) => setArea(e.target.value)}
-                  className="mt-3 w-full rounded border border-border px-3 py-2 text-sm outline-none sm:w-64"
-                >
-                  {areas.map((a) => (
-                    <option key={a} value={a}>
-                      {a} (ডেলিভারি {formatTaka(deliveryFees[a])})
-                    </option>
-                  ))}
-                </select>
+                <div className="mt-3 sm:w-64">
+                  <AreaSelector zones={zones} value={area} onChange={setArea} />
+                </div>
               </>
             ) : (
               <p className="mt-3 text-xs text-ink-soft">

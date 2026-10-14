@@ -5,10 +5,24 @@ import { Banknote, CreditCard, Smartphone } from "lucide-react";
 import { Product } from "@/lib/types";
 import { formatTaka, toBengaliNumber } from "@/lib/format";
 import { Button } from "@/components/ui/Button";
+import { AreaSelector, DeliveryZone } from "@/components/product/AreaSelector";
+import { QuantitySelector, QuantityTier, BulkInfo } from "@/components/product/QuantitySelector";
 
-const AREAS = ["ঢাকার ভিতরে", "ঢাকার বাইরে"];
-const DELIVERY_FEES: Record<string, number> = { "ঢাকার ভিতরে": 70, "ঢাকার বাইরে": 130 };
-const QUANTITIES = [1, 2, 3, 4, 5];
+const FALLBACK_ZONES: DeliveryZone[] = [
+  { key: "inside-dhaka", label: "ঢাকার ভিতরে", days: "২-৩ দিন", fee: 70 },
+  { key: "outside-dhaka", label: "ঢাকার বাইরে", days: "৪-৬ দিন", fee: 130 },
+];
+const FALLBACK_TIERS: QuantityTier[] = [
+  { quantity: 1, description: "নিজের জন্য" },
+  { quantity: 2, description: "১টি গিফট করুন" },
+  { quantity: 3, description: "পরিবার/টিমের জন্য", badge: "সবচেয়ে জনপ্রিয়" },
+];
+const FALLBACK_BULK: BulkInfo = {
+  label: "কর্পোরেট অর্ডার",
+  subtext: "১০+ কপি — বিশেষ ছাড়",
+  cta: "হোয়াটসঅ্যাপে দাম জানুন",
+  href: null,
+};
 
 type PaymentMethod = "cod" | "bkash" | "card";
 const PHYSICAL_PAYMENT_METHODS: { id: PaymentMethod; label: string; icon: typeof Banknote; enabled: boolean }[] = [
@@ -29,8 +43,11 @@ export function OrderForm({ product, onOrdered }: { product: Product; onOrdered?
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
-  const [area, setArea] = useState(AREAS[0]);
-  const [quantity, setQuantity] = useState(1);
+  const [zones, setZones] = useState<DeliveryZone[]>(FALLBACK_ZONES);
+  const [tiers, setTiers] = useState<QuantityTier[]>(FALLBACK_TIERS);
+  const [bulk, setBulk] = useState<BulkInfo>(FALLBACK_BULK);
+  const [area, setArea] = useState(FALLBACK_ZONES[0].label);
+  const [quantity, setQuantity] = useState(FALLBACK_TIERS[0].quantity);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null);
   const [hiddenPayment, setHiddenPayment] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
@@ -49,13 +66,41 @@ export function OrderForm({ product, onOrdered }: { product: Product; onOrdered?
     };
   }, [product.slug]);
 
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/order-form-settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (cancelled) return;
+        if (Array.isArray(data.deliveryZones) && data.deliveryZones.length > 0) {
+          setZones(data.deliveryZones);
+          setArea(data.deliveryZones[0].label);
+        }
+        if (Array.isArray(data.quantityTiers) && data.quantityTiers.length > 0) {
+          setTiers(data.quantityTiers);
+          setQuantity(data.quantityTiers[0].quantity);
+        }
+        setBulk({
+          label: data.bulkLabel ?? FALLBACK_BULK.label,
+          subtext: data.bulkSubtext ?? FALLBACK_BULK.subtext,
+          cta: data.bulkCta ?? FALLBACK_BULK.cta,
+          href: data.bulkWhatsappHref ?? null,
+        });
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const paymentMethods = allMethods.filter((m) => !hiddenPayment.includes(m.id));
   const effectivePaymentMethod = paymentMethod && paymentMethods.some((m) => m.id === paymentMethod)
     ? paymentMethod
     : paymentMethods[0]?.id ?? allMethods[0].id;
 
-  const deliveryFee = isEbook ? 0 : DELIVERY_FEES[area];
+  const deliveryFee = isEbook ? 0 : zones.find((z) => z.label === area)?.fee ?? zones[0]?.fee ?? 0;
   const total = product.price * quantity + deliveryFee;
+  const savingsPerUnit = product.oldPrice && product.oldPrice > product.price ? product.oldPrice - product.price : 0;
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -138,31 +183,15 @@ export function OrderForm({ product, onOrdered }: { product: Product; onOrdered?
           />
         )}
 
-        <div className={isEbook ? "grid grid-cols-1" : "grid grid-cols-2 gap-2"}>
-          {!isEbook && (
-            <select
-              value={area}
-              onChange={(e) => setArea(e.target.value)}
-              className="rounded border border-border px-2.5 py-2 text-sm outline-none"
-            >
-              {AREAS.map((a) => (
-                <option key={a} value={a}>
-                  {a}
-                </option>
-              ))}
-            </select>
-          )}
-          <select
+        <div className="flex flex-col gap-2">
+          {!isEbook && <AreaSelector zones={zones} value={area} onChange={setArea} />}
+          <QuantitySelector
+            tiers={tiers}
+            bulk={bulk}
             value={quantity}
-            onChange={(e) => setQuantity(Number(e.target.value))}
-            className="rounded border border-border px-2.5 py-2 text-sm outline-none"
-          >
-            {QUANTITIES.map((q) => (
-              <option key={q} value={q}>
-                {toBengaliNumber(q)} কপি
-              </option>
-            ))}
-          </select>
+            onChange={setQuantity}
+            savingsPerUnit={savingsPerUnit}
+          />
         </div>
 
         <div>

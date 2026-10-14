@@ -4,6 +4,7 @@ import { createOrder, OrderItem } from "@/lib/server/orders";
 import { getStockOverride } from "@/lib/server/inventory";
 import { verifyProfileSessionToken, PROFILE_COOKIE } from "@/lib/server/profileAuth";
 import { addEbookPurchase } from "@/lib/server/profiles";
+import { getDeliveryFeeMap } from "@/lib/server/orderFormSettings";
 
 interface CheckoutPayload {
   name: string;
@@ -16,8 +17,6 @@ interface CheckoutPayload {
   discount?: number;
   items: { productId: string; title: string; price: number; quantity: number }[];
 }
-
-const DELIVERY_FEES: Record<string, number> = { "ঢাকার ভিতরে": 70, "ঢাকার বাইরে": 130 };
 
 export async function POST(req: NextRequest) {
   let body: Partial<CheckoutPayload>;
@@ -77,7 +76,9 @@ export async function POST(req: NextRequest) {
   }
 
   const subtotal = resolvedItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
-  const deliveryFee = address?.trim() ? DELIVERY_FEES[area ?? ""] ?? 130 : 0;
+  const deliveryFeeMap = getDeliveryFeeMap();
+  const fallbackFee = Math.max(0, ...Object.values(deliveryFeeMap));
+  const deliveryFee = address?.trim() ? deliveryFeeMap[area ?? ""] ?? fallbackFee : 0;
   const discount = Math.max(0, Math.min(Number(body.discount) || 0, subtotal));
   const total = Math.max(0, subtotal + deliveryFee - discount);
 
