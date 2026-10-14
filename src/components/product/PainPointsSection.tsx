@@ -2,8 +2,8 @@ import { AlertCircle } from "lucide-react";
 import { Product } from "@/lib/types";
 import { getPainPoints } from "@/lib/data/landingContent";
 
-export function PainPointsSection({ product }: { product: Product }) {
-  const points = getPainPoints(product);
+export function PainPointsSection({ product, count }: { product: Product; count?: number }) {
+  const points = getPainPoints(product, count);
 
   return (
     <section className="container-page py-12">

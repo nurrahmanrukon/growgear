@@ -44,6 +44,7 @@ interface ProductForm {
   tableOfContents: string[];
   readerVideoOrder: number[];
   expertVideoOrder: number[];
+  painPointsCount: number;
 }
 interface VideoOption {
   index: number;
@@ -239,6 +240,7 @@ export function ContentTextAdmin({
         tableOfContents: c.tableOfContents ?? [],
         readerVideoOrder: ov.readerVideoOrder ?? naturalOrder(readerOptions.length),
         expertVideoOrder: ov.expertVideoOrder ?? naturalOrder(expertOptions.length),
+        painPointsCount: ov.painPointsCount ?? 7,
       });
       setVideoOptions({ reader: readerOptions, expert: expertOptions });
       setCustomized(data.customized);
@@ -295,6 +297,7 @@ export function ContentTextAdmin({
           tableOfContents: productForm.tableOfContents,
           readerVideoOrder: productForm.readerVideoOrder,
           expertVideoOrder: productForm.expertVideoOrder,
+          painPointsCount: productForm.painPointsCount,
         }),
       });
       const data = await res.json();
@@ -666,6 +669,26 @@ export function ContentTextAdmin({
                   onChange={(expertVideoOrder) => setProductForm({ ...productForm, expertVideoOrder })}
                 />
               )}
+
+              <label className="block text-xs font-medium text-ink-soft">
+                &ldquo;আপনার কি এমন হয়?&rdquo; সেকশনে কয়টা পেইন পয়েন্ট দেখাবে
+                <input
+                  type="number"
+                  min={1}
+                  max={20}
+                  className={`mt-1 ${fieldClass}`}
+                  value={productForm.painPointsCount}
+                  onChange={(e) =>
+                    setProductForm({
+                      ...productForm,
+                      painPointsCount: Math.max(1, Math.round(Number(e.target.value)) || 1),
+                    })
+                  }
+                />
+                <span className="mt-1 block text-[11px] font-normal text-ink-faint">
+                  ডিফল্ট ৭টা — আলাদা ৮টা লেখা আছে, এর বেশি চাইলে কিছু পুনরাবৃত্তি হবে
+                </span>
+              </label>
 
               <label className="block text-xs font-medium text-ink-soft">
                 ব্যাজ (ঐচ্ছিক)

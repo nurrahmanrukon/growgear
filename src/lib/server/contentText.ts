@@ -29,6 +29,8 @@ export interface ProductTextOverride {
    *  the content-text admin panel. */
   readerVideoOrder?: number[];
   expertVideoOrder?: number[];
+  /** How many "আপনার কি এমন হয়?" pain-point cards to show — 7 if unset. */
+  painPointsCount?: number;
 }
 
 export interface BlogTextOverride {
@@ -98,6 +100,11 @@ export function getVideoOrder(slug: string, kind: "reader" | "expert"): number[]
   const order = kind === "reader" ? override.readerVideoOrder : override.expertVideoOrder;
   if (Array.isArray(order) && order.length > 0) return order;
   return Array.from({ length: VIDEO_REVIEW_POOL_SIZE }, (_, i) => i);
+}
+
+export function getPainPointsCount(slug: string): number {
+  const count = getProductOverride(slug).painPointsCount;
+  return typeof count === "number" && Number.isInteger(count) && count > 0 ? count : 7;
 }
 
 export function isProductTextCustomized(slug: string): boolean {
@@ -230,6 +237,10 @@ export function setProductOverride(slug: string, fields: ProductTextOverride) {
     tableOfContents: cleanStrings(fields.tableOfContents),
     readerVideoOrder: cleanVideoOrder(fields.readerVideoOrder),
     expertVideoOrder: cleanVideoOrder(fields.expertVideoOrder),
+    painPointsCount:
+      typeof fields.painPointsCount === "number" && Number.isInteger(fields.painPointsCount) && fields.painPointsCount > 0
+        ? fields.painPointsCount
+        : undefined,
   };
   const store = readStore();
   store.products = store.products ?? {};

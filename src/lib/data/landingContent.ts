@@ -51,7 +51,7 @@ const PAIN_POINT_POOL: PainPoint[] = [
   },
 ];
 
-export function getPainPoints(product: Product, count = 3): PainPoint[] {
+export function getPainPoints(product: Product, count = 7): PainPoint[] {
   const seed = hashString(product.id + ":pain");
   const start = seed % PAIN_POINT_POOL.length;
   const picked: PainPoint[] = [];

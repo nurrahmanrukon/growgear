@@ -23,7 +23,7 @@ import { LandingHeroTitleBar } from "@/components/product/LandingHeroTitleBar";
 import { InlineCtaBar } from "@/components/product/InlineCtaBar";
 import { categoryMeta } from "@/lib/data/products";
 import { getDefaultSectionOrder } from "@/lib/server/sectionOrder";
-import { getVideoOrder } from "@/lib/server/contentText";
+import { getVideoOrder, getPainPointsCount } from "@/lib/server/contentText";
 
 export function ProductDetailView({
   product,
@@ -40,6 +40,7 @@ export function ProductDetailView({
   const isReadable = product.category === "book" || product.category === "ebook";
   const readerVideoOrder = getVideoOrder(product.slug, "reader");
   const expertVideoOrder = getVideoOrder(product.slug, "expert");
+  const painPointsCount = getPainPointsCount(product.slug);
 
   const sectionRenderers: Record<string, () => React.ReactNode> = {
     video: () => (
@@ -69,7 +70,7 @@ export function ProductDetailView({
     ),
     painPoints: () => (
       <>
-        <PainPointsSection product={product} />
+        <PainPointsSection product={product} count={painPointsCount} />
         <InlineCtaBar product={product} />
       </>
     ),
