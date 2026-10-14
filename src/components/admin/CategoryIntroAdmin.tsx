@@ -14,12 +14,14 @@ interface CategoryIntroSettings {
   book: CategoryIntro;
   ebook: CategoryIntro;
   gear: CategoryIntro;
+  blog: CategoryIntro;
 }
 
 const CATEGORY_LABEL: Record<keyof CategoryIntroSettings, string> = {
   book: "বই পেজ",
   ebook: "ইবুক পেজ",
   gear: "গিয়ার পেজ",
+  blog: "ব্লগ পেজ",
 };
 
 const fieldClass =
@@ -73,7 +75,7 @@ export function CategoryIntroAdmin({ initial }: { initial: CategoryIntroSettings
         <div>
           <h1 className="font-display text-xl font-bold text-foreground">ক্যাটাগরি পেজের শুরুর লেখা</h1>
           <p className="mt-1 max-w-2xl text-sm text-ink-soft">
-            বই, ইবুক ও গিয়ার পেজে লিস্টিংয়ের উপরে যে হেডলাইন ও কথাগুলো দেখা যায় (হোম পেজের মতো) — এখান থেকে
+            বই, ইবুক, গিয়ার ও ব্লগ পেজে লিস্টিংয়ের উপরে যে হেডলাইন ও কথাগুলো দেখা যায় (হোম পেজের মতো) — এখান থেকে
             প্রতিটা পেজের জন্য আলাদাভাবে বদলাতে পারবেন।
           </p>
         </div>

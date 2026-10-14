@@ -2,8 +2,10 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { SEGMENTS, TOPICS } from "@/lib/data/blog";
 import { blogPostsResolved, getMostPopularPostsResolved, getPostsByTopicResolved, getFeaturedProductsResolved } from "@/lib/server/contentText";
+import { getCategoryIntro } from "@/lib/server/categoryIntro";
 import { courses } from "@/lib/data/courses";
 import { BlogTopicSlug } from "@/lib/types";
+import { CategoryHero } from "@/components/product/CategoryHero";
 import { TopicNav } from "@/components/blog/TopicNav";
 import { BlogHero } from "@/components/blog/BlogHero";
 import { ArticleCard } from "@/components/blog/ArticleCard";
@@ -47,6 +49,7 @@ export default async function BlogPage({
 
     return (
       <>
+        <CategoryHero intro={getCategoryIntro("blog")} />
         <TopicNav activeTopic={topicMeta.slug} />
         <div className="container-page py-8">
           <div className="flex items-center gap-2.5">
@@ -119,6 +122,7 @@ export default async function BlogPage({
 
   return (
     <>
+      <CategoryHero intro={getCategoryIntro("blog")} />
       <TopicNav />
       <BlogHero popular={popularPosts} />
 

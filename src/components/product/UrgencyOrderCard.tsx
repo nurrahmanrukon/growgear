@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Clock, Star } from "lucide-react";
+import { Star } from "lucide-react";
 import { Product } from "@/lib/types";
 import { formatTaka, discountPercent, toBengaliNumber } from "@/lib/format";
 import { ProductImage } from "@/components/ui/ProductImage";
@@ -74,32 +74,12 @@ export function UrgencyOrderCard({ product }: { product: Product }) {
         )}
       </div>
 
-      {!isEbook && (
-        <div className="mt-3 flex items-center gap-2 rounded-md border border-red-500/40 bg-red-500/15 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-red-300">
-          <span className="relative flex h-2 w-2 shrink-0">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
-          </span>
-          সীমিত স্টক - আজকের অফার চলছে
-        </div>
-      )}
-
-      <div
-        className={`flex items-center gap-2 rounded-md px-3 py-2 text-xs font-medium ${
-          isEbook
-            ? "mt-3 border border-red-500/40 bg-red-500/15 font-bold uppercase tracking-wide text-red-300"
-            : "mt-1.5 border border-white/10 text-white/85"
-        }`}
-      >
-        {isEbook ? (
-          <span className="relative flex h-2 w-2 shrink-0">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
-          </span>
-        ) : (
-          <Clock size={13} />
-        )}
-        আজকের অফার শেষ হতে বাকি: {msLeft !== null ? formatCountdown(msLeft) : "..."}
+      <div className="mt-3 flex items-center gap-2 rounded-md border border-red-500/40 bg-red-500/15 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-red-300">
+        <span className="relative flex h-2 w-2 shrink-0">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
+        </span>
+        {isEbook ? "অফার শেষ হচ্ছে" : "সীমিত স্টক - অফার শেষ হচ্ছে"} {msLeft !== null ? formatCountdown(msLeft) : "..."}
       </div>
     </div>
   );

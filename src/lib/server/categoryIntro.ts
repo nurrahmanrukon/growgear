@@ -9,7 +9,9 @@ export interface CategoryIntro {
   quote: string;
 }
 
-export type CategoryIntroSettings = Record<ProductCategory, CategoryIntro>;
+export type CategoryIntroKey = ProductCategory | "blog";
+
+export type CategoryIntroSettings = Record<CategoryIntroKey, CategoryIntro>;
 
 const FILE_PATH = path.join(process.cwd(), "data", "category-intro.json");
 
@@ -24,6 +26,7 @@ const DEFAULTS: CategoryIntroSettings = {
   book: { ...SHARED_DEFAULT },
   ebook: { ...SHARED_DEFAULT },
   gear: { ...SHARED_DEFAULT },
+  blog: { ...SHARED_DEFAULT },
 };
 
 function cleanIntro(raw: unknown, fallback: CategoryIntro): CategoryIntro {
@@ -40,18 +43,19 @@ function cleanIntro(raw: unknown, fallback: CategoryIntro): CategoryIntro {
 export function getCategoryIntroSettings(): CategoryIntroSettings {
   try {
     const raw = fs.readFileSync(FILE_PATH, "utf-8");
-    const parsed = JSON.parse(raw) as Partial<Record<ProductCategory, unknown>>;
+    const parsed = JSON.parse(raw) as Partial<Record<CategoryIntroKey, unknown>>;
     return {
       book: cleanIntro(parsed.book, DEFAULTS.book),
       ebook: cleanIntro(parsed.ebook, DEFAULTS.ebook),
       gear: cleanIntro(parsed.gear, DEFAULTS.gear),
+      blog: cleanIntro(parsed.blog, DEFAULTS.blog),
     };
   } catch {
     return DEFAULTS;
   }
 }
 
-export function getCategoryIntro(category: ProductCategory): CategoryIntro {
+export function getCategoryIntro(category: CategoryIntroKey): CategoryIntro {
   return getCategoryIntroSettings()[category];
 }
 
@@ -61,6 +65,7 @@ export function setCategoryIntroSettings(update: Partial<CategoryIntroSettings>)
     book: update.book ? cleanIntro(update.book, current.book) : current.book,
     ebook: update.ebook ? cleanIntro(update.ebook, current.ebook) : current.ebook,
     gear: update.gear ? cleanIntro(update.gear, current.gear) : current.gear,
+    blog: update.blog ? cleanIntro(update.blog, current.blog) : current.blog,
   };
   fs.mkdirSync(path.dirname(FILE_PATH), { recursive: true });
   fs.writeFileSync(FILE_PATH, JSON.stringify(next, null, 2));
