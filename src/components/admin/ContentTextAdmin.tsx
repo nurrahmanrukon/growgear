@@ -28,6 +28,7 @@ interface ProductForm {
   badge: string;
   category: ProductCategory;
   segmentSlug: string;
+  tableOfContents: string[];
 }
 interface BlogForm {
   title: string;
@@ -114,6 +115,7 @@ export function ContentTextAdmin({
         badge: c.badge ?? "",
         category: c.category,
         segmentSlug: c.segmentSlug ?? "",
+        tableOfContents: c.tableOfContents ?? [],
       });
       setCustomized(data.customized);
     } catch {
@@ -166,6 +168,7 @@ export function ContentTextAdmin({
           bullets: productForm.bullets,
           badge: productForm.badge,
           segmentSlug: productForm.segmentSlug,
+          tableOfContents: productForm.tableOfContents,
         }),
       });
       const data = await res.json();
@@ -471,6 +474,52 @@ export function ContentTextAdmin({
                   </button>
                 </div>
               </div>
+
+              {productForm.category !== "gear" && (
+                <div>
+                  <span className="mb-1.5 block text-xs font-medium text-ink-soft">সূচিপত্র (অধ্যায়সমূহ)</span>
+                  <p className="mb-1.5 text-[11px] text-ink-faint">
+                    প্রোডাক্ট পেজে কভার ইমেজের নিচে &ldquo;সূচিপত্র দেখুন&rdquo; বাটনে ক্লিক করলে এই তালিকা দেখানো হয়
+                  </p>
+                  <div className="flex flex-col gap-2">
+                    {productForm.tableOfContents.map((chapter, i) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <input
+                          className={fieldClass}
+                          value={chapter}
+                          onChange={(e) => {
+                            const tableOfContents = [...productForm.tableOfContents];
+                            tableOfContents[i] = e.target.value;
+                            setProductForm({ ...productForm, tableOfContents });
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setProductForm({
+                              ...productForm,
+                              tableOfContents: productForm.tableOfContents.filter((_, idx) => idx !== i),
+                            })
+                          }
+                          aria-label="মুছে ফেলুন"
+                          className="shrink-0 rounded-md border border-border p-2 text-ink-faint hover:border-price hover:text-price"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setProductForm({ ...productForm, tableOfContents: [...productForm.tableOfContents, ""] })
+                      }
+                      className="flex w-fit items-center gap-1 rounded-md border border-dashed border-border px-3 py-1.5 text-xs font-medium text-ink-soft hover:border-primary hover:text-primary"
+                    >
+                      <Plus size={13} /> অধ্যায় যোগ করুন
+                    </button>
+                  </div>
+                </div>
+              )}
 
               <label className="block text-xs font-medium text-ink-soft">
                 ব্যাজ (ঐচ্ছিক)

@@ -8,6 +8,7 @@ import { toBengaliNumber } from "@/lib/format";
 import { ProductImage } from "@/components/ui/ProductImage";
 import { SampleReadModal } from "@/components/product/SampleReadModal";
 import { ProductImageGallery } from "@/components/product/ProductImageGallery";
+import { TableOfContentsToggle } from "@/components/product/TableOfContentsToggle";
 
 export function LandingHero({ product }: { product: Product }) {
   const [showSample, setShowSample] = useState(false);
@@ -49,13 +50,14 @@ export function LandingHero({ product }: { product: Product }) {
       </div>
 
       {isReadable && (
-        <div className="container-page flex justify-center pb-8">
+        <div className="container-page flex flex-col items-center gap-3 pb-8">
           <button
             onClick={() => setShowSample(true)}
             className="flex items-center gap-2 rounded-full bg-emerald-500 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600"
           >
             <Eye size={16} /> একটু পড়ে দেখুন
           </button>
+          <TableOfContentsToggle product={product} />
         </div>
       )}
 

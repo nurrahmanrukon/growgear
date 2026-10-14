@@ -431,3 +431,32 @@ export function getQuote(product: Product): string {
   const seed = hashString(product.id + ":quote");
   return QUOTE_POOL[seed % QUOTE_POOL.length];
 }
+
+const CHAPTER_TITLE_POOL = [
+  "ভূমিকা: কেন এই বইটা এখনই দরকার",
+  "আপনি যেখানে আটকে আছেন, তার আসল কারণ",
+  "সঠিক মানসিকতা তৈরি করার প্রথম ধাপ",
+  "একটা সহজ, প্র্যাক্টিক্যাল ফ্রেমওয়ার্ক",
+  "দৈনন্দিন অভ্যাসে এটা প্রয়োগ করার নিয়ম",
+  "সবচেয়ে সাধারণ ভুলগুলো আর সেগুলো এড়ানোর উপায়",
+  "বাস্তব উদাহরণ ও কেস স্টাডি",
+  "ধাপে ধাপে অ্যাকশন প্ল্যান",
+  "বাধা এলে কীভাবে এগিয়ে যাবেন",
+  "অগ্রগতি মাপার সহজ পদ্ধতি",
+  "দীর্ঘমেয়াদে ধরে রাখার কৌশল",
+  "চেকলিস্ট ও কুইক রেফারেন্স",
+  "উপসংহার: পরবর্তী পদক্ষেপ",
+];
+
+/** Deterministic chapter/TOC list for a book or ebook's product page — picked from a
+ *  generic pool seeded by the product id, unless an admin has set a real one via
+ *  ProductTextOverride.tableOfContents (see contentText.ts). */
+export function getTableOfContents(product: Product, count = 8): string[] {
+  const seed = hashString(product.id + ":toc");
+  const start = seed % CHAPTER_TITLE_POOL.length;
+  const picked: string[] = [];
+  for (let i = 0; i < count; i++) {
+    picked.push(CHAPTER_TITLE_POOL[(start + i) % CHAPTER_TITLE_POOL.length]);
+  }
+  return picked;
+}

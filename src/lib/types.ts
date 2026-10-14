@@ -32,6 +32,8 @@ export interface Product {
   /** Set only by the server-side resolver when an admin has uploaded real media; absent otherwise. */
   coverImageUrl?: string;
   videoUrl?: string;
+  /** Set only by the server-side resolver for books/ebooks: an admin's override if set, else a deterministic default. */
+  tableOfContents?: string[];
 }
 
 export interface Course {

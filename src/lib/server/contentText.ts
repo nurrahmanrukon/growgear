@@ -10,6 +10,7 @@ import { getBlogImageUrl, getProductImageUrl, getProductVideoUrl } from "@/lib/s
 import { resolveInStock } from "@/lib/server/inventory";
 import { getSalesCounts } from "@/lib/server/orders";
 import { getSegmentMeta } from "@/lib/data/segments";
+import { getTableOfContents } from "@/lib/data/landingContent";
 
 const STORE_PATH = path.join(process.cwd(), "data", "content-text.json");
 
@@ -21,6 +22,7 @@ export interface ProductTextOverride {
   bullets?: string[];
   badge?: string;
   segmentSlug?: string;
+  tableOfContents?: string[];
 }
 
 export interface BlogTextOverride {
@@ -86,6 +88,12 @@ function mergeProduct(product: Product, override: ProductTextOverride, salesCoun
     coverImageUrl: getProductImageUrl(product.slug),
     videoUrl: getProductVideoUrl(product.slug),
     salesCount,
+    tableOfContents:
+      product.category === "gear"
+        ? undefined
+        : override.tableOfContents && override.tableOfContents.length > 0
+          ? override.tableOfContents
+          : getTableOfContents(product),
   };
 }
 
@@ -186,6 +194,7 @@ export function setProductOverride(slug: string, fields: ProductTextOverride) {
     bullets: cleanStrings(fields.bullets),
     badge: fields.badge?.trim() || undefined,
     segmentSlug: fields.segmentSlug || undefined,
+    tableOfContents: cleanStrings(fields.tableOfContents),
   };
   const store = readStore();
   store.products = store.products ?? {};
