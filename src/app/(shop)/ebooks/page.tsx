@@ -1,7 +1,8 @@
 import { Metadata } from "next";
-import { categoryMeta } from "@/lib/data/products";
 import { ebooksResolved } from "@/lib/server/contentText";
+import { getCategoryIntro } from "@/lib/server/categoryIntro";
 import { ProductListing } from "@/components/product/ProductListing";
+import { CategoryHero } from "@/components/product/CategoryHero";
 
 export const metadata: Metadata = { title: "ইবুক — GrowGear" };
 export const dynamic = "force-dynamic";
@@ -13,11 +14,9 @@ export default async function EbooksPage({
 }) {
   const { badge } = await searchParams;
   return (
-    <ProductListing
-      title={categoryMeta.ebook.label}
-      description={categoryMeta.ebook.description}
-      products={ebooksResolved()}
-      initialBadge={badge}
-    />
+    <>
+      <CategoryHero intro={getCategoryIntro("ebook")} />
+      <ProductListing products={ebooksResolved()} initialBadge={badge} />
+    </>
   );
 }

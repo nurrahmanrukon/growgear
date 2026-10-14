@@ -34,6 +34,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin/order-form" className="hover:text-white">
             অর্ডার ফর্ম
           </Link>
+          <Link href="/admin/category-intro" className="hover:text-white">
+            ক্যাটাগরি পেজের লেখা
+          </Link>
           <Link href="/admin/content-text" className="hover:text-white">
             টেক্সট কনটেন্ট
           </Link>

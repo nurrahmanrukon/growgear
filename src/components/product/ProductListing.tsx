@@ -24,8 +24,8 @@ export function ProductListing({
   initialBadge,
   initialSubcategory,
 }: {
-  title: string;
-  description: string;
+  title?: string;
+  description?: string;
   products: Product[];
   initialBadge?: string;
   initialSubcategory?: string;
@@ -71,10 +71,10 @@ export function ProductListing({
 
   return (
     <div className="container-page py-5">
-      <h1 className="text-xl font-bold text-foreground sm:text-2xl">{title}</h1>
-      <p className="mt-1 text-sm text-ink-soft">{description}</p>
+      {title && <h1 className="text-xl font-bold text-foreground sm:text-2xl">{title}</h1>}
+      {description && <p className="mt-1 text-sm text-ink-soft">{description}</p>}
 
-      <div className="mt-4 flex items-center justify-between gap-2 rounded-lg border border-border bg-surface px-3 py-2">
+      <div className={`${title ? "mt-4" : ""} flex items-center justify-between gap-2 rounded-lg border border-border bg-surface px-3 py-2`}>
         <span className="text-xs text-ink-soft">{toBengaliNumber(filtered.length)} টি ফলাফল</span>
         <div className="flex items-center gap-2">
           <button
