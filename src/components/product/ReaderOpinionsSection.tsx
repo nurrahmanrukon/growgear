@@ -57,7 +57,7 @@ function TextReaderCard({ reader, product }: { reader: ReaderOpinion; product: P
   );
 }
 
-function VideoReaderCard({
+function VideoReaderThumb({
   reader,
   product,
   onPlay,
@@ -67,35 +67,21 @@ function VideoReaderCard({
   onPlay: () => void;
 }) {
   return (
-    <div className="rounded-lg border border-border bg-surface p-4">
-      <button
-        onClick={onPlay}
-        aria-label={`${reader.name} এর ভিডিও রিভিউ চালু করুন`}
-        className="group relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-lg"
+    <button
+      onClick={onPlay}
+      aria-label={`${reader.name} এর ভিডিও রিভিউ দেখুন`}
+      className="group flex w-20 shrink-0 flex-col items-center gap-1.5 sm:w-24"
+    >
+      <div
+        className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-lg"
         style={{ background: `linear-gradient(135deg, ${product.colorFrom}, ${product.colorTo})` }}
       >
-        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-surface/90 shadow-sm transition group-hover:scale-105">
-          <Play size={24} className="ml-1 text-foreground" fill="currentColor" />
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface/90 shadow-sm transition group-hover:scale-105 sm:h-9 sm:w-9">
+          <Play size={14} className="ml-0.5 text-foreground" fill="currentColor" />
         </div>
-        <span className="absolute bottom-3 left-4 text-xs font-medium text-white/85">
-          {reader.name} — ভিডিও রিভিউ (শীঘ্রই যুক্ত হবে)
-        </span>
-      </button>
-
-      <div className="mt-3 flex items-center gap-2">
-        <p className="text-sm font-medium text-foreground">{reader.name}</p>
-        {reader.verified && (
-          <span className="flex items-center gap-0.5 text-[10px] text-success">
-            <BadgeCheck size={10} /> যাচাইকৃত পাঠক
-          </span>
-        )}
       </div>
-      <p className="text-xs text-ink-faint">{reader.location}</p>
-      <div className="mt-2">
-        <StarRating rating={reader.rating} size={13} />
-      </div>
-      <p className="mt-2 text-sm text-ink-soft">&ldquo;{reader.quote}&rdquo;</p>
-    </div>
+      <p className="w-full truncate text-center text-[11px] font-medium text-foreground">{reader.name}</p>
+    </button>
   );
 }
 
@@ -114,13 +100,23 @@ export function ReaderOpinionsSection({ product }: { product: Product }) {
           </h2>
         </div>
 
-        <div className="mx-auto mt-6 flex max-w-xl flex-col gap-4">
-          {textReviews.map((r, i) => (
-            <TextReaderCard key={`t-${i}`} reader={r} product={product} />
-          ))}
-          {videoReviews.map((r, i) => (
-            <VideoReaderCard key={`v-${i}`} reader={r} product={product} onPlay={() => setPlayingVideo(r)} />
-          ))}
+        <div className="mx-auto mt-6 max-w-xl">
+          <div className="flex flex-col gap-4">
+            {textReviews.map((r, i) => (
+              <TextReaderCard key={`t-${i}`} reader={r} product={product} />
+            ))}
+          </div>
+
+          {videoReviews.length > 0 && (
+            <div className="mt-5">
+              <p className="mb-2.5 text-xs font-medium text-ink-soft">ভিডিও রিভিউ</p>
+              <div className="flex gap-3">
+                {videoReviews.map((r, i) => (
+                  <VideoReaderThumb key={`v-${i}`} reader={r} product={product} onPlay={() => setPlayingVideo(r)} />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
