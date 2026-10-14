@@ -23,7 +23,7 @@ import { LandingHeroTitleBar } from "@/components/product/LandingHeroTitleBar";
 import { InlineCtaBar } from "@/components/product/InlineCtaBar";
 import { categoryMeta } from "@/lib/data/products";
 import { getDefaultSectionOrder } from "@/lib/server/sectionOrder";
-import { getFeaturedVideoIndex } from "@/lib/server/contentText";
+import { getVideoOrder } from "@/lib/server/contentText";
 
 export function ProductDetailView({
   product,
@@ -38,8 +38,8 @@ export function ProductDetailView({
 }) {
   const meta = categoryMeta[product.category];
   const isReadable = product.category === "book" || product.category === "ebook";
-  const readerFeaturedIndex = getFeaturedVideoIndex(product.slug, "reader");
-  const expertFeaturedIndex = getFeaturedVideoIndex(product.slug, "expert");
+  const readerVideoOrder = getVideoOrder(product.slug, "reader");
+  const expertVideoOrder = getVideoOrder(product.slug, "expert");
 
   const sectionRenderers: Record<string, () => React.ReactNode> = {
     video: () => (
@@ -63,7 +63,7 @@ export function ProductDetailView({
       ) : null,
     expertOpinions: () => (
       <>
-        <ExpertOpinionsSection product={product} featuredIndex={expertFeaturedIndex} />
+        <ExpertOpinionsSection product={product} order={expertVideoOrder} />
         <InlineCtaBar product={product} />
       </>
     ),
@@ -90,7 +90,7 @@ export function ProductDetailView({
       isReadable ? (
         <>
           <AuthorBioSection product={product} />
-          <ReaderOpinionsSection product={product} featuredIndex={readerFeaturedIndex} />
+          <ReaderOpinionsSection product={product} order={readerVideoOrder} />
           <InlineCtaBar product={product} />
         </>
       ) : null,

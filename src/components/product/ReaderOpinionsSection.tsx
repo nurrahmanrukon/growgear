@@ -3,12 +3,18 @@
 import { useState } from "react";
 import { BadgeCheck, ImageIcon, Play } from "lucide-react";
 import { Product } from "@/lib/types";
-import { ReaderOpinion, getReaderOpinions, getReaderVideoOpinions } from "@/lib/data/landingContent";
+import {
+  ReaderOpinion,
+  getReaderOpinions,
+  getReaderVideoOpinions,
+  VIDEO_REVIEW_POOL_SIZE,
+} from "@/lib/data/landingContent";
 import { StarRating } from "@/components/ui/StarRating";
 import { Modal } from "@/components/ui/Modal";
 
 const MIXED_PREVIEW_COUNT = 3;
 const VIDEO_THUMB_COUNT = 5;
+const DEFAULT_VIDEO_ORDER = Array.from({ length: VIDEO_REVIEW_POOL_SIZE }, (_, i) => i);
 
 function ReaderCardShell({
   reader,
@@ -128,11 +134,13 @@ function VideoReaderThumb({
   );
 }
 
-export function ReaderOpinionsSection({ product, featuredIndex = 0 }: { product: Product; featuredIndex?: number }) {
+export function ReaderOpinionsSection({ product, order }: { product: Product; order?: number[] }) {
   const textReviews = getReaderOpinions(product, MIXED_PREVIEW_COUNT);
-  const allVideos = getReaderVideoOpinions(product, Math.max(VIDEO_THUMB_COUNT + 1, featuredIndex + 1));
-  const featuredVideo = allVideos[featuredIndex] ?? allVideos[0];
-  const thumbVideos = allVideos.filter((_, i) => i !== featuredIndex).slice(0, VIDEO_THUMB_COUNT);
+  const videoOrder = order && order.length > 0 ? order : DEFAULT_VIDEO_ORDER;
+  const allVideos = getReaderVideoOpinions(product, VIDEO_REVIEW_POOL_SIZE);
+  const orderedVideos = videoOrder.map((i) => allVideos[i]).filter((v): v is ReaderOpinion => Boolean(v));
+  const featuredVideo = orderedVideos[0];
+  const thumbVideos = orderedVideos.slice(1, 1 + VIDEO_THUMB_COUNT);
   const [playingVideo, setPlayingVideo] = useState<ReaderOpinion | null>(null);
 
   return (

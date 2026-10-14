@@ -3,12 +3,18 @@
 import { useState } from "react";
 import { BadgeCheck, ImageIcon, Play } from "lucide-react";
 import { Product } from "@/lib/types";
-import { ExpertOpinion, getExpertOpinions, getExpertVideoOpinions } from "@/lib/data/landingContent";
+import {
+  ExpertOpinion,
+  getExpertOpinions,
+  getExpertVideoOpinions,
+  VIDEO_REVIEW_POOL_SIZE,
+} from "@/lib/data/landingContent";
 import { StarRating } from "@/components/ui/StarRating";
 import { Modal } from "@/components/ui/Modal";
 
 const MIXED_PREVIEW_COUNT = 3;
 const VIDEO_THUMB_COUNT = 5;
+const DEFAULT_VIDEO_ORDER = Array.from({ length: VIDEO_REVIEW_POOL_SIZE }, (_, i) => i);
 
 function ExpertCardShell({
   expert,
@@ -128,11 +134,13 @@ function VideoReviewThumb({
   );
 }
 
-export function ExpertOpinionsSection({ product, featuredIndex = 0 }: { product: Product; featuredIndex?: number }) {
+export function ExpertOpinionsSection({ product, order }: { product: Product; order?: number[] }) {
   const textReviews = getExpertOpinions(product, MIXED_PREVIEW_COUNT);
-  const allVideos = getExpertVideoOpinions(product, Math.max(VIDEO_THUMB_COUNT + 1, featuredIndex + 1));
-  const featuredVideo = allVideos[featuredIndex] ?? allVideos[0];
-  const thumbVideos = allVideos.filter((_, i) => i !== featuredIndex).slice(0, VIDEO_THUMB_COUNT);
+  const videoOrder = order && order.length > 0 ? order : DEFAULT_VIDEO_ORDER;
+  const allVideos = getExpertVideoOpinions(product, VIDEO_REVIEW_POOL_SIZE);
+  const orderedVideos = videoOrder.map((i) => allVideos[i]).filter((v): v is ExpertOpinion => Boolean(v));
+  const featuredVideo = orderedVideos[0];
+  const thumbVideos = orderedVideos.slice(1, 1 + VIDEO_THUMB_COUNT);
   const [playingVideo, setPlayingVideo] = useState<ExpertOpinion | null>(null);
 
   return (

@@ -5,6 +5,12 @@ import { hashString, PERSON_NAMES, BD_LOCATIONS } from "@/lib/data/social";
  *  Everything here is generic (no real third-party names/claims) and seeded from the
  *  product id so each of the 30 books / 30 ebooks gets a stable but varied page. */
 
+/** How many reviewers an admin can drag-and-drop reorder for the reader/expert video-review
+ *  strip (see ReaderOpinionsSection / ExpertOpinionsSection and the content-text admin panel).
+ *  Shared between client components and the server-side override store, so it lives here
+ *  rather than in a server-only file. */
+export const VIDEO_REVIEW_POOL_SIZE = 12;
+
 export interface PainPoint {
   title: string;
   body: string;

@@ -2,7 +2,20 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { LogOut, Search, Sparkles, Check, Plus, X, RotateCcw, ExternalLink, Tag } from "lucide-react";
+import {
+  LogOut,
+  Search,
+  Sparkles,
+  Check,
+  Plus,
+  X,
+  RotateCcw,
+  ExternalLink,
+  Tag,
+  GripVertical,
+  ChevronUp,
+  ChevronDown,
+} from "lucide-react";
 import { ALL_SEGMENTS } from "@/lib/data/segments";
 
 type ProductCategory = "book" | "ebook" | "gear";
@@ -29,8 +42,8 @@ interface ProductForm {
   category: ProductCategory;
   segmentSlug: string;
   tableOfContents: string[];
-  featuredReaderVideoIndex: number;
-  featuredExpertVideoIndex: number;
+  readerVideoOrder: number[];
+  expertVideoOrder: number[];
 }
 interface VideoOption {
   index: number;
@@ -61,6 +74,100 @@ const SEGMENT_GROUPS: { topicLabel: string; options: { slug: string; label: stri
   }
   return groups;
 })();
+
+function VideoOrderList({
+  title,
+  options,
+  order,
+  onChange,
+}: {
+  title: string;
+  options: VideoOption[];
+  order: number[];
+  onChange: (order: number[]) => void;
+}) {
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const nameByIndex = new Map(options.map((o) => [o.index, o.name]));
+  const visibleOrder = order.filter((i) => nameByIndex.has(i));
+
+  function move(from: number, to: number) {
+    if (to < 0 || to >= visibleOrder.length) return;
+    const next = [...visibleOrder];
+    const [item] = next.splice(from, 1);
+    next.splice(to, 0, item);
+    onChange(next);
+  }
+
+  function handleDrop(targetIndex: number) {
+    if (dragIndex === null || dragIndex === targetIndex) {
+      setDragIndex(null);
+      return;
+    }
+    const next = [...visibleOrder];
+    const [item] = next.splice(dragIndex, 1);
+    next.splice(targetIndex, 0, item);
+    onChange(next);
+    setDragIndex(null);
+  }
+
+  return (
+    <div>
+      <span className="mb-1.5 block text-xs font-medium text-ink-soft">{title}</span>
+      <p className="mb-1.5 text-[11px] text-ink-faint">
+        টেনে (ড্র্যাগ) বা তীর বাটন দিয়ে সাজান — প্রথমজন বড় করে উপরে &ldquo;মূল ভিডিও&rdquo; হিসেবে দেখাবে, পরের ৫ জন
+        থাম্বনেইল স্ট্রিপে, বাকিরা পেজে দেখানো হবে না (দরকার হলে টেনে উপরে আনুন)।
+      </p>
+      <div className="flex max-h-72 flex-col gap-1.5 overflow-y-auto rounded-md border border-border p-2">
+        {visibleOrder.map((idx, position) => (
+          <div
+            key={idx}
+            draggable
+            onDragStart={() => setDragIndex(position)}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={() => handleDrop(position)}
+            onDragEnd={() => setDragIndex(null)}
+            className={`flex items-center gap-2 rounded-md border p-2 text-xs transition ${
+              dragIndex === position ? "opacity-40" : "border-border"
+            } ${position === 0 ? "bg-primary-light/40" : position < 6 ? "bg-surface" : "bg-surface-muted"}`}
+          >
+            <span className="shrink-0 cursor-grab text-ink-faint active:cursor-grabbing" aria-hidden="true">
+              <GripVertical size={14} />
+            </span>
+            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary-light text-[10px] font-bold text-primary-dark">
+              {position + 1}
+            </span>
+            <span className="min-w-0 flex-1 truncate font-medium text-foreground">{nameByIndex.get(idx)}</span>
+            {position === 0 && <span className="shrink-0 text-[10px] font-semibold text-primary">মূল ভিডিও</span>}
+            {position >= 1 && position < 6 && (
+              <span className="shrink-0 text-[10px] text-ink-faint">থাম্বনেইল</span>
+            )}
+            {position >= 6 && <span className="shrink-0 text-[10px] text-ink-faint">দেখানো হবে না</span>}
+            <div className="flex shrink-0 items-center gap-0.5">
+              <button
+                type="button"
+                aria-label="উপরে সরান"
+                disabled={position === 0}
+                onClick={() => move(position, position - 1)}
+                className="rounded border border-border p-1 text-ink-soft hover:border-primary hover:text-primary disabled:opacity-30"
+              >
+                <ChevronUp size={12} />
+              </button>
+              <button
+                type="button"
+                aria-label="নিচে সরান"
+                disabled={position === visibleOrder.length - 1}
+                onClick={() => move(position, position + 1)}
+                className="rounded border border-border p-1 text-ink-soft hover:border-primary hover:text-primary disabled:opacity-30"
+              >
+                <ChevronDown size={12} />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export function ContentTextAdmin({
   initialProducts,
@@ -117,6 +224,9 @@ export function ContentTextAdmin({
       const data = await res.json();
       const c = data.current;
       const ov = data.override ?? {};
+      const readerOptions: VideoOption[] = data.readerVideoOptions ?? [];
+      const expertOptions: VideoOption[] = data.expertVideoOptions ?? [];
+      const naturalOrder = (n: number) => Array.from({ length: n }, (_, i) => i);
       setProductForm({
         title: c.title,
         author: c.author ?? "",
@@ -127,10 +237,10 @@ export function ContentTextAdmin({
         category: c.category,
         segmentSlug: c.segmentSlug ?? "",
         tableOfContents: c.tableOfContents ?? [],
-        featuredReaderVideoIndex: ov.featuredReaderVideoIndex ?? 0,
-        featuredExpertVideoIndex: ov.featuredExpertVideoIndex ?? 0,
+        readerVideoOrder: ov.readerVideoOrder ?? naturalOrder(readerOptions.length),
+        expertVideoOrder: ov.expertVideoOrder ?? naturalOrder(expertOptions.length),
       });
-      setVideoOptions({ reader: data.readerVideoOptions ?? [], expert: data.expertVideoOptions ?? [] });
+      setVideoOptions({ reader: readerOptions, expert: expertOptions });
       setCustomized(data.customized);
     } catch {
       setError("লোড করা যায়নি");
@@ -183,8 +293,8 @@ export function ContentTextAdmin({
           badge: productForm.badge,
           segmentSlug: productForm.segmentSlug,
           tableOfContents: productForm.tableOfContents,
-          featuredReaderVideoIndex: productForm.featuredReaderVideoIndex,
-          featuredExpertVideoIndex: productForm.featuredExpertVideoIndex,
+          readerVideoOrder: productForm.readerVideoOrder,
+          expertVideoOrder: productForm.expertVideoOrder,
         }),
       });
       const data = await res.json();
@@ -538,41 +648,21 @@ export function ContentTextAdmin({
               )}
 
               {productForm.category !== "gear" && videoOptions.reader.length > 0 && (
-                <label className="block text-xs font-medium text-ink-soft">
-                  পাঠক ভিডিও রিভিউ — কোনটা উপরে বড় করে দেখাবে
-                  <select
-                    className={`mt-1 ${fieldClass}`}
-                    value={productForm.featuredReaderVideoIndex}
-                    onChange={(e) =>
-                      setProductForm({ ...productForm, featuredReaderVideoIndex: Number(e.target.value) })
-                    }
-                  >
-                    {videoOptions.reader.map((v) => (
-                      <option key={v.index} value={v.index}>
-                        {v.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                <VideoOrderList
+                  title="পাঠক ভিডিও রিভিউয়ের ক্রম"
+                  options={videoOptions.reader}
+                  order={productForm.readerVideoOrder}
+                  onChange={(readerVideoOrder) => setProductForm({ ...productForm, readerVideoOrder })}
+                />
               )}
 
               {videoOptions.expert.length > 0 && (
-                <label className="block text-xs font-medium text-ink-soft">
-                  বিশেষজ্ঞ ভিডিও রিভিউ — কোনটা উপরে বড় করে দেখাবে
-                  <select
-                    className={`mt-1 ${fieldClass}`}
-                    value={productForm.featuredExpertVideoIndex}
-                    onChange={(e) =>
-                      setProductForm({ ...productForm, featuredExpertVideoIndex: Number(e.target.value) })
-                    }
-                  >
-                    {videoOptions.expert.map((v) => (
-                      <option key={v.index} value={v.index}>
-                        {v.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                <VideoOrderList
+                  title="বিশেষজ্ঞ ভিডিও রিভিউয়ের ক্রম"
+                  options={videoOptions.expert}
+                  order={productForm.expertVideoOrder}
+                  onChange={(expertVideoOrder) => setProductForm({ ...productForm, expertVideoOrder })}
+                />
               )}
 
               <label className="block text-xs font-medium text-ink-soft">

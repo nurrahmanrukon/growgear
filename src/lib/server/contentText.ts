@@ -10,7 +10,7 @@ import { getBlogImageUrl, getProductImageUrl, getProductVideoUrl } from "@/lib/s
 import { resolveInStock } from "@/lib/server/inventory";
 import { getSalesCounts } from "@/lib/server/orders";
 import { getSegmentMeta } from "@/lib/data/segments";
-import { getTableOfContents } from "@/lib/data/landingContent";
+import { getTableOfContents, VIDEO_REVIEW_POOL_SIZE } from "@/lib/data/landingContent";
 
 const STORE_PATH = path.join(process.cwd(), "data", "content-text.json");
 
@@ -23,8 +23,12 @@ export interface ProductTextOverride {
   badge?: string;
   segmentSlug?: string;
   tableOfContents?: string[];
-  featuredReaderVideoIndex?: number;
-  featuredExpertVideoIndex?: number;
+  /** Admin-chosen display order for the reader/expert video-review strip — a permutation of
+   *  0..VIDEO_REVIEW_POOL_SIZE-1 (pool indices). Position 0 is the large "featured" video,
+   *  positions 1-5 are the thumbnail strip, the rest aren't shown. Set via drag-and-drop in
+   *  the content-text admin panel. */
+  readerVideoOrder?: number[];
+  expertVideoOrder?: number[];
 }
 
 export interface BlogTextOverride {
@@ -61,8 +65,22 @@ function cleanStrings(arr: string[] | undefined): string[] | undefined {
   return cleaned.length > 0 ? cleaned : undefined;
 }
 
-function cleanVideoIndex(idx: number | undefined): number | undefined {
-  return typeof idx === "number" && Number.isInteger(idx) && idx >= 0 ? idx : undefined;
+function cleanVideoOrder(order: number[] | undefined): number[] | undefined {
+  if (!Array.isArray(order)) return undefined;
+  const seen = new Set<number>();
+  const cleaned: number[] = [];
+  for (const n of order) {
+    if (typeof n === "number" && Number.isInteger(n) && n >= 0 && n < VIDEO_REVIEW_POOL_SIZE && !seen.has(n)) {
+      seen.add(n);
+      cleaned.push(n);
+    }
+  }
+  // Any pool index the admin didn't place (e.g. a new candidate) is appended in natural order,
+  // so the stored order always covers the whole pool and nothing silently disappears.
+  for (let i = 0; i < VIDEO_REVIEW_POOL_SIZE; i++) {
+    if (!seen.has(i)) cleaned.push(i);
+  }
+  return cleaned.length > 0 ? cleaned : undefined;
 }
 
 // ---------------------------------------------------------------------------
@@ -73,12 +91,13 @@ export function getProductOverride(slug: string): ProductTextOverride {
   return readStore().products?.[slug] ?? {};
 }
 
-/** Index of the video review an admin pinned to the large "featured" slot above the
- *  thumbnail strip (reader/expert opinions sections) — 0 (the first one) if unset. */
-export function getFeaturedVideoIndex(slug: string, kind: "reader" | "expert"): number {
+/** Display order (pool indices) for the reader/expert video-review strip — the admin's
+ *  custom drag-and-drop order if set, else natural order (0, 1, 2, ...). */
+export function getVideoOrder(slug: string, kind: "reader" | "expert"): number[] {
   const override = getProductOverride(slug);
-  const idx = kind === "reader" ? override.featuredReaderVideoIndex : override.featuredExpertVideoIndex;
-  return typeof idx === "number" && Number.isInteger(idx) && idx >= 0 ? idx : 0;
+  const order = kind === "reader" ? override.readerVideoOrder : override.expertVideoOrder;
+  if (Array.isArray(order) && order.length > 0) return order;
+  return Array.from({ length: VIDEO_REVIEW_POOL_SIZE }, (_, i) => i);
 }
 
 export function isProductTextCustomized(slug: string): boolean {
@@ -209,8 +228,8 @@ export function setProductOverride(slug: string, fields: ProductTextOverride) {
     badge: fields.badge?.trim() || undefined,
     segmentSlug: fields.segmentSlug || undefined,
     tableOfContents: cleanStrings(fields.tableOfContents),
-    featuredReaderVideoIndex: cleanVideoIndex(fields.featuredReaderVideoIndex),
-    featuredExpertVideoIndex: cleanVideoIndex(fields.featuredExpertVideoIndex),
+    readerVideoOrder: cleanVideoOrder(fields.readerVideoOrder),
+    expertVideoOrder: cleanVideoOrder(fields.expertVideoOrder),
   };
   const store = readStore();
   store.products = store.products ?? {};

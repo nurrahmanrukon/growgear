@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getProductBySlug } from "@/lib/data/products";
-import { getReaderVideoOpinions, getExpertVideoOpinions } from "@/lib/data/landingContent";
+import { getReaderVideoOpinions, getExpertVideoOpinions, VIDEO_REVIEW_POOL_SIZE } from "@/lib/data/landingContent";
 import {
   ProductTextOverride,
   getProductOverride,
@@ -9,8 +9,6 @@ import {
   resolveProduct,
   setProductOverride,
 } from "@/lib/server/contentText";
-
-const VIDEO_OPTION_COUNT = 12;
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -24,9 +22,12 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ slu
     override: getProductOverride(slug),
     customized: isProductTextCustomized(slug),
     readerVideoOptions: isReadable
-      ? getReaderVideoOpinions(product, VIDEO_OPTION_COUNT).map((r, index) => ({ index, name: r.name }))
+      ? getReaderVideoOpinions(product, VIDEO_REVIEW_POOL_SIZE).map((r, index) => ({ index, name: r.name }))
       : [],
-    expertVideoOptions: getExpertVideoOpinions(product, VIDEO_OPTION_COUNT).map((e, index) => ({ index, name: e.name })),
+    expertVideoOptions: getExpertVideoOpinions(product, VIDEO_REVIEW_POOL_SIZE).map((e, index) => ({
+      index,
+      name: e.name,
+    })),
   });
 }
 
