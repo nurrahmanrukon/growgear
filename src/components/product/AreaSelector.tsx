@@ -40,11 +40,10 @@ export function AreaSelector({
         onClick={() => setOpen((v) => !v)}
         className="flex w-full items-center justify-between gap-1.5 rounded border border-border px-2.5 py-2 text-left text-sm outline-none"
       >
-        <span className="truncate font-medium text-foreground">
+        <span className="truncate text-foreground">
           {selected ? (
             <>
-              {selected.label} — {formatTaka(selected.fee)}
-              {selected.days && <span className="text-ink-faint">, {selected.days}</span>}
+              {selected.label} - <span className="font-bold">{formatTaka(selected.fee)}</span>
             </>
           ) : (
             <span className="text-ink-faint">এরিয়া সিলেক্ট করুন</span>
@@ -67,11 +66,8 @@ export function AreaSelector({
                 value === zone.label ? "bg-primary-light/40" : ""
               }`}
             >
-              <span className="min-w-0">
-                <span className="block font-medium text-foreground">{zone.label}</span>
-                {zone.days && <span className="block text-xs text-ink-faint">{zone.days}</span>}
-              </span>
-              <span className="shrink-0 text-sm font-semibold text-primary">{formatTaka(zone.fee)}</span>
+              <span className="min-w-0 font-medium text-foreground">{zone.label}</span>
+              <span className="shrink-0 text-sm font-bold text-primary">{formatTaka(zone.fee)}</span>
             </button>
           ))}
         </div>

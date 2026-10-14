@@ -114,14 +114,26 @@
   --font-body: var(--font-body);
 }
 
+/* Hind Siliguri's Bengali digit glyphs (esp. ১) are easy to misread at small
+   sizes, so a clearer digit-only font is layered in ahead of the body/
+   heading fonts, restricted via unicode-range to just the Bengali numerals. */
+@font-face {
+  font-family: "Bengali Digits";
+  src: url("https://fonts.gstatic.com/s/notosansbengali/v33/Cn-fJsCGWQxOjaGwMQ6fIiMywrNJIky6nvd8BjzVMvJx2mc4I3mYvNY.woff2")
+    format("woff2");
+  font-weight: 400 700;
+  font-display: swap;
+  unicode-range: U+09E6-09EF;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-body), "Hind Siliguri", "Noto Sans Bengali", "SolaimanLipi", system-ui, sans-serif;
+  font-family: "Bengali Digits", var(--font-body), "Hind Siliguri", "Noto Sans Bengali", "SolaimanLipi", system-ui, sans-serif;
 }
 
 h1, h2, h3, .font-display {
-  font-family: var(--font-display), "Hind Siliguri", sans-serif;
+  font-family: "Bengali Digits", var(--font-display), "Hind Siliguri", sans-serif;
   text-wrap: balance;
 }
 
