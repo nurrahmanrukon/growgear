@@ -1,7 +1,9 @@
-import { Play } from "lucide-react";
+import { Check, Play } from "lucide-react";
 import { Product } from "@/lib/types";
 
 export function VideoSection({ product }: { product: Product }) {
+  const isReadable = product.category === "book" || product.category === "ebook";
+
   return (
     <section className="container-page py-10">
       <div className="mx-auto max-w-3xl text-center">
@@ -10,6 +12,22 @@ export function VideoSection({ product }: { product: Product }) {
           {product.title} — কাছ থেকে দেখে নিন
         </h2>
       </div>
+
+      {isReadable && product.bullets.length > 0 && (
+        <div className="mx-auto mt-5 max-w-xl rounded-lg border border-border bg-surface-muted p-4">
+          <p className="text-sm font-semibold text-foreground">
+            এই {product.category === "ebook" ? "ইবুকটি" : "বইটি"} নিলে যা পাবেন
+          </p>
+          <ul className="mt-2.5 space-y-1.5">
+            {product.bullets.slice(0, 6).map((b) => (
+              <li key={b} className="flex items-start gap-2 text-sm text-ink-soft">
+                <Check size={15} className="mt-0.5 shrink-0 text-success" />
+                <span>{b}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div className="mx-auto mt-6 max-w-3xl">
         {product.videoUrl ? (

@@ -567,7 +567,9 @@ export function ContentTextAdmin({
               <div>
                 <span className="mb-1.5 block text-xs font-medium text-ink-soft">বুলেট পয়েন্ট</span>
                 <p className="mb-1.5 text-[11px] text-ink-faint">
-                  এটা মূল পেজে না দেখিয়ে &ldquo;একটু পড়ে দেখুন&rdquo; প্রিভিউ পপআপে দেখানো হয়
+                  {productForm.category === "gear"
+                    ? "এটা শুধু “একটু পড়ে দেখুন” প্রিভিউ পপআপে দেখানো হয়"
+                    : "এটা প্রোডাক্ট ভিডিওর ঠিক উপরে “এই বই/ইবুকটি নিলে যা পাবেন” অংশে, আর “একটু পড়ে দেখুন” প্রিভিউ পপআপে দেখানো হয়"}
                 </p>
                 <div className="flex flex-col gap-2">
                   {productForm.bullets.map((b, i) => (
