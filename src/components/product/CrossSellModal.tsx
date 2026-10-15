@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BookOpen, Clock, CreditCard, Smartphone, Star } from "lucide-react";
+import { BookOpen, Clock, CreditCard, Smartphone, Star, Users } from "lucide-react";
 import { Product } from "@/lib/types";
 import { formatTaka, discountPercent, toBengaliNumber } from "@/lib/format";
 import { msUntilMidnight, formatCountdown } from "@/lib/countdown";
@@ -154,7 +154,16 @@ export function CrossSellModal({
               </div>
             </div>
 
-            <p className="mt-3 text-xs leading-relaxed text-white/75">{text}</p>
+            <div className="mt-3 rounded-md border border-amber-400/40 bg-amber-400/10 px-3 py-2">
+              <p className="flex items-start gap-1.5 text-xs font-bold leading-relaxed text-amber-200">
+                <Users size={14} className="mt-0.5 shrink-0" />
+                <span>{text}</span>
+              </p>
+              <p className="mt-1 flex items-center gap-1 pl-[21px] text-[11px] text-amber-200/70">
+                <Star size={11} className="shrink-0 text-star" fill="currentColor" strokeWidth={0} />
+                {ebook.rating.toFixed(1)} রেটিং — পাঠকদের আস্থার পছন্দ
+              </p>
+            </div>
 
             <div className="mt-3 flex items-center gap-2 rounded-md border border-red-500/40 bg-red-500/15 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-red-300">
               <span className="relative flex h-2 w-2 shrink-0">
@@ -179,7 +188,7 @@ export function CrossSellModal({
                 onClick={() => setView("preview")}
                 className="flex items-center justify-center gap-1.5 rounded-lg border border-white/15 bg-white/5 px-3 py-2.5 text-xs font-medium text-white"
               >
-                <BookOpen size={14} /> কেনার আগে দেখুন
+                <BookOpen size={14} /> কেনার আগে ১০ পৃষ্ঠা পড়ুন
               </button>
             </div>
           </div>
@@ -190,11 +199,14 @@ export function CrossSellModal({
             <button type="button" onClick={() => setView("offer")} className="text-xs font-medium text-white/60 hover:text-white">
               ← ফিরে যান
             </button>
-            <h2 className="mt-2 font-display text-base font-bold text-white">{ebook.title}</h2>
-            <div className="mt-3 space-y-2.5 text-sm leading-relaxed text-white/75">
+            <p className="mt-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-emerald-300">
+              <BookOpen size={13} /> নমুনা — প্রথম ১০ পৃষ্ঠা পর্যন্ত বিনামূল্যে
+            </p>
+            <h2 className="mt-1.5 font-display text-base font-bold text-white">{ebook.title}</h2>
+            <div className="mt-3 max-h-64 space-y-2.5 overflow-y-auto pr-1 text-sm leading-relaxed text-white/75">
               <p>{ebook.description}</p>
               <ul className="space-y-1.5">
-                {ebook.bullets.slice(0, 3).map((b) => (
+                {ebook.bullets.map((b) => (
                   <li key={b}>• {b}</li>
                 ))}
               </ul>

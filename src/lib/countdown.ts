@@ -1,3 +1,5 @@
+import { toBengaliNumber } from "@/lib/format";
+
 export function msUntilMidnight(): number {
   const now = new Date();
   const midnight = new Date(now);
@@ -10,5 +12,5 @@ export function formatCountdown(ms: number): string {
   const h = Math.floor(totalSeconds / 3600);
   const m = Math.floor((totalSeconds % 3600) / 60);
   const s = totalSeconds % 60;
-  return `${h}h:${m}m:${s}s`;
+  return `${toBengaliNumber(h)}ঘ:${toBengaliNumber(m)}মি:${toBengaliNumber(s)}সে`;
 }
