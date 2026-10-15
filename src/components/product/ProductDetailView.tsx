@@ -40,12 +40,13 @@ export function ProductDetailView({
   const isReadable = product.category === "book" || product.category === "ebook";
   const readerVideoOrder = getVideoOrder(product.slug, "reader");
   const expertVideoOrder = getVideoOrder(product.slug, "expert");
+  const productVideoOrder = getVideoOrder(product.slug, "product");
   const painPointsCount = getPainPointsCount(product.slug);
 
   const sectionRenderers: Record<string, () => React.ReactNode> = {
     video: () => (
       <>
-        <VideoSection product={product} />
+        <VideoSection product={product} order={productVideoOrder} />
         <InlineCtaBar product={product} />
       </>
     ),

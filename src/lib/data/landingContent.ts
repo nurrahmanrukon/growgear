@@ -11,6 +11,36 @@ import { hashString, PERSON_NAMES, BD_LOCATIONS } from "@/lib/data/social";
  *  rather than in a server-only file. */
 export const VIDEO_REVIEW_POOL_SIZE = 12;
 
+/** How many product-video slots an admin can drag-and-drop reorder/hide for the main
+ *  product video gallery (see VideoSection and the content-text admin panel). Index 0
+ *  is always the "real" slot — it plays the admin-uploaded product.videoUrl when set,
+ *  else the same placeholder as the rest — so dragging it anywhere just changes whether
+ *  the real video is featured, a thumbnail, or hidden. */
+export const PRODUCT_VIDEO_POOL_SIZE = 8;
+
+export interface ProductVideoSlot {
+  caption: string;
+  isPrimary: boolean;
+}
+
+const PRODUCT_VIDEO_CAPTION_POOL = [
+  "কাছ থেকে একনজর",
+  "কী আছে ভেতরে",
+  "কীভাবে ব্যবহার করবেন",
+  "কাস্টমারদের অভিজ্ঞতা",
+  "আনবক্সিং",
+  "বিস্তারিত ওভারভিউ",
+  "প্রায়ই জিজ্ঞাসিত প্রশ্ন",
+];
+
+export function getProductVideoSlots(): ProductVideoSlot[] {
+  const slots: ProductVideoSlot[] = [{ caption: "প্রোডাক্ট ভিডিও", isPrimary: true }];
+  for (let i = 0; i < PRODUCT_VIDEO_POOL_SIZE - 1; i++) {
+    slots.push({ caption: PRODUCT_VIDEO_CAPTION_POOL[i % PRODUCT_VIDEO_CAPTION_POOL.length], isPrimary: false });
+  }
+  return slots;
+}
+
 export interface PainPoint {
   title: string;
   body: string;

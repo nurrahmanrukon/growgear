@@ -10,7 +10,7 @@ import { getBlogImageUrl, getProductImageUrl, getProductVideoUrl } from "@/lib/s
 import { resolveInStock } from "@/lib/server/inventory";
 import { getSalesCounts } from "@/lib/server/orders";
 import { getSegmentMeta } from "@/lib/data/segments";
-import { getTableOfContents, VIDEO_REVIEW_POOL_SIZE } from "@/lib/data/landingContent";
+import { getTableOfContents, VIDEO_REVIEW_POOL_SIZE, PRODUCT_VIDEO_POOL_SIZE } from "@/lib/data/landingContent";
 
 const STORE_PATH = path.join(process.cwd(), "data", "content-text.json");
 
@@ -29,6 +29,10 @@ export interface ProductTextOverride {
    *  the content-text admin panel. */
   readerVideoOrder?: number[];
   expertVideoOrder?: number[];
+  /** Admin-chosen display order for the main product-video gallery (see VideoSection) —
+   *  a permutation of 0..PRODUCT_VIDEO_POOL_SIZE-1. Same featured/thumbnail/hidden
+   *  convention as the review video orders above. */
+  productVideoOrder?: number[];
   /** How many "আপনার কি এমন হয়?" pain-point cards to show — 7 if unset. */
   painPointsCount?: number;
 }
@@ -67,19 +71,19 @@ function cleanStrings(arr: string[] | undefined): string[] | undefined {
   return cleaned.length > 0 ? cleaned : undefined;
 }
 
-function cleanVideoOrder(order: number[] | undefined): number[] | undefined {
+function cleanVideoOrder(order: number[] | undefined, poolSize: number): number[] | undefined {
   if (!Array.isArray(order)) return undefined;
   const seen = new Set<number>();
   const cleaned: number[] = [];
   for (const n of order) {
-    if (typeof n === "number" && Number.isInteger(n) && n >= 0 && n < VIDEO_REVIEW_POOL_SIZE && !seen.has(n)) {
+    if (typeof n === "number" && Number.isInteger(n) && n >= 0 && n < poolSize && !seen.has(n)) {
       seen.add(n);
       cleaned.push(n);
     }
   }
   // Any pool index the admin didn't place (e.g. a new candidate) is appended in natural order,
   // so the stored order always covers the whole pool and nothing silently disappears.
-  for (let i = 0; i < VIDEO_REVIEW_POOL_SIZE; i++) {
+  for (let i = 0; i < poolSize; i++) {
     if (!seen.has(i)) cleaned.push(i);
   }
   return cleaned.length > 0 ? cleaned : undefined;
@@ -93,13 +97,16 @@ export function getProductOverride(slug: string): ProductTextOverride {
   return readStore().products?.[slug] ?? {};
 }
 
-/** Display order (pool indices) for the reader/expert video-review strip — the admin's
- *  custom drag-and-drop order if set, else natural order (0, 1, 2, ...). */
-export function getVideoOrder(slug: string, kind: "reader" | "expert"): number[] {
+/** Display order (pool indices) for the reader/expert video-review strip, or the main
+ *  product-video gallery — the admin's custom drag-and-drop order if set, else natural
+ *  order (0, 1, 2, ...). */
+export function getVideoOrder(slug: string, kind: "reader" | "expert" | "product"): number[] {
   const override = getProductOverride(slug);
-  const order = kind === "reader" ? override.readerVideoOrder : override.expertVideoOrder;
+  const order =
+    kind === "reader" ? override.readerVideoOrder : kind === "expert" ? override.expertVideoOrder : override.productVideoOrder;
+  const poolSize = kind === "product" ? PRODUCT_VIDEO_POOL_SIZE : VIDEO_REVIEW_POOL_SIZE;
   if (Array.isArray(order) && order.length > 0) return order;
-  return Array.from({ length: VIDEO_REVIEW_POOL_SIZE }, (_, i) => i);
+  return Array.from({ length: poolSize }, (_, i) => i);
 }
 
 export function getPainPointsCount(slug: string): number {
@@ -235,8 +242,9 @@ export function setProductOverride(slug: string, fields: ProductTextOverride) {
     badge: fields.badge?.trim() || undefined,
     segmentSlug: fields.segmentSlug || undefined,
     tableOfContents: cleanStrings(fields.tableOfContents),
-    readerVideoOrder: cleanVideoOrder(fields.readerVideoOrder),
-    expertVideoOrder: cleanVideoOrder(fields.expertVideoOrder),
+    readerVideoOrder: cleanVideoOrder(fields.readerVideoOrder, VIDEO_REVIEW_POOL_SIZE),
+    expertVideoOrder: cleanVideoOrder(fields.expertVideoOrder, VIDEO_REVIEW_POOL_SIZE),
+    productVideoOrder: cleanVideoOrder(fields.productVideoOrder, PRODUCT_VIDEO_POOL_SIZE),
     painPointsCount:
       typeof fields.painPointsCount === "number" && Number.isInteger(fields.painPointsCount) && fields.painPointsCount > 0
         ? fields.painPointsCount

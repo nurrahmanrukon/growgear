@@ -44,6 +44,7 @@ interface ProductForm {
   tableOfContents: string[];
   readerVideoOrder: number[];
   expertVideoOrder: number[];
+  productVideoOrder: number[];
   painPointsCount: number;
 }
 interface VideoOption {
@@ -81,15 +82,18 @@ function VideoOrderList({
   options,
   order,
   onChange,
+  thumbCount = 5,
 }: {
   title: string;
   options: VideoOption[];
   order: number[];
   onChange: (order: number[]) => void;
+  thumbCount?: number;
 }) {
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const nameByIndex = new Map(options.map((o) => [o.index, o.name]));
   const visibleOrder = order.filter((i) => nameByIndex.has(i));
+  const visibleCutoff = 1 + thumbCount;
 
   function move(from: number, to: number) {
     if (to < 0 || to >= visibleOrder.length) return;
@@ -115,8 +119,8 @@ function VideoOrderList({
     <div>
       <span className="mb-1.5 block text-xs font-medium text-ink-soft">{title}</span>
       <p className="mb-1.5 text-[11px] text-ink-faint">
-        টেনে (ড্র্যাগ) বা তীর বাটন দিয়ে সাজান — প্রথমজন বড় করে উপরে &ldquo;মূল ভিডিও&rdquo; হিসেবে দেখাবে, পরের ৫ জন
-        থাম্বনেইল স্ট্রিপে, বাকিরা পেজে দেখানো হবে না (দরকার হলে টেনে উপরে আনুন)।
+        টেনে (ড্র্যাগ) বা তীর বাটন দিয়ে সাজান — প্রথমজন বড় করে উপরে &ldquo;মূল ভিডিও&rdquo; হিসেবে দেখাবে, পরের{" "}
+        {thumbCount} জন থাম্বনেইল স্ট্রিপে, বাকিরা পেজে দেখানো হবে না (দরকার হলে টেনে উপরে আনুন)।
       </p>
       <div className="flex max-h-72 flex-col gap-1.5 overflow-y-auto rounded-md border border-border p-2">
         {visibleOrder.map((idx, position) => (
@@ -129,7 +133,7 @@ function VideoOrderList({
             onDragEnd={() => setDragIndex(null)}
             className={`flex items-center gap-2 rounded-md border p-2 text-xs transition ${
               dragIndex === position ? "opacity-40" : "border-border"
-            } ${position === 0 ? "bg-primary-light/40" : position < 6 ? "bg-surface" : "bg-surface-muted"}`}
+            } ${position === 0 ? "bg-primary-light/40" : position < visibleCutoff ? "bg-surface" : "bg-surface-muted"}`}
           >
             <span className="shrink-0 cursor-grab text-ink-faint active:cursor-grabbing" aria-hidden="true">
               <GripVertical size={14} />
@@ -139,10 +143,10 @@ function VideoOrderList({
             </span>
             <span className="min-w-0 flex-1 truncate font-medium text-foreground">{nameByIndex.get(idx)}</span>
             {position === 0 && <span className="shrink-0 text-[10px] font-semibold text-primary">মূল ভিডিও</span>}
-            {position >= 1 && position < 6 && (
+            {position >= 1 && position < visibleCutoff && (
               <span className="shrink-0 text-[10px] text-ink-faint">থাম্বনেইল</span>
             )}
-            {position >= 6 && <span className="shrink-0 text-[10px] text-ink-faint">দেখানো হবে না</span>}
+            {position >= visibleCutoff && <span className="shrink-0 text-[10px] text-ink-faint">দেখানো হবে না</span>}
             <div className="flex shrink-0 items-center gap-0.5">
               <button
                 type="button"
@@ -185,9 +189,10 @@ export function ContentTextAdmin({
   const [categoryFilter, setCategoryFilter] = useState<"all" | ProductCategory>("all");
   const [selected, setSelected] = useState<string | null>(null);
   const [productForm, setProductForm] = useState<ProductForm | null>(null);
-  const [videoOptions, setVideoOptions] = useState<{ reader: VideoOption[]; expert: VideoOption[] }>({
+  const [videoOptions, setVideoOptions] = useState<{ reader: VideoOption[]; expert: VideoOption[]; product: VideoOption[] }>({
     reader: [],
     expert: [],
+    product: [],
   });
   const [blogForm, setBlogForm] = useState<BlogForm | null>(null);
   const [loading, setLoading] = useState(false);
@@ -227,6 +232,7 @@ export function ContentTextAdmin({
       const ov = data.override ?? {};
       const readerOptions: VideoOption[] = data.readerVideoOptions ?? [];
       const expertOptions: VideoOption[] = data.expertVideoOptions ?? [];
+      const productOptions: VideoOption[] = data.productVideoOptions ?? [];
       const naturalOrder = (n: number) => Array.from({ length: n }, (_, i) => i);
       setProductForm({
         title: c.title,
@@ -240,9 +246,10 @@ export function ContentTextAdmin({
         tableOfContents: c.tableOfContents ?? [],
         readerVideoOrder: ov.readerVideoOrder ?? naturalOrder(readerOptions.length),
         expertVideoOrder: ov.expertVideoOrder ?? naturalOrder(expertOptions.length),
+        productVideoOrder: ov.productVideoOrder ?? naturalOrder(productOptions.length),
         painPointsCount: ov.painPointsCount ?? 7,
       });
-      setVideoOptions({ reader: readerOptions, expert: expertOptions });
+      setVideoOptions({ reader: readerOptions, expert: expertOptions, product: productOptions });
       setCustomized(data.customized);
     } catch {
       setError("লোড করা যায়নি");
@@ -297,6 +304,7 @@ export function ContentTextAdmin({
           tableOfContents: productForm.tableOfContents,
           readerVideoOrder: productForm.readerVideoOrder,
           expertVideoOrder: productForm.expertVideoOrder,
+          productVideoOrder: productForm.productVideoOrder,
           painPointsCount: productForm.painPointsCount,
         }),
       });
@@ -667,6 +675,16 @@ export function ContentTextAdmin({
                   options={videoOptions.expert}
                   order={productForm.expertVideoOrder}
                   onChange={(expertVideoOrder) => setProductForm({ ...productForm, expertVideoOrder })}
+                />
+              )}
+
+              {videoOptions.product.length > 0 && (
+                <VideoOrderList
+                  title="প্রোডাক্ট ভিডিও গ্যালারির ক্রম"
+                  options={videoOptions.product}
+                  order={productForm.productVideoOrder}
+                  onChange={(productVideoOrder) => setProductForm({ ...productForm, productVideoOrder })}
+                  thumbCount={3}
                 />
               )}
 
