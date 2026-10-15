@@ -3,6 +3,9 @@ import { CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { getOrder } from "@/lib/server/orders";
 import { allProducts } from "@/lib/data/products";
+import { getCrossSellSettings } from "@/lib/server/crossSellSettings";
+import { getProductBySlugResolved } from "@/lib/server/contentText";
+import { CrossSellCard } from "@/components/product/CrossSellCard";
 
 export default async function OrderSuccessPage({
   searchParams,
@@ -14,6 +17,13 @@ export default async function OrderSuccessPage({
   const hasEbook = order?.items.some(
     (item) => allProducts.find((p) => p.id === item.productId)?.category === "ebook"
   );
+
+  const crossSell = getCrossSellSettings();
+  const crossSellEbook = crossSell.enabled && crossSell.ebookSlug ? getProductBySlugResolved(crossSell.ebookSlug) : undefined;
+  const alreadyBoughtCrossSell = order?.items.some(
+    (item) => item.slug === crossSell.ebookSlug || item.productId === crossSellEbook?.id
+  );
+  const showCrossSell = crossSellEbook && !alreadyBoughtCrossSell;
 
   return (
     <div className="container-page flex flex-col items-center gap-3 py-20 text-center">
@@ -36,6 +46,10 @@ export default async function OrderSuccessPage({
           থেকে যান।
         </p>
       )}
+      {showCrossSell && crossSellEbook && (
+        <CrossSellCard ebook={crossSellEbook} message={crossSell.message} soldCount={crossSell.soldCount} />
+      )}
+
       <Link href="/" className="mt-2">
         <Button variant="primary">কেনাকাটা চালিয়ে যান</Button>
       </Link>
