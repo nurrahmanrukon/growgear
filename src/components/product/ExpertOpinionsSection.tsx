@@ -12,19 +12,21 @@ import {
 import { StarRating } from "@/components/ui/StarRating";
 import { Modal } from "@/components/ui/Modal";
 
-const MIXED_PREVIEW_COUNT = 3;
+const TEXT_THUMB_COUNT = 3;
 const VIDEO_THUMB_COUNT = 5;
 const DEFAULT_VIDEO_ORDER = Array.from({ length: VIDEO_REVIEW_POOL_SIZE }, (_, i) => i);
 
 function ExpertCardShell({
   expert,
   children,
+  onClick,
 }: {
   expert: ExpertOpinion;
   children: React.ReactNode;
+  onClick?: () => void;
 }) {
-  return (
-    <div className="flex gap-4 rounded-lg border border-border bg-surface p-4">
+  const content = (
+    <>
       <div className="flex w-24 shrink-0 flex-col items-center gap-2 text-center sm:w-28">
         {children}
         <div>
@@ -41,13 +43,35 @@ function ExpertCardShell({
         <StarRating rating={expert.rating} size={13} />
         <p className="mt-2 text-sm text-ink-soft">&ldquo;{expert.quote}&rdquo;</p>
       </div>
-    </div>
+    </>
   );
+
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        aria-label={`${expert.name} এর মতামত বড় করে দেখুন`}
+        className="flex w-full gap-4 rounded-lg border border-border bg-surface p-4 text-left transition hover:border-primary/40"
+      >
+        {content}
+      </button>
+    );
+  }
+  return <div className="flex gap-4 rounded-lg border border-border bg-surface p-4">{content}</div>;
 }
 
-function TextReviewCard({ expert, product }: { expert: ExpertOpinion; product: Product }) {
+function TextReviewCard({
+  expert,
+  product,
+  onClick,
+}: {
+  expert: ExpertOpinion;
+  product: Product;
+  onClick?: () => void;
+}) {
   return (
-    <ExpertCardShell expert={expert}>
+    <ExpertCardShell expert={expert} onClick={onClick}>
       {expert.hasPhoto ? (
         <div
           className="flex aspect-square w-full items-center justify-center rounded-md text-white/80"
@@ -61,6 +85,38 @@ function TextReviewCard({ expert, product }: { expert: ExpertOpinion; product: P
         </div>
       )}
     </ExpertCardShell>
+  );
+}
+
+function TextReviewThumb({
+  expert,
+  product,
+  onClick,
+}: {
+  expert: ExpertOpinion;
+  product: Product;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      aria-label={`${expert.name} এর মতামত দেখুন`}
+      className="group flex w-20 shrink-0 flex-col items-center gap-1.5 sm:w-24"
+    >
+      {expert.hasPhoto ? (
+        <div
+          className="flex aspect-square w-full items-center justify-center overflow-hidden rounded-lg text-white/80 transition group-hover:scale-105"
+          style={{ background: `linear-gradient(135deg, ${product.colorFrom}, ${product.colorTo})` }}
+        >
+          <ImageIcon size={18} />
+        </div>
+      ) : (
+        <div className="flex aspect-square w-full items-center justify-center rounded-full bg-primary-light text-base font-semibold text-primary-dark transition group-hover:scale-105">
+          {expert.name.charAt(0)}
+        </div>
+      )}
+      <p className="w-full truncate text-center text-[11px] font-medium text-foreground">{expert.name}</p>
+    </button>
   );
 }
 
@@ -135,13 +191,16 @@ function VideoReviewThumb({
 }
 
 export function ExpertOpinionsSection({ product, order }: { product: Product; order?: number[] }) {
-  const textReviews = getExpertOpinions(product, MIXED_PREVIEW_COUNT);
+  const textReviews = getExpertOpinions(product, 1 + TEXT_THUMB_COUNT);
+  const featuredText = textReviews[0];
+  const thumbTexts = textReviews.slice(1, 1 + TEXT_THUMB_COUNT);
   const videoOrder = order && order.length > 0 ? order : DEFAULT_VIDEO_ORDER;
   const allVideos = getExpertVideoOpinions(product, VIDEO_REVIEW_POOL_SIZE);
   const orderedVideos = videoOrder.map((i) => allVideos[i]).filter((v): v is ExpertOpinion => Boolean(v));
   const featuredVideo = orderedVideos[0];
   const thumbVideos = orderedVideos.slice(1, 1 + VIDEO_THUMB_COUNT);
   const [playingVideo, setPlayingVideo] = useState<ExpertOpinion | null>(null);
+  const [expandedText, setExpandedText] = useState<ExpertOpinion | null>(null);
 
   return (
     <section className="border-y border-border bg-surface-muted py-12">
@@ -154,11 +213,19 @@ export function ExpertOpinionsSection({ product, order }: { product: Product; or
         </div>
 
         <div className="mx-auto mt-6 max-w-xl">
-          <div className="flex flex-col gap-4">
-            {textReviews.map((e, i) => (
-              <TextReviewCard key={`t-${i}`} expert={e} product={product} />
-            ))}
-          </div>
+          {featuredText && (
+            <div>
+              <p className="mb-2.5 text-xs font-medium text-ink-soft">মতামত</p>
+              <TextReviewCard expert={featuredText} product={product} onClick={() => setExpandedText(featuredText)} />
+              {thumbTexts.length > 0 && (
+                <div className="-mx-1 mt-3 flex gap-3 overflow-x-auto px-1 pb-1 scrollbar-none">
+                  {thumbTexts.map((e, i) => (
+                    <TextReviewThumb key={`tt-${i}`} expert={e} product={product} onClick={() => setExpandedText(e)} />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {featuredVideo && (
             <div className="mt-5">
@@ -205,6 +272,40 @@ export function ExpertOpinionsSection({ product, order }: { product: Product; or
               <StarRating rating={playingVideo.rating} size={13} />
             </div>
             <p className="mt-2 text-sm text-ink-soft">&ldquo;{playingVideo.quote}&rdquo;</p>
+          </>
+        )}
+      </Modal>
+
+      <Modal open={!!expandedText} onClose={() => setExpandedText(null)}>
+        {expandedText && (
+          <>
+            <div className="flex items-center gap-3">
+              {expandedText.hasPhoto ? (
+                <div
+                  className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-white/80"
+                  style={{ background: `linear-gradient(135deg, ${product.colorFrom}, ${product.colorTo})` }}
+                >
+                  <ImageIcon size={20} />
+                </div>
+              ) : (
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary-light text-lg font-semibold text-primary-dark">
+                  {expandedText.name.charAt(0)}
+                </div>
+              )}
+              <div>
+                <p className="text-sm font-medium text-foreground">{expandedText.name}</p>
+                <p className="text-xs text-ink-faint">{expandedText.title}</p>
+                {expandedText.verified && (
+                  <p className="mt-0.5 flex items-center gap-0.5 text-[10px] text-success">
+                    <BadgeCheck size={10} /> স্বীকৃত বিশেষজ্ঞ
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="mt-3">
+              <StarRating rating={expandedText.rating} size={13} />
+            </div>
+            <p className="mt-2 text-sm text-ink-soft">&ldquo;{expandedText.quote}&rdquo;</p>
           </>
         )}
       </Modal>
