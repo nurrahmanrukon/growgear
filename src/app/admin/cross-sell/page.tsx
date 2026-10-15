@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { getCrossSellSettings } from "@/lib/server/crossSellSettings";
 import { allProductsResolved } from "@/lib/server/contentText";
+import { blogPosts } from "@/lib/data/blog";
 import { CrossSellAdmin } from "@/components/admin/CrossSellAdmin";
 
 export const metadata: Metadata = { title: "অ্যাডমিন — ইবুক ক্রস-সেল" };
@@ -11,5 +12,6 @@ export default function AdminCrossSellPage() {
   const ebooks = allProductsResolved()
     .filter((p) => p.category === "ebook")
     .map((p) => ({ slug: p.slug, title: p.title }));
-  return <CrossSellAdmin initial={settings} ebooks={ebooks} />;
+  const blog = blogPosts.map((p) => ({ slug: p.slug, title: p.title }));
+  return <CrossSellAdmin initial={settings} ebooks={ebooks} blog={blog} />;
 }

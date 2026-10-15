@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BookOpen, Clock, CreditCard, Smartphone, Star, Users } from "lucide-react";
-import { Product } from "@/lib/types";
+import Link from "next/link";
+import { ArrowRight, BookOpen, Clock, CreditCard, Smartphone, Star, Users } from "lucide-react";
+import { BlogPost, Product } from "@/lib/types";
 import { formatTaka, discountPercent, toBengaliNumber } from "@/lib/format";
-import { msUntilMidnight, formatCountdown } from "@/lib/countdown";
 import { Modal } from "@/components/ui/Modal";
 import { ProductImage } from "@/components/ui/ProductImage";
+import { ArticleThumb } from "@/components/blog/ArticleThumb";
 import { TableOfContentsToggle } from "@/components/product/TableOfContentsToggle";
 import { ProfileAuthModal } from "@/components/profile/ProfileAuthModal";
 
@@ -18,12 +19,15 @@ const PAYMENT_METHODS: { id: PaymentMethod; label: string; icon: typeof Smartpho
 
 type View = "offer" | "preview" | "payment" | "success";
 
+export type SecondOffer = { type: "ebook"; product: Product } | { type: "blog"; post: BlogPost };
+
 export function CrossSellModal({
   ebook,
   message,
   soldCount,
   customerName,
   customerPhone,
+  secondOffer,
   open,
   onClose,
 }: {
@@ -32,11 +36,11 @@ export function CrossSellModal({
   soldCount: number;
   customerName: string;
   customerPhone: string;
+  secondOffer?: SecondOffer;
   open: boolean;
   onClose: () => void;
 }) {
   const [view, setView] = useState<View>("offer");
-  const [msLeft, setMsLeft] = useState<number | null>(null);
   const [hiddenPayment, setHiddenPayment] = useState<string[]>([]);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -47,13 +51,6 @@ export function CrossSellModal({
   const text = message.replace("{count}", toBengaliNumber(soldCount));
   const methods = PAYMENT_METHODS.filter((m) => !hiddenPayment.includes(m.id));
   const effectiveMethod = paymentMethod && methods.some((m) => m.id === paymentMethod) ? paymentMethod : methods[0]?.id;
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- client-only clock value, avoids SSR/client time mismatch
-    setMsLeft(msUntilMidnight());
-    const timer = setInterval(() => setMsLeft(msUntilMidnight()), 1000);
-    return () => clearInterval(timer);
-  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -113,7 +110,7 @@ export function CrossSellModal({
 
   return (
     <>
-      <Modal open={open && !authOpen} onClose={handleClose} variant="dark">
+      <Modal open={open && !authOpen} onClose={handleClose} variant="offer">
         {view === "offer" && (
           <div className="text-left">
             <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-emerald-300">
@@ -163,14 +160,6 @@ export function CrossSellModal({
                 <Star size={11} className="shrink-0 text-star" fill="currentColor" strokeWidth={0} />
                 {ebook.rating.toFixed(1)} রেটিং — পাঠকদের আস্থার পছন্দ
               </p>
-            </div>
-
-            <div className="mt-3 flex items-center gap-2 rounded-md border border-red-500/40 bg-red-500/15 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-red-300">
-              <span className="relative flex h-2 w-2 shrink-0">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
-              </span>
-              অফার শেষ হতে বাকি: {msLeft !== null ? formatCountdown(msLeft) : "..."}
             </div>
 
             <button
@@ -273,13 +262,62 @@ export function CrossSellModal({
             <p className="mt-2 text-center text-sm text-white/75">
               ডাউনলোড লিংক আপনার প্রোফাইলে পাওয়া যাবে — যেকোনো সময় পড়তে পারবেন।
             </p>
+            <Link
+              href="/profile"
+              onClick={handleClose}
+              className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-md bg-cta py-2.5 text-center text-sm font-semibold text-white hover:bg-cta-dark"
+            >
+              আমার প্রোফাইলে পড়ুন <ArrowRight size={14} />
+            </Link>
             <button
               type="button"
               onClick={handleClose}
-              className="mt-4 w-full rounded-md bg-cta py-2.5 text-center text-sm font-semibold text-white hover:bg-cta-dark"
+              className="mt-2 w-full py-1.5 text-center text-xs font-medium text-white/60 hover:text-white"
             >
               ঠিক আছে
             </button>
+
+            {secondOffer && (
+              <div className="mt-5 border-t border-white/15 pt-4">
+                <p className="text-xs font-medium uppercase tracking-wide text-white/60">
+                  এরপর পড়তে পারেন
+                </p>
+                <Link
+                  href={secondOffer.type === "ebook" ? `/ebooks/${secondOffer.product.slug}` : `/blog/${secondOffer.post.slug}`}
+                  onClick={handleClose}
+                  className="mt-2 flex items-center gap-3 rounded-lg border border-white/15 bg-white/5 p-2.5 hover:bg-white/10"
+                >
+                  {secondOffer.type === "ebook" ? (
+                    <ProductImage
+                      title={secondOffer.product.title}
+                      category={secondOffer.product.category}
+                      colorFrom={secondOffer.product.colorFrom}
+                      colorTo={secondOffer.product.colorTo}
+                      imageUrl={secondOffer.product.coverImageUrl}
+                      hideLabel
+                      className="h-14 w-10 shrink-0 rounded"
+                    />
+                  ) : (
+                    <ArticleThumb
+                      topicSlug={secondOffer.post.topicSlug}
+                      colorFrom={secondOffer.post.colorFrom}
+                      colorTo={secondOffer.post.colorTo}
+                      imageUrl={secondOffer.post.coverImageUrl}
+                      className="h-14 w-14 shrink-0"
+                    />
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-display text-sm font-bold text-white">
+                      {secondOffer.type === "ebook" ? secondOffer.product.title : secondOffer.post.title}
+                    </p>
+                    <p className="mt-0.5 line-clamp-2 text-xs text-white/60">
+                      {secondOffer.type === "ebook" ? secondOffer.product.shortDescription : secondOffer.post.excerpt}
+                    </p>
+                  </div>
+                  <ArrowRight size={16} className="shrink-0 text-white/40" />
+                </Link>
+              </div>
+            )}
           </div>
         )}
       </Modal>

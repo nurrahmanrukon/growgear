@@ -5,7 +5,7 @@ import { ArrowRight } from "lucide-react";
 import { Product } from "@/lib/types";
 import { formatTaka, toBengaliNumber } from "@/lib/format";
 import { ProductImage } from "@/components/ui/ProductImage";
-import { CrossSellModal } from "@/components/product/CrossSellModal";
+import { CrossSellModal, SecondOffer } from "@/components/product/CrossSellModal";
 
 export function OrderSuccessCrossSell({
   ebook,
@@ -13,12 +13,14 @@ export function OrderSuccessCrossSell({
   soldCount,
   customerName,
   customerPhone,
+  secondOffer,
 }: {
   ebook: Product;
   message: string;
   soldCount: number;
   customerName: string;
   customerPhone: string;
+  secondOffer?: SecondOffer;
 }) {
   const [open, setOpen] = useState(true);
   const text = message.replace("{count}", toBengaliNumber(soldCount));
@@ -58,6 +60,7 @@ export function OrderSuccessCrossSell({
         soldCount={soldCount}
         customerName={customerName}
         customerPhone={customerPhone}
+        secondOffer={secondOffer}
         open={open}
         onClose={() => setOpen(false)}
       />

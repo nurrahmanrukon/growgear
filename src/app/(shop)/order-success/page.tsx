@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/Button";
 import { getOrder } from "@/lib/server/orders";
 import { allProducts } from "@/lib/data/products";
 import { getCrossSellSettings } from "@/lib/server/crossSellSettings";
-import { getProductBySlugResolved } from "@/lib/server/contentText";
+import { getProductBySlugResolved, getBlogPostBySlugResolved } from "@/lib/server/contentText";
 import { OrderSuccessCrossSell } from "@/components/product/OrderSuccessCrossSell";
+import { SecondOffer } from "@/components/product/CrossSellModal";
 
 export default async function OrderSuccessPage({
   searchParams,
@@ -25,27 +26,41 @@ export default async function OrderSuccessPage({
   );
   const showCrossSell = crossSellEbook && !alreadyBoughtCrossSell;
 
+  let secondOffer: SecondOffer | undefined;
+  if (crossSell.secondOfferEnabled && crossSell.secondOfferSlug) {
+    if (crossSell.secondOfferType === "ebook") {
+      const product = getProductBySlugResolved(crossSell.secondOfferSlug);
+      if (product && product.slug !== crossSellEbook?.slug) secondOffer = { type: "ebook", product };
+    } else {
+      const post = getBlogPostBySlugResolved(crossSell.secondOfferSlug);
+      if (post) secondOffer = { type: "blog", post };
+    }
+  }
+
   return (
     <div className="container-page flex flex-col items-center gap-3 py-20 text-center">
-      <CheckCircle2 size={56} className="text-success" />
-      <h1 className="text-xl font-bold text-foreground">অর্ডার সফলভাবে সম্পন্ন হয়েছে!</h1>
-      {orderId && (
-        <p className="text-sm text-neutral-600">
-          আপনার অর্ডার আইডি: <span className="font-semibold text-navy-light">{orderId}</span>
+      <div className="w-full max-w-sm rounded-lg border border-border bg-surface p-6 shadow-sm">
+        <CheckCircle2 size={56} className="mx-auto text-success" />
+        <h1 className="mt-3 text-xl font-bold text-foreground">অর্ডার সফলভাবে সম্পন্ন হয়েছে!</h1>
+        {orderId && (
+          <p className="mt-1.5 text-sm text-neutral-600">
+            আপনার অর্ডার আইডি: <span className="font-semibold text-navy-light">{orderId}</span>
+          </p>
+        )}
+        <p className="mt-2 text-sm text-neutral-500">
+          আমাদের একজন প্রতিনিধি শীঘ্রই আপনার সাথে যোগাযোগ করবেন। পণ্য হাতে পেয়ে টাকা পরিশোধ করুন।
         </p>
-      )}
-      <p className="max-w-md text-sm text-neutral-500">
-        আমাদের একজন প্রতিনিধি শীঘ্রই আপনার সাথে যোগাযোগ করবেন। পণ্য হাতে পেয়ে টাকা পরিশোধ করুন।
-      </p>
-      {hasEbook && (
-        <p className="max-w-md text-sm text-primary">
-          আপনার কেনা ইবুক এখন আপনার প্রোফাইলে পাওয়া যাবে — পড়তে{" "}
-          <Link href="/profile" className="font-semibold underline hover:no-underline">
-            আমার প্রোফাইল
-          </Link>{" "}
-          থেকে যান।
-        </p>
-      )}
+        {hasEbook && (
+          <p className="mt-2 text-sm text-primary">
+            আপনার কেনা ইবুক এখন আপনার প্রোফাইলে পাওয়া যাবে — পড়তে{" "}
+            <Link href="/profile" className="font-semibold underline hover:no-underline">
+              আমার প্রোফাইল
+            </Link>{" "}
+            থেকে যান।
+          </p>
+        )}
+      </div>
+
       {showCrossSell && crossSellEbook && order && (
         <OrderSuccessCrossSell
           ebook={crossSellEbook}
@@ -53,6 +68,7 @@ export default async function OrderSuccessPage({
           soldCount={crossSell.soldCount}
           customerName={order.customer.name}
           customerPhone={order.customer.phone}
+          secondOffer={secondOffer}
         />
       )}
 

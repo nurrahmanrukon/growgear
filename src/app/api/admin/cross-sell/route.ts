@@ -1,16 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCrossSellSettings, setCrossSellSettings } from "@/lib/server/crossSellSettings";
+import { CrossSellSettings, getCrossSellSettings, setCrossSellSettings } from "@/lib/server/crossSellSettings";
 import { allProductsResolved } from "@/lib/server/contentText";
+import { blogPosts } from "@/lib/data/blog";
 
 export async function GET() {
   const ebooks = allProductsResolved()
     .filter((p) => p.category === "ebook")
     .map((p) => ({ slug: p.slug, title: p.title }));
-  return NextResponse.json({ settings: getCrossSellSettings(), ebooks });
+  const blog = blogPosts.map((p) => ({ slug: p.slug, title: p.title }));
+  return NextResponse.json({ settings: getCrossSellSettings(), ebooks, blog });
 }
 
 export async function PUT(req: NextRequest) {
-  let body: { enabled?: boolean; ebookSlug?: string; soldCount?: number; message?: string };
+  let body: Partial<CrossSellSettings>;
   try {
     body = await req.json();
   } catch {

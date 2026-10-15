@@ -9,6 +9,9 @@ interface CrossSellSettings {
   ebookSlug: string;
   soldCount: number;
   message: string;
+  secondOfferEnabled: boolean;
+  secondOfferType: "ebook" | "blog";
+  secondOfferSlug: string;
 }
 
 const fieldClass =
@@ -17,9 +20,11 @@ const fieldClass =
 export function CrossSellAdmin({
   initial,
   ebooks,
+  blog,
 }: {
   initial: CrossSellSettings;
   ebooks: { slug: string; title: string }[];
+  blog: { slug: string; title: string }[];
 }) {
   const router = useRouter();
   const [settings, setSettings] = useState(initial);
@@ -140,6 +145,82 @@ export function CrossSellAdmin({
             onChange={(e) => update("message", e.target.value)}
           />
         </label>
+
+        <div className="border-t border-border pt-5">
+          <p className="text-sm font-semibold text-foreground">দ্বিতীয় সাজেশন</p>
+          <p className="mt-1 text-xs text-ink-soft">
+            উপরের ইবুকটা কেনার পর &ldquo;অর্ডার হয়ে গেছে&rdquo; স্ক্রিনে আরেকটা হালকা সাজেশন দেখাবে — একটা
+            ইবুক অথবা ব্লগ পোস্ট, যেখানে ক্লিক করে কাস্টমার নিজেই সেটা দেখতে পারবেন।
+          </p>
+
+          <div className="mt-3 grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => update("secondOfferEnabled", true)}
+              disabled={saving}
+              className={`rounded-lg border p-3 text-center ${
+                settings.secondOfferEnabled ? "border-cta bg-cta-light" : "border-border hover:border-cta/50"
+              } disabled:opacity-50`}
+            >
+              <span className="text-xs font-semibold text-foreground">চালু আছে</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => update("secondOfferEnabled", false)}
+              disabled={saving}
+              className={`rounded-lg border p-3 text-center ${
+                !settings.secondOfferEnabled ? "border-price bg-price/10" : "border-border hover:border-price/50"
+              } disabled:opacity-50`}
+            >
+              <span className="text-xs font-semibold text-foreground">বন্ধ</span>
+            </button>
+          </div>
+
+          {settings.secondOfferEnabled && (
+            <div className="mt-3 space-y-3">
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => update("secondOfferType", "ebook")}
+                  className={`rounded-md border px-3 py-2 text-xs font-medium ${
+                    settings.secondOfferType === "ebook"
+                      ? "border-primary bg-primary-light text-primary-dark"
+                      : "border-border text-ink-soft hover:border-primary/50"
+                  }`}
+                >
+                  ইবুক
+                </button>
+                <button
+                  type="button"
+                  onClick={() => update("secondOfferType", "blog")}
+                  className={`rounded-md border px-3 py-2 text-xs font-medium ${
+                    settings.secondOfferType === "blog"
+                      ? "border-primary bg-primary-light text-primary-dark"
+                      : "border-border text-ink-soft hover:border-primary/50"
+                  }`}
+                >
+                  ব্লগ পোস্ট
+                </button>
+              </div>
+
+              <label className="block text-xs text-ink-soft">
+                {settings.secondOfferType === "ebook" ? "কোন ইবুকটা সাজেস্ট করবেন" : "কোন ব্লগ পোস্টটা সাজেস্ট করবেন"}
+                <select
+                  className={`mt-1 ${fieldClass}`}
+                  value={settings.secondOfferSlug}
+                  onChange={(e) => update("secondOfferSlug", e.target.value)}
+                >
+                  <option value="">— একটা বেছে নিন —</option>
+                  {(settings.secondOfferType === "ebook" ? ebooks : blog).map((b) => (
+                    <option key={b.slug} value={b.slug}>
+                      {b.title}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+          )}
+        </div>
 
         {error && <p className="text-sm text-price">{error}</p>}
 
