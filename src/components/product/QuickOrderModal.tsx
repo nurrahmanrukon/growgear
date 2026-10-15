@@ -15,11 +15,11 @@ export function QuickOrderModal({
   onClose: () => void;
 }) {
   return (
-    <Modal open={open} onClose={onClose}>
-      <div className="mb-4">
-        <UrgencyOrderCard product={product} />
+    <Modal open={open} onClose={onClose} variant="dark">
+      <UrgencyOrderCard product={product} />
+      <div className="mt-3 rounded-lg bg-surface p-5 text-left shadow-lg">
+        <OrderForm product={product} onOrdered={onClose} />
       </div>
-      <OrderForm product={product} onOrdered={onClose} />
     </Modal>
   );
 }
