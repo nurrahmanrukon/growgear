@@ -5,21 +5,7 @@ import { Star } from "lucide-react";
 import { Product } from "@/lib/types";
 import { formatTaka, discountPercent, toBengaliNumber } from "@/lib/format";
 import { ProductImage } from "@/components/ui/ProductImage";
-
-function msUntilMidnight(): number {
-  const now = new Date();
-  const midnight = new Date(now);
-  midnight.setHours(24, 0, 0, 0);
-  return midnight.getTime() - now.getTime();
-}
-
-function formatCountdown(ms: number): string {
-  const totalSeconds = Math.max(0, Math.floor(ms / 1000));
-  const h = Math.floor(totalSeconds / 3600);
-  const m = Math.floor((totalSeconds % 3600) / 60);
-  const s = totalSeconds % 60;
-  return `${h}h:${m}m:${s}s`;
-}
+import { msUntilMidnight, formatCountdown } from "@/lib/countdown";
 
 /** Fixed dark navy regardless of light/dark theme or what it's placed on — this card
  *  must stay legible whether it sits on the dark FinalOrderSection background or a

@@ -5,7 +5,7 @@ import { getOrder } from "@/lib/server/orders";
 import { allProducts } from "@/lib/data/products";
 import { getCrossSellSettings } from "@/lib/server/crossSellSettings";
 import { getProductBySlugResolved } from "@/lib/server/contentText";
-import { CrossSellCard } from "@/components/product/CrossSellCard";
+import { OrderSuccessCrossSell } from "@/components/product/OrderSuccessCrossSell";
 
 export default async function OrderSuccessPage({
   searchParams,
@@ -46,8 +46,14 @@ export default async function OrderSuccessPage({
           থেকে যান।
         </p>
       )}
-      {showCrossSell && crossSellEbook && (
-        <CrossSellCard ebook={crossSellEbook} message={crossSell.message} soldCount={crossSell.soldCount} />
+      {showCrossSell && crossSellEbook && order && (
+        <OrderSuccessCrossSell
+          ebook={crossSellEbook}
+          message={crossSell.message}
+          soldCount={crossSell.soldCount}
+          customerName={order.customer.name}
+          customerPhone={order.customer.phone}
+        />
       )}
 
       <Link href="/" className="mt-2">
