@@ -1,6 +1,7 @@
 import { BlogPost, BlogTopicSlug } from "@/lib/types";
 import { MUTED_GRADIENTS as gradients } from "./palette";
 import { hashString } from "./social";
+import { bestFieldScore } from "./blogSearchEngine";
 
 export const TOPICS: { slug: BlogTopicSlug; label: string; description: string }[] = [
   { slug: "business", label: "ব্যবসা", description: "ব্যবসা শুরু করা, টিকিয়ে রাখা ও স্কেল করার বাস্তব অভিজ্ঞতা ও কৌশল।" },
@@ -314,39 +315,63 @@ function topicLabel(topicSlug: BlogTopicSlug): string {
   return TOPICS.find((t) => t.slug === topicSlug)?.label ?? "";
 }
 
+/**
+ * Fuzzy, script-agnostic search — a query typed in Bangla, English, or
+ * Banglish (and tolerant of minor spelling mistakes) still matches relevant
+ * posts, ranked by how confident the match is (see blogSearchEngine.ts).
+ */
 export function searchPosts(posts: BlogPost[], query: string): BlogPost[] {
-  const q = query.trim().toLowerCase();
+  const q = query.trim();
   if (!q) return [];
-  return posts.filter(
-    (p) =>
-      p.title.toLowerCase().includes(q) ||
-      p.excerpt.toLowerCase().includes(q) ||
-      p.category.toLowerCase().includes(q) ||
-      topicLabel(p.topicSlug).toLowerCase().includes(q)
-  );
+  return posts
+    .map((p) => ({
+      post: p,
+      score: bestFieldScore(
+        [
+          { text: p.title, weight: 1 },
+          { text: p.excerpt, weight: 0.9 },
+          { text: p.category, weight: 0.85 },
+          { text: topicLabel(p.topicSlug), weight: 0.85 },
+        ],
+        q
+      ),
+    }))
+    .filter((x) => x.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .map((x) => x.post);
 }
 
-/** Topics relevant to a search query — matched by topic name/description, plus any
- *  topic that has matching posts even when the query text itself doesn't hit the
- *  topic's own label (e.g. searching a specific technique surfaces its parent topic). */
+/** Topics relevant to a search query — matched by topic name/description (fuzzily,
+ *  across scripts), plus any topic that has matching posts even when the query text
+ *  itself doesn't hit the topic's own label (e.g. searching a specific technique
+ *  surfaces its parent topic). */
 export function relevantTopicsForQuery(
   posts: BlogPost[],
   query: string,
   limit = 5
 ): { slug: BlogTopicSlug; label: string; description: string; count: number }[] {
-  const q = query.trim().toLowerCase();
+  const q = query.trim();
   if (!q) return [];
   const matchedPosts = searchPosts(posts, query);
   const countByTopic = new Map<string, number>();
   matchedPosts.forEach((p) => countByTopic.set(p.topicSlug, (countByTopic.get(p.topicSlug) ?? 0) + 1));
 
-  const directMatch = (t: (typeof TOPICS)[number]) =>
-    t.label.toLowerCase().includes(q) || t.description.toLowerCase().includes(q);
-
-  return TOPICS.filter((t) => directMatch(t) || countByTopic.has(t.slug))
-    .map((t) => ({ ...t, count: countByTopic.get(t.slug) ?? 0 }))
-    .sort((a, b) => b.count - a.count)
-    .slice(0, limit);
+  return TOPICS.map((t) => {
+    const directScore = bestFieldScore(
+      [
+        { text: t.label, weight: 1 },
+        { text: t.description, weight: 0.8 },
+      ],
+      q
+    );
+    const postCount = countByTopic.get(t.slug) ?? 0;
+    const relevance = Math.max(directScore, postCount > 0 ? 50 + postCount * 10 : 0);
+    return { slug: t.slug, label: t.label, description: t.description, count: postCount, relevance };
+  })
+    .filter((t) => t.relevance > 0)
+    .sort((a, b) => b.relevance - a.relevance)
+    .slice(0, limit)
+    .map((t) => ({ slug: t.slug, label: t.label, description: t.description, count: t.count }));
 }
 
 /**
