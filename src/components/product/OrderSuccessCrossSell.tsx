@@ -8,14 +8,16 @@ import { ProductImage } from "@/components/ui/ProductImage";
 import { CrossSellModal, SecondOffer } from "@/components/product/CrossSellModal";
 
 export function OrderSuccessCrossSell({
-  ebook,
+  product,
+  category,
   message,
   soldCount,
   customerName,
   customerPhone,
   secondOffer,
 }: {
-  ebook: Product;
+  product: Product;
+  category: "ebook" | "book";
   message: string;
   soldCount: number;
   customerName: string;
@@ -31,18 +33,18 @@ export function OrderSuccessCrossSell({
         <p className="text-xs font-medium uppercase tracking-wide text-primary">আপনার জন্য বিশেষ সাজেশন</p>
         <div className="mt-2.5 flex items-center gap-3">
           <ProductImage
-            title={ebook.title}
-            category={ebook.category}
-            colorFrom={ebook.colorFrom}
-            colorTo={ebook.colorTo}
-            imageUrl={ebook.coverImageUrl}
+            title={product.title}
+            category={product.category}
+            colorFrom={product.colorFrom}
+            colorTo={product.colorTo}
+            imageUrl={product.coverImageUrl}
             hideLabel
             className="h-20 w-14 shrink-0 rounded-md"
           />
           <div className="min-w-0">
-            <p className="truncate font-display text-sm font-bold text-foreground">{ebook.title}</p>
+            <p className="truncate font-display text-sm font-bold text-foreground">{product.title}</p>
             <p className="mt-1 text-xs leading-relaxed text-ink-soft">{text}</p>
-            <p className="mt-1.5 text-sm font-bold text-price">{formatTaka(ebook.price)}</p>
+            <p className="mt-1.5 text-sm font-bold text-price">{formatTaka(product.price)}</p>
           </div>
         </div>
         <button
@@ -55,7 +57,8 @@ export function OrderSuccessCrossSell({
       </div>
 
       <CrossSellModal
-        ebook={ebook}
+        product={product}
+        category={category}
         message={message}
         soldCount={soldCount}
         customerName={customerName}

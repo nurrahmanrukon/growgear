@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { CrossSellSettings, getCrossSellSettings, setCrossSellSettings } from "@/lib/server/crossSellSettings";
 import { allProductsResolved } from "@/lib/server/contentText";
-import { blogPosts } from "@/lib/data/blog";
 
 export async function GET() {
-  const ebooks = allProductsResolved()
-    .filter((p) => p.category === "ebook")
-    .map((p) => ({ slug: p.slug, title: p.title }));
-  const blog = blogPosts.map((p) => ({ slug: p.slug, title: p.title }));
-  return NextResponse.json({ settings: getCrossSellSettings(), ebooks, blog });
+  const all = allProductsResolved();
+  const toOption = (p: { slug: string; title: string }) => ({ slug: p.slug, title: p.title });
+  const ebooks = all.filter((p) => p.category === "ebook").map(toOption);
+  const books = all.filter((p) => p.category === "book").map(toOption);
+  const gear = all.filter((p) => p.category === "gear").map(toOption);
+  return NextResponse.json({ settings: getCrossSellSettings(), ebooks, books, gear });
 }
 
 export async function PUT(req: NextRequest) {

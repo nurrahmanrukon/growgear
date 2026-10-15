@@ -3,8 +3,8 @@ import { CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { getOrder } from "@/lib/server/orders";
 import { allProducts } from "@/lib/data/products";
-import { getCrossSellSettings } from "@/lib/server/crossSellSettings";
-import { getProductBySlugResolved, getBlogPostBySlugResolved } from "@/lib/server/contentText";
+import { getCrossSellSettings, crossSellRotation } from "@/lib/server/crossSellSettings";
+import { getProductBySlugResolved } from "@/lib/server/contentText";
 import { OrderSuccessCrossSell } from "@/components/product/OrderSuccessCrossSell";
 import { SecondOffer } from "@/components/product/CrossSellModal";
 
@@ -15,25 +15,32 @@ export default async function OrderSuccessPage({
 }) {
   const { orderId } = await searchParams;
   const order = orderId ? getOrder(orderId) : undefined;
-  const hasEbook = order?.items.some(
-    (item) => allProducts.find((p) => p.id === item.productId)?.category === "ebook"
-  );
+  const orderCategories = order?.items.map((item) => allProducts.find((p) => p.id === item.productId)?.category) ?? [];
+  const hasEbook = orderCategories.includes("ebook");
 
   const crossSell = getCrossSellSettings();
-  const crossSellEbook = crossSell.enabled && crossSell.ebookSlug ? getProductBySlugResolved(crossSell.ebookSlug) : undefined;
-  const alreadyBoughtCrossSell = order?.items.some(
-    (item) => item.slug === crossSell.ebookSlug || item.productId === crossSellEbook?.id
+  const originalCategory = orderCategories[0];
+  const rotation = originalCategory ? crossSellRotation(originalCategory) : undefined;
+
+  const firstOfferSlug = rotation ? (rotation.first === "ebook" ? crossSell.ebookSlug : crossSell.bookSlug) : "";
+  const firstOfferProduct =
+    crossSell.enabled && rotation && firstOfferSlug ? getProductBySlugResolved(firstOfferSlug) : undefined;
+  const alreadyBoughtFirst = order?.items.some(
+    (item) => item.slug === firstOfferSlug || item.productId === firstOfferProduct?.id
   );
-  const showCrossSell = crossSellEbook && !alreadyBoughtCrossSell;
+  const showCrossSell = rotation && firstOfferProduct && !alreadyBoughtFirst;
 
   let secondOffer: SecondOffer | undefined;
-  if (crossSell.secondOfferEnabled && crossSell.secondOfferSlug) {
-    if (crossSell.secondOfferType === "ebook") {
-      const product = getProductBySlugResolved(crossSell.secondOfferSlug);
-      if (product && product.slug !== crossSellEbook?.slug) secondOffer = { type: "ebook", product };
-    } else {
-      const post = getBlogPostBySlugResolved(crossSell.secondOfferSlug);
-      if (post) secondOffer = { type: "blog", post };
+  if (crossSell.secondOfferEnabled && rotation) {
+    const secondOfferSlug = rotation.second === "book" ? crossSell.bookSlug : crossSell.gearSlug;
+    if (secondOfferSlug) {
+      const secondProduct = getProductBySlugResolved(secondOfferSlug);
+      const alreadyBoughtSecond = order?.items.some(
+        (item) => item.slug === secondOfferSlug || item.productId === secondProduct?.id
+      );
+      if (secondProduct && !alreadyBoughtSecond) {
+        secondOffer = { category: rotation.second, product: secondProduct };
+      }
     }
   }
 
@@ -61,9 +68,10 @@ export default async function OrderSuccessPage({
         )}
       </div>
 
-      {showCrossSell && crossSellEbook && order && (
+      {showCrossSell && firstOfferProduct && order && rotation && (
         <OrderSuccessCrossSell
-          ebook={crossSellEbook}
+          product={firstOfferProduct}
+          category={rotation.first}
           message={crossSell.message}
           soldCount={crossSell.soldCount}
           customerName={order.customer.name}

@@ -5,18 +5,31 @@ import { ChevronDown, ListOrdered } from "lucide-react";
 import { Product } from "@/lib/types";
 import { toBengaliNumber } from "@/lib/format";
 
-export function TableOfContentsToggle({ product }: { product: Product }) {
+export function TableOfContentsToggle({
+  product,
+  variant = "dark",
+}: {
+  product: Product;
+  variant?: "light" | "dark";
+}) {
   const [open, setOpen] = useState(false);
   const toc = product.tableOfContents;
   if (!toc || toc.length === 0) return null;
+  const isDark = variant === "dark";
 
   return (
-    <div className="mx-auto w-full max-w-md overflow-hidden rounded-lg border border-white/15 bg-white/5">
+    <div
+      className={`mx-auto w-full max-w-md overflow-hidden rounded-lg border ${
+        isDark ? "border-white/15 bg-white/5" : "border-border bg-surface-muted"
+      }`}
+    >
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="flex w-full items-center justify-between gap-2 px-4 py-2.5 text-sm font-medium text-white"
+        className={`flex w-full items-center justify-between gap-2 px-4 py-2.5 text-sm font-medium ${
+          isDark ? "text-white" : "text-foreground"
+        }`}
       >
         <span className="flex items-center gap-2">
           <ListOrdered size={16} /> সূচিপত্র দেখুন
@@ -24,10 +37,16 @@ export function TableOfContentsToggle({ product }: { product: Product }) {
         <ChevronDown size={16} className={`shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
-        <ol className="space-y-1.5 border-t border-white/10 px-4 py-3 text-left text-xs text-white/85">
+        <ol
+          className={`space-y-1.5 border-t px-4 py-3 text-left text-xs ${
+            isDark ? "border-white/10 text-white/85" : "border-border text-ink-soft"
+          }`}
+        >
           {toc.map((chapter, i) => (
             <li key={i} className="flex gap-2">
-              <span className="shrink-0 font-semibold text-white/60">{toBengaliNumber(i + 1)}.</span>
+              <span className={`shrink-0 font-semibold ${isDark ? "text-white/60" : "text-ink-faint"}`}>
+                {toBengaliNumber(i + 1)}.
+              </span>
               <span>{chapter}</span>
             </li>
           ))}

@@ -7,11 +7,11 @@ import { LogOut, Check } from "lucide-react";
 interface CrossSellSettings {
   enabled: boolean;
   ebookSlug: string;
+  bookSlug: string;
+  gearSlug: string;
   soldCount: number;
   message: string;
   secondOfferEnabled: boolean;
-  secondOfferType: "ebook" | "blog";
-  secondOfferSlug: string;
 }
 
 const fieldClass =
@@ -20,11 +20,13 @@ const fieldClass =
 export function CrossSellAdmin({
   initial,
   ebooks,
-  blog,
+  books,
+  gear,
 }: {
   initial: CrossSellSettings;
   ebooks: { slug: string; title: string }[];
-  blog: { slug: string; title: string }[];
+  books: { slug: string; title: string }[];
+  gear: { slug: string; title: string }[];
 }) {
   const router = useRouter();
   const [settings, setSettings] = useState(initial);
@@ -71,10 +73,12 @@ export function CrossSellAdmin({
     <div className="container-page py-8">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="font-display text-xl font-bold text-foreground">অর্ডার কনফার্মেশনে ইবুক ক্রস-সেল</h1>
+          <h1 className="font-display text-xl font-bold text-foreground">অর্ডার কনফার্মেশনে ক্রস-সেল</h1>
           <p className="mt-1 max-w-2xl text-sm text-ink-soft">
-            কাস্টমার অর্ডার করার পর &ldquo;অর্ডার সফল হয়েছে&rdquo; পেজে একটা ইবুক সাজেস্ট করে দেখাবে (যেটা
-            এই অর্ডারে নেই এমন ক্ষেত্রে)। কতজন কিনেছেন সেটাও আপনি নিজে লিখে দিতে পারবেন।
+            কাস্টমার অর্ডার করার পর &ldquo;অর্ডার সফল হয়েছে&rdquo; পেজে আরেকটা প্রোডাক্ট সাজেস্ট করে দেখাবে।
+            কাস্টমার কী কিনেছেন তার উপর ভিত্তি করে কোন ক্যাটাগরি সাজেস্ট হবে তা এমনিতেই ঠিক হয়ে যায় — বই
+            কিনলে ইবুক সাজেস্ট হবে, গিয়ার কিনলে ইবুক, আর ইবুক কিনলে বই সাজেস্ট হবে (একই প্রোডাক্ট দুবার
+            সাজেস্ট হয় না)। নিচে প্রতি ক্যাটাগরির জন্য কোন নির্দিষ্ট প্রোডাক্টটা দেখাবেন তা বেছে দিন।
           </p>
         </div>
         <button
@@ -110,7 +114,7 @@ export function CrossSellAdmin({
         </div>
 
         <label className="block text-xs text-ink-soft">
-          কোন ইবুকটা সাজেস্ট করবেন
+          ইবুক ক্যাটাগরির জন্য কোনটা সাজেস্ট করবেন
           <select
             className={`mt-1 ${fieldClass}`}
             value={settings.ebookSlug}
@@ -118,6 +122,38 @@ export function CrossSellAdmin({
           >
             <option value="">— একটা ইবুক বেছে নিন —</option>
             {ebooks.map((b) => (
+              <option key={b.slug} value={b.slug}>
+                {b.title}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="block text-xs text-ink-soft">
+          বই ক্যাটাগরির জন্য কোনটা সাজেস্ট করবেন
+          <select
+            className={`mt-1 ${fieldClass}`}
+            value={settings.bookSlug}
+            onChange={(e) => update("bookSlug", e.target.value)}
+          >
+            <option value="">— একটা বই বেছে নিন —</option>
+            {books.map((b) => (
+              <option key={b.slug} value={b.slug}>
+                {b.title}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="block text-xs text-ink-soft">
+          গিয়ার ক্যাটাগরির জন্য কোনটা সাজেস্ট করবেন
+          <select
+            className={`mt-1 ${fieldClass}`}
+            value={settings.gearSlug}
+            onChange={(e) => update("gearSlug", e.target.value)}
+          >
+            <option value="">— একটা গিয়ার বেছে নিন —</option>
+            {gear.map((b) => (
               <option key={b.slug} value={b.slug}>
                 {b.title}
               </option>
@@ -149,8 +185,9 @@ export function CrossSellAdmin({
         <div className="border-t border-border pt-5">
           <p className="text-sm font-semibold text-foreground">দ্বিতীয় সাজেশন</p>
           <p className="mt-1 text-xs text-ink-soft">
-            উপরের ইবুকটা কেনার পর &ldquo;অর্ডার হয়ে গেছে&rdquo; স্ক্রিনে আরেকটা হালকা সাজেশন দেখাবে — একটা
-            ইবুক অথবা ব্লগ পোস্ট, যেখানে ক্লিক করে কাস্টমার নিজেই সেটা দেখতে পারবেন।
+            উপরের প্রোডাক্টটা কেনার পর &ldquo;অর্ডার হয়ে গেছে&rdquo; স্ক্রিনে আরেকটা প্রোডাক্ট সাজেস্ট করে
+            দেখাবে (ঘূর্ণনক্রমে বাকি থাকা ক্যাটাগরি থেকে), যেখানে ক্লিক করে কাস্টমার সরাসরি সেটা কিনতে
+            যেতে পারবেন।
           </p>
 
           <div className="mt-3 grid grid-cols-2 gap-3">
@@ -175,51 +212,6 @@ export function CrossSellAdmin({
               <span className="text-xs font-semibold text-foreground">বন্ধ</span>
             </button>
           </div>
-
-          {settings.secondOfferEnabled && (
-            <div className="mt-3 space-y-3">
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => update("secondOfferType", "ebook")}
-                  className={`rounded-md border px-3 py-2 text-xs font-medium ${
-                    settings.secondOfferType === "ebook"
-                      ? "border-primary bg-primary-light text-primary-dark"
-                      : "border-border text-ink-soft hover:border-primary/50"
-                  }`}
-                >
-                  ইবুক
-                </button>
-                <button
-                  type="button"
-                  onClick={() => update("secondOfferType", "blog")}
-                  className={`rounded-md border px-3 py-2 text-xs font-medium ${
-                    settings.secondOfferType === "blog"
-                      ? "border-primary bg-primary-light text-primary-dark"
-                      : "border-border text-ink-soft hover:border-primary/50"
-                  }`}
-                >
-                  ব্লগ পোস্ট
-                </button>
-              </div>
-
-              <label className="block text-xs text-ink-soft">
-                {settings.secondOfferType === "ebook" ? "কোন ইবুকটা সাজেস্ট করবেন" : "কোন ব্লগ পোস্টটা সাজেস্ট করবেন"}
-                <select
-                  className={`mt-1 ${fieldClass}`}
-                  value={settings.secondOfferSlug}
-                  onChange={(e) => update("secondOfferSlug", e.target.value)}
-                >
-                  <option value="">— একটা বেছে নিন —</option>
-                  {(settings.secondOfferType === "ebook" ? ebooks : blog).map((b) => (
-                    <option key={b.slug} value={b.slug}>
-                      {b.title}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
-          )}
         </div>
 
         {error && <p className="text-sm text-price">{error}</p>}
