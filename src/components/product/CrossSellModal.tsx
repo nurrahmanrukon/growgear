@@ -27,7 +27,7 @@ const FALLBACK_ZONES: DeliveryZone[] = [
   { key: "outside-dhaka", label: "ঢাকার বাইরে", days: "৪-৬ দিন", fee: 130 },
 ];
 
-type View = "offer" | "preview" | "payment" | "success";
+type View = "offer" | "preview" | "payment" | "success" | "secondPreview";
 
 export type SecondOffer = { category: "book" | "gear"; product: Product };
 
@@ -356,7 +356,7 @@ export function CrossSellModal({
             {secondOffer && (
               <div className="mt-5 border-t border-border pt-4">
                 <p className="text-xs font-bold uppercase tracking-wide text-primary">আপনার জন্য আরও একটি সুযোগ</p>
-                <div className="mt-2 flex items-center gap-3 rounded-lg border border-border bg-surface-muted p-2.5">
+                <div className="mt-2 flex items-center gap-3">
                   <ProductImage
                     title={secondOffer.product.title}
                     category={secondOffer.product.category}
@@ -364,31 +364,85 @@ export function CrossSellModal({
                     colorTo={secondOffer.product.colorTo}
                     imageUrl={secondOffer.product.coverImageUrl}
                     hideLabel
-                    className="h-16 w-12 shrink-0 rounded"
+                    className="h-20 w-14 shrink-0 rounded-md"
                   />
-                  <div className="min-w-0 flex-1">
+                  <div className="min-w-0">
                     <p className="truncate font-display text-sm font-bold text-foreground">{secondOffer.product.title}</p>
-                    <div className="mt-0.5 flex items-center gap-2">
-                      <span className="text-sm font-bold text-price">{formatTaka(secondOffer.product.price)}</span>
+                    <div className="mt-1 flex items-center gap-1">
+                      <Star size={12} className="text-star" fill="currentColor" strokeWidth={0} />
+                      <span className="text-xs font-medium text-ink-soft">{secondOffer.product.rating.toFixed(1)}</span>
+                      <span className="text-xs text-ink-faint">({toBengaliNumber(secondOffer.product.reviewCount)}+ রিভিউ)</span>
+                    </div>
+                    <div className="mt-1.5 flex items-center gap-2">
+                      <span className="text-base font-bold text-foreground">{formatTaka(secondOffer.product.price)}</span>
                       {secondOffer.product.oldPrice && (
                         <span className="text-xs text-ink-faint line-through">{formatTaka(secondOffer.product.oldPrice)}</span>
                       )}
                     </div>
                   </div>
                 </div>
-                <p className="mt-2 text-xs leading-relaxed text-ink-soft">
-                  আজকের অর্ডারের সাথেই এটাও এখনই যোগ করে নিন — পরে আলাদা করে অর্ডার করলে বাড়তি সময় ও
-                  ডেলিভারি চার্জ লাগতে পারে।
-                </p>
+
+                <div className="mt-3 rounded-md border border-amber-300 bg-amber-50 px-3 py-2">
+                  <p className="flex items-start gap-1.5 text-xs font-bold leading-relaxed text-amber-900">
+                    <Users size={14} className="mt-0.5 shrink-0" />
+                    <span>ইতিমধ্যে {toBengaliNumber(secondOffer.product.reviewCount)}+ জন এটি ব্যবহার করছেন — আজকের অর্ডারের সাথেই যোগ করে নিন।</span>
+                  </p>
+                </div>
+
                 <Link
                   href={`${categoryMeta[secondOffer.product.category].path}/${secondOffer.product.slug}`}
                   onClick={handleClose}
-                  className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-md bg-cta py-2.5 text-center text-sm font-semibold text-white hover:bg-cta-dark"
+                  className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-md bg-cta py-2.5 text-center text-sm font-semibold text-white hover:bg-cta-dark"
                 >
                   এখনই কিনুন <ArrowRight size={14} />
                 </Link>
+
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  <TableOfContentsToggle product={secondOffer.product} variant="light" />
+                  <button
+                    type="button"
+                    onClick={() => setView("secondPreview")}
+                    className="flex items-center justify-center gap-1.5 rounded-lg border border-border bg-surface-muted px-3 py-2.5 text-xs font-medium text-foreground"
+                  >
+                    <BookOpen size={14} /> কেনার আগে ১৫ পৃষ্ঠা পড়ে নিন
+                  </button>
+                </div>
               </div>
             )}
+          </div>
+        )}
+
+        {view === "secondPreview" && secondOffer && (
+          <div className="text-left">
+            <button
+              type="button"
+              onClick={() => setView("success")}
+              className="text-xs font-medium text-ink-faint hover:text-foreground"
+            >
+              ← ফিরে যান
+            </button>
+            <p className="mt-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-emerald-700">
+              <BookOpen size={13} /> নমুনা — প্রথম ১৫ পৃষ্ঠা পর্যন্ত বিনামূল্যে
+            </p>
+            <h2 className="mt-1.5 font-display text-base font-bold text-foreground">{secondOffer.product.title}</h2>
+            <div className="mt-3 max-h-64 space-y-2.5 overflow-y-auto pr-1 text-sm leading-relaxed text-ink-soft">
+              <p>{secondOffer.product.description}</p>
+              <ul className="space-y-1.5">
+                {secondOffer.product.bullets.map((b) => (
+                  <li key={b}>• {b}</li>
+                ))}
+              </ul>
+            </div>
+            <div className="mt-4 rounded-md border border-dashed border-border bg-surface-muted p-3 text-center">
+              <p className="text-xs text-ink-faint">এটি একটি সংক্ষিপ্ত নমুনা — সম্পূর্ণ কনটেন্ট পড়তে অর্ডার করুন।</p>
+              <Link
+                href={`${categoryMeta[secondOffer.product.category].path}/${secondOffer.product.slug}`}
+                onClick={handleClose}
+                className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-md bg-cta py-2.5 text-center text-sm font-semibold text-white hover:bg-cta-dark"
+              >
+                এখনই কিনুন <ArrowRight size={14} />
+              </Link>
+            </div>
           </div>
         )}
       </Modal>
