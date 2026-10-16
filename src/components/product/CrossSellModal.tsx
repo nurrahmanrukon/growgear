@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Banknote, BookOpen, Clock, CreditCard, Smartphone, Star, Users } from "lucide-react";
+import { ArrowRight, Banknote, BookOpen, Clock, CreditCard, MessageSquare, Play, Smartphone, Star, Users } from "lucide-react";
 import { Product } from "@/lib/types";
 import { categoryMeta } from "@/lib/data/products";
+import { getExpertOpinions } from "@/lib/data/landingContent";
 import { formatTaka, discountPercent, toBengaliNumber } from "@/lib/format";
 import { Modal } from "@/components/ui/Modal";
 import { ProductImage } from "@/components/ui/ProductImage";
@@ -27,9 +28,27 @@ const FALLBACK_ZONES: DeliveryZone[] = [
   { key: "outside-dhaka", label: "ঢাকার বাইরে", days: "৪-৬ দিন", fee: 130 },
 ];
 
-type View = "offer" | "preview" | "payment" | "success" | "secondPreview";
+type View = "offer" | "preview" | "payment" | "success" | "secondPreview" | "secondReviews" | "secondVideo";
 
 export type SecondOffer = { category: "book" | "gear"; product: Product };
+
+function MiniReviewToggle({ product }: { product: Product }) {
+  const reviews = getExpertOpinions(product, 2);
+  return (
+    <details className="w-full overflow-hidden rounded-lg border border-border bg-surface-muted">
+      <summary className="flex cursor-pointer list-none items-center gap-2 px-4 py-2.5 text-sm font-medium text-foreground">
+        <MessageSquare size={16} /> টেক্সট রিভিউ দেখুন
+      </summary>
+      <div className="space-y-2 border-t border-border px-4 py-3 text-left text-xs text-ink-soft">
+        {reviews.map((r, i) => (
+          <p key={i}>
+            &ldquo;{r.quote}&rdquo; — <span className="font-medium text-foreground">{r.name}</span>
+          </p>
+        ))}
+      </div>
+    </details>
+  );
+}
 
 export function CrossSellModal({
   product,
@@ -356,7 +375,7 @@ export function CrossSellModal({
             {secondOffer && (
               <div className="mt-5 border-t border-border pt-4">
                 <p className="text-xs font-bold uppercase tracking-wide text-primary">আপনার জন্য আরও একটি সুযোগ</p>
-                <div className="mt-2 flex items-center gap-3">
+                <div className="mt-2 flex items-center gap-2">
                   <ProductImage
                     title={secondOffer.product.title}
                     category={secondOffer.product.category}
@@ -366,6 +385,17 @@ export function CrossSellModal({
                     hideLabel
                     className="h-20 w-14 shrink-0 rounded-md"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setView("secondVideo")}
+                    aria-label={`${secondOffer.product.title} এর ভিডিও দেখুন`}
+                    className="group relative flex h-20 w-14 shrink-0 items-center justify-center overflow-hidden rounded-md"
+                    style={{ background: `linear-gradient(135deg, ${secondOffer.product.colorFrom}, ${secondOffer.product.colorTo})` }}
+                  >
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-surface/90 shadow-sm transition group-hover:scale-105">
+                      <Play size={12} className="ml-0.5 text-foreground" fill="currentColor" />
+                    </div>
+                  </button>
                   <div className="min-w-0">
                     <p className="truncate font-display text-sm font-bold text-foreground">{secondOffer.product.title}</p>
                     <div className="mt-1 flex items-center gap-1">
@@ -382,9 +412,9 @@ export function CrossSellModal({
                   </div>
                 </div>
 
-                <div className="mt-3 rounded-md border border-amber-300 bg-amber-50 px-3 py-2">
-                  <p className="flex items-start gap-1.5 text-xs font-bold leading-relaxed text-amber-900">
-                    <Users size={14} className="mt-0.5 shrink-0" />
+                <div className="mt-3 rounded-md border border-emerald-300 bg-surface px-3 py-2">
+                  <p className="flex items-start gap-1.5 text-xs font-bold leading-relaxed text-emerald-800">
+                    <Users size={14} className="mt-0.5 shrink-0 text-emerald-600" />
                     <span>ইতিমধ্যে {toBengaliNumber(secondOffer.product.reviewCount)}+ জন এটি ব্যবহার করছেন — আজকের অর্ডারের সাথেই যোগ করে নিন।</span>
                   </p>
                 </div>
@@ -397,16 +427,29 @@ export function CrossSellModal({
                   এখনই কিনুন <ArrowRight size={14} />
                 </Link>
 
-                <div className="mt-2 grid grid-cols-2 gap-2">
-                  <TableOfContentsToggle product={secondOffer.product} variant="light" />
-                  <button
-                    type="button"
-                    onClick={() => setView("secondPreview")}
-                    className="flex items-center justify-center gap-1.5 rounded-lg border border-border bg-surface-muted px-3 py-2.5 text-xs font-medium text-foreground"
-                  >
-                    <BookOpen size={14} /> কেনার আগে ১৫ পৃষ্ঠা পড়ে নিন
-                  </button>
-                </div>
+                {secondOffer.category === "book" ? (
+                  <div className="mt-2 grid grid-cols-2 gap-2">
+                    <TableOfContentsToggle product={secondOffer.product} variant="light" />
+                    <button
+                      type="button"
+                      onClick={() => setView("secondPreview")}
+                      className="flex items-center justify-center gap-1.5 rounded-lg border border-border bg-surface-muted px-3 py-2.5 text-xs font-medium text-foreground"
+                    >
+                      <BookOpen size={14} /> কেনার আগে ১৫ পৃষ্ঠা পড়ে নিন
+                    </button>
+                  </div>
+                ) : (
+                  <div className="mt-2 flex flex-col gap-2">
+                    <MiniReviewToggle product={secondOffer.product} />
+                    <button
+                      type="button"
+                      onClick={() => setView("secondReviews")}
+                      className="flex items-center justify-center gap-1.5 rounded-lg border border-border bg-surface-muted px-3 py-2.5 text-xs font-medium text-foreground"
+                    >
+                      <MessageSquare size={14} /> রিভিউ দেখুন
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -443,6 +486,77 @@ export function CrossSellModal({
                 এখনই কিনুন <ArrowRight size={14} />
               </Link>
             </div>
+          </div>
+        )}
+
+        {view === "secondReviews" && secondOffer && (
+          <div className="text-left">
+            <button
+              type="button"
+              onClick={() => setView("success")}
+              className="text-xs font-medium text-ink-faint hover:text-foreground"
+            >
+              ← ফিরে যান
+            </button>
+            <p className="mt-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-emerald-700">
+              <MessageSquare size={13} /> গ্রাহকদের মতামত
+            </p>
+            <h2 className="mt-1.5 font-display text-base font-bold text-foreground">{secondOffer.product.title}</h2>
+            <div className="mt-3 max-h-64 space-y-3 overflow-y-auto pr-1">
+              {getExpertOpinions(secondOffer.product, 5).map((r, i) => (
+                <div key={i} className="rounded-lg border border-border bg-surface-muted p-3">
+                  <div className="flex items-center gap-1.5">
+                    <Star size={12} className="text-star" fill="currentColor" strokeWidth={0} />
+                    <span className="text-xs font-medium text-foreground">{r.name}</span>
+                  </div>
+                  <p className="mt-1 text-sm leading-relaxed text-ink-soft">&ldquo;{r.quote}&rdquo;</p>
+                </div>
+              ))}
+            </div>
+            <Link
+              href={`${categoryMeta[secondOffer.product.category].path}/${secondOffer.product.slug}`}
+              onClick={handleClose}
+              className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-md bg-cta py-2.5 text-center text-sm font-semibold text-white hover:bg-cta-dark"
+            >
+              এখনই কিনুন <ArrowRight size={14} />
+            </Link>
+          </div>
+        )}
+
+        {view === "secondVideo" && secondOffer && (
+          <div className="text-left">
+            <button
+              type="button"
+              onClick={() => setView("success")}
+              className="text-xs font-medium text-ink-faint hover:text-foreground"
+            >
+              ← ফিরে যান
+            </button>
+            <div
+              className="mt-3 flex aspect-video w-full items-center justify-center overflow-hidden rounded-lg"
+              style={{ background: `linear-gradient(135deg, ${secondOffer.product.colorFrom}, ${secondOffer.product.colorTo})` }}
+            >
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-surface/90 shadow-sm">
+                <Play size={28} className="ml-1 text-foreground" fill="currentColor" />
+              </div>
+            </div>
+            <div className="mt-3">
+              <p className="font-display text-sm font-bold text-foreground">{secondOffer.product.title}</p>
+              <p className="mt-0.5 text-xs text-ink-faint">প্রোডাক্ট ভিডিও (শীঘ্রই যুক্ত হবে)</p>
+              <div className="mt-1.5 flex items-center gap-1">
+                <Star size={12} className="text-star" fill="currentColor" strokeWidth={0} />
+                <span className="text-xs font-medium text-ink-soft">{secondOffer.product.rating.toFixed(1)}</span>
+                <span className="text-xs text-ink-faint">({toBengaliNumber(secondOffer.product.reviewCount)}+ রিভিউ)</span>
+              </div>
+              <p className="mt-2 text-sm text-ink-soft">{secondOffer.product.shortDescription}</p>
+            </div>
+            <Link
+              href={`${categoryMeta[secondOffer.product.category].path}/${secondOffer.product.slug}`}
+              onClick={handleClose}
+              className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-md bg-cta py-2.5 text-center text-sm font-semibold text-white hover:bg-cta-dark"
+            >
+              এখনই কিনুন <ArrowRight size={14} />
+            </Link>
           </div>
         )}
       </Modal>
