@@ -11,13 +11,13 @@ import {
   Clock,
   CreditCard,
   MessageSquare,
+  Newspaper,
   Play,
   Smartphone,
   Star,
   Users,
 } from "lucide-react";
 import { Product } from "@/lib/types";
-import { categoryMeta } from "@/lib/data/products";
 import { getExpertOpinions, getExpertVideoOpinions, getProductVideoSlots } from "@/lib/data/landingContent";
 import { formatTaka, discountPercent, toBengaliNumber } from "@/lib/format";
 import { Modal } from "@/components/ui/Modal";
@@ -47,12 +47,16 @@ const FALLBACK_ZONES: DeliveryZone[] = [
 type View =
   | "offer"
   | "preview"
+  | "gallery"
+  | "video"
   | "payment"
   | "success"
   | "secondPreview"
   | "secondReviews"
   | "secondVideo"
-  | "secondGallery";
+  | "secondGallery"
+  | "secondPayment"
+  | "secondSuccess";
 
 export type SecondOffer = { category: "book" | "gear"; product: Product };
 
@@ -87,8 +91,16 @@ export function CrossSellModal({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [authOpen, setAuthOpen] = useState(false);
+  const [galleryActive, setGalleryActive] = useState(0);
+  const [videoActive, setVideoActive] = useState(0);
   const [secondGalleryActive, setSecondGalleryActive] = useState(0);
   const [secondVideoActive, setSecondVideoActive] = useState(0);
+  const [secondHiddenPayment, setSecondHiddenPayment] = useState<string[]>([]);
+  const [secondAddress, setSecondAddress] = useState("");
+  const [secondArea, setSecondArea] = useState(FALLBACK_ZONES[0].label);
+  const [secondPaymentMethod, setSecondPaymentMethod] = useState<PaymentMethod | null>(null);
+  const [secondSubmitting, setSecondSubmitting] = useState(false);
+  const [secondError, setSecondError] = useState<string | null>(null);
 
   const discount = discountPercent(product.price, product.oldPrice);
   const text = message.replace("{count}", toBengaliNumber(soldCount));
@@ -97,6 +109,12 @@ export function CrossSellModal({
   const effectiveMethod = paymentMethod && methods.some((m) => m.id === paymentMethod) ? paymentMethod : methods[0]?.id;
   const deliveryFee = isEbook ? 0 : zones.find((z) => z.label === area)?.fee ?? zones[0]?.fee ?? 0;
   const total = product.price + deliveryFee;
+
+  const secondMethods = BOOK_PAYMENT_METHODS.filter((m) => !secondHiddenPayment.includes(m.id));
+  const secondEffectiveMethod =
+    secondPaymentMethod && secondMethods.some((m) => m.id === secondPaymentMethod) ? secondPaymentMethod : secondMethods[0]?.id;
+  const secondDeliveryFee = zones.find((z) => z.label === secondArea)?.fee ?? zones[0]?.fee ?? 0;
+  const secondTotal = (secondOffer?.product.price ?? 0) + secondDeliveryFee;
 
   useEffect(() => {
     let cancelled = false;
@@ -112,7 +130,7 @@ export function CrossSellModal({
   }, [product.slug]);
 
   useEffect(() => {
-    if (isEbook) return;
+    if (isEbook && !secondOffer) return;
     let cancelled = false;
     fetch("/api/order-form-settings")
       .then((res) => res.json())
@@ -120,21 +138,45 @@ export function CrossSellModal({
         if (cancelled) return;
         if (Array.isArray(data.deliveryZones) && data.deliveryZones.length > 0) {
           setZones(data.deliveryZones);
-          setArea(data.deliveryZones[0].label);
+          if (!isEbook) setArea(data.deliveryZones[0].label);
+          setSecondArea(data.deliveryZones[0].label);
         }
       })
       .catch(() => {});
     return () => {
       cancelled = true;
     };
-  }, [isEbook]);
+  }, [isEbook, secondOffer]);
+
+  useEffect(() => {
+    if (!secondOffer) return;
+    let cancelled = false;
+    fetch(`/api/payment-methods/${secondOffer.product.slug}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (!cancelled) setSecondHiddenPayment(data.hidden ?? []);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [secondOffer]);
 
   function handleClose() {
     setView("offer");
     setError(null);
+    setSecondError(null);
+    setGalleryActive(0);
+    setVideoActive(0);
     setSecondGalleryActive(0);
     setSecondVideoActive(0);
     onClose();
+  }
+
+  function goToSecondPayment() {
+    setSecondAddress((prev) => prev || address);
+    setSecondArea((prev) => (zones.some((z) => z.label === prev) ? prev : zones[0]?.label ?? FALLBACK_ZONES[0].label));
+    setView("secondPayment");
   }
 
   async function placeOrder() {
@@ -175,6 +217,47 @@ export function CrossSellModal({
     }
   }
 
+  async function placeSecondOrder() {
+    if (!secondOffer || !secondEffectiveMethod) return;
+    if (!secondAddress.trim()) {
+      setSecondError("ঠিকানা আবশ্যক");
+      return;
+    }
+    setSecondSubmitting(true);
+    setSecondError(null);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: customerName,
+          phone: customerPhone,
+          paymentMethod: secondEffectiveMethod,
+          address: secondAddress,
+          area: secondArea,
+          items: [
+            {
+              productId: secondOffer.product.id,
+              title: secondOffer.product.title,
+              price: secondOffer.product.price,
+              quantity: 1,
+            },
+          ],
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setSecondError(data.error ?? "অর্ডার প্রসেস করা যায়নি, আবার চেষ্টা করুন।");
+        return;
+      }
+      setView("secondSuccess");
+    } catch {
+      setSecondError("নেটওয়ার্ক সমস্যা হয়েছে, আবার চেষ্টা করুন।");
+    } finally {
+      setSecondSubmitting(false);
+    }
+  }
+
   function handleAuthSuccess() {
     setAuthOpen(false);
     placeOrder();
@@ -193,15 +276,33 @@ export function CrossSellModal({
             </h2>
 
             <div className="mt-3 flex items-center gap-3">
-              <ProductImage
-                title={product.title}
-                category={product.category}
-                colorFrom={product.colorFrom}
-                colorTo={product.colorTo}
-                imageUrl={product.coverImageUrl}
-                hideLabel
-                className="h-20 w-14 shrink-0 rounded-md"
-              />
+              <button
+                type="button"
+                onClick={() => setView("gallery")}
+                aria-label={`${product.title} এর ছবি বড় করে দেখুন`}
+                className="shrink-0"
+              >
+                <ProductImage
+                  title={product.title}
+                  category={product.category}
+                  colorFrom={product.colorFrom}
+                  colorTo={product.colorTo}
+                  imageUrl={product.coverImageUrl}
+                  hideLabel
+                  className="h-20 w-14 rounded-md"
+                />
+              </button>
+              <button
+                type="button"
+                onClick={() => setView("video")}
+                aria-label={`${product.title} এর ভিডিও দেখুন`}
+                className="group relative flex h-20 w-14 shrink-0 items-center justify-center overflow-hidden rounded-md"
+                style={{ background: `linear-gradient(135deg, ${product.colorFrom}, ${product.colorTo})` }}
+              >
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-surface/90 shadow-sm transition group-hover:scale-105">
+                  <Play size={12} className="ml-0.5 text-foreground" fill="currentColor" />
+                </div>
+              </button>
               <div className="min-w-0">
                 <p className="truncate font-display text-sm font-bold text-foreground">{product.title}</p>
                 <div className="mt-1 flex items-center gap-1">
@@ -284,6 +385,141 @@ export function CrossSellModal({
             </div>
           </div>
         )}
+
+        {view === "gallery" && (
+          <div className="text-left">
+            <button type="button" onClick={() => setView("offer")} className="text-xs font-medium text-ink-faint hover:text-foreground">
+              ← ফিরে যান
+            </button>
+            <div className="relative mt-3">
+              <ProductImage
+                title={product.title}
+                category={product.category}
+                colorFrom={product.colorFrom}
+                colorTo={product.colorTo}
+                imageUrl={product.coverImageUrl}
+                iconSize={64}
+                className="aspect-[3/4] w-full rounded-lg shadow-lg"
+              />
+              {product.category === "gear" && (
+                <>
+                  <span className="pointer-events-none absolute left-2 top-2 rounded-full bg-black/50 px-2 py-0.5 text-[10px] font-medium text-white">
+                    {ANGLE_LABELS[galleryActive]} · {toBengaliNumber(galleryActive + 1)}/{toBengaliNumber(ANGLE_LABELS.length)}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setGalleryActive((a) => (a - 1 + ANGLE_LABELS.length) % ANGLE_LABELS.length)}
+                    aria-label="আগের ছবি"
+                    className="absolute left-1.5 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white transition hover:bg-black/60"
+                  >
+                    <ChevronLeft size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setGalleryActive((a) => (a + 1) % ANGLE_LABELS.length)}
+                    aria-label="পরের ছবি"
+                    className="absolute right-1.5 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white transition hover:bg-black/60"
+                  >
+                    <ChevronRight size={16} />
+                  </button>
+                </>
+              )}
+            </div>
+            {product.category === "gear" && (
+              <div className="mt-3 flex items-center justify-center gap-1.5">
+                {ANGLE_LABELS.map((label, i) => (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={() => setGalleryActive(i)}
+                    aria-label={label}
+                    className="h-1.5 rounded-full transition-all"
+                    style={{ width: i === galleryActive ? "20px" : "6px", background: i === galleryActive ? "#16a34a" : "var(--color-border)" }}
+                  />
+                ))}
+              </div>
+            )}
+            <div className="mt-3">
+              <p className="font-display text-sm font-bold text-foreground">{product.title}</p>
+              <div className="mt-1 flex items-center gap-1">
+                <Star size={12} className="text-star" fill="currentColor" strokeWidth={0} />
+                <span className="text-xs font-medium text-ink-soft">{product.rating.toFixed(1)}</span>
+                <span className="text-xs text-ink-faint">({toBengaliNumber(product.reviewCount)}+ রিভিউ)</span>
+              </div>
+              <p className="mt-2 text-sm text-ink-soft">{product.shortDescription}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setView("payment")}
+              className="mt-3 w-full rounded-md bg-cta py-2.5 text-center text-sm font-semibold text-white hover:bg-cta-dark"
+            >
+              এখনই অর্ডারে যোগ করুন
+            </button>
+          </div>
+        )}
+
+        {view === "video" && (() => {
+          const slots = getProductVideoSlots();
+          const thumbSlots = slots.slice(1, 1 + SECOND_VIDEO_THUMB_COUNT);
+          const activeSlot = slots[videoActive] ?? slots[0];
+          return (
+            <div className="text-left">
+              <button type="button" onClick={() => setView("offer")} className="text-xs font-medium text-ink-faint hover:text-foreground">
+                ← ফিরে যান
+              </button>
+              <div
+                className="mt-3 flex aspect-video w-full items-center justify-center overflow-hidden rounded-lg"
+                style={{ background: `linear-gradient(135deg, ${product.colorFrom}, ${product.colorTo})` }}
+              >
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-surface/90 shadow-sm">
+                  <Play size={28} className="ml-1 text-foreground" fill="currentColor" />
+                </div>
+              </div>
+              <div className="mt-3">
+                <p className="font-display text-sm font-bold text-foreground">{product.title}</p>
+                <p className="mt-0.5 text-xs text-ink-faint">{activeSlot.caption} (শীঘ্রই যুক্ত হবে)</p>
+                <div className="mt-1.5 flex items-center gap-1">
+                  <Star size={12} className="text-star" fill="currentColor" strokeWidth={0} />
+                  <span className="text-xs font-medium text-ink-soft">{product.rating.toFixed(1)}</span>
+                  <span className="text-xs text-ink-faint">({toBengaliNumber(product.reviewCount)}+ রিভিউ)</span>
+                </div>
+                <p className="mt-2 text-sm text-ink-soft">{product.shortDescription}</p>
+              </div>
+
+              {thumbSlots.length > 0 && (
+                <div className="-mx-1 mt-3 flex gap-2.5 overflow-x-auto border-t border-border px-1 pb-1 pt-3 scrollbar-none">
+                  {thumbSlots.map((slot, i) => (
+                    <button
+                      key={`${slot.caption}-${i}`}
+                      type="button"
+                      onClick={() => setVideoActive(i + 1)}
+                      aria-label={`${slot.caption} দেখুন`}
+                      className="group flex w-16 shrink-0 flex-col gap-1 text-left"
+                    >
+                      <div
+                        className="flex aspect-video w-full items-center justify-center overflow-hidden rounded-md"
+                        style={{ background: `linear-gradient(135deg, ${product.colorFrom}, ${product.colorTo})` }}
+                      >
+                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-surface/90 shadow-sm transition group-hover:scale-105">
+                          <Play size={10} className="ml-0.5 text-foreground" fill="currentColor" />
+                        </div>
+                      </div>
+                      <p className="w-full truncate text-[10px] font-medium text-foreground">{slot.caption}</p>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setView("payment")}
+                className="mt-3 w-full rounded-md bg-cta py-2.5 text-center text-sm font-semibold text-white hover:bg-cta-dark"
+              >
+                এখনই অর্ডারে যোগ করুন
+              </button>
+            </div>
+          );
+        })()}
 
         {view === "payment" && (
           <div className="text-left">
@@ -436,13 +672,13 @@ export function CrossSellModal({
                   </p>
                 </div>
 
-                <Link
-                  href={`${categoryMeta[secondOffer.product.category].path}/${secondOffer.product.slug}`}
-                  onClick={handleClose}
+                <button
+                  type="button"
+                  onClick={goToSecondPayment}
                   className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-md bg-cta py-2.5 text-center text-sm font-semibold text-white hover:bg-cta-dark"
                 >
                   এখনই কিনুন <ArrowRight size={14} />
-                </Link>
+                </button>
 
                 {secondOffer.category === "book" ? (
                   <div className="mt-2 grid grid-cols-2 gap-2">
@@ -492,13 +728,13 @@ export function CrossSellModal({
             </div>
             <div className="mt-4 rounded-md border border-dashed border-border bg-surface-muted p-3 text-center">
               <p className="text-xs text-ink-faint">এটি একটি সংক্ষিপ্ত নমুনা — সম্পূর্ণ কনটেন্ট পড়তে অর্ডার করুন।</p>
-              <Link
-                href={`${categoryMeta[secondOffer.product.category].path}/${secondOffer.product.slug}`}
-                onClick={handleClose}
+              <button
+                type="button"
+                onClick={goToSecondPayment}
                 className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-md bg-cta py-2.5 text-center text-sm font-semibold text-white hover:bg-cta-dark"
               >
                 এখনই কিনুন <ArrowRight size={14} />
-              </Link>
+              </button>
             </div>
           </div>
         )}
@@ -561,13 +797,13 @@ export function CrossSellModal({
               </div>
             </div>
 
-            <Link
-              href={`${categoryMeta[secondOffer.product.category].path}/${secondOffer.product.slug}`}
-              onClick={handleClose}
+            <button
+              type="button"
+              onClick={goToSecondPayment}
               className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-md bg-cta py-2.5 text-center text-sm font-semibold text-white hover:bg-cta-dark"
             >
               এখনই কিনুন <ArrowRight size={14} />
-            </Link>
+            </button>
           </div>
         )}
 
@@ -627,13 +863,13 @@ export function CrossSellModal({
                 </div>
               )}
 
-              <Link
-                href={`${categoryMeta[secondOffer.product.category].path}/${secondOffer.product.slug}`}
-                onClick={handleClose}
+              <button
+                type="button"
+                onClick={goToSecondPayment}
                 className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-md bg-cta py-2.5 text-center text-sm font-semibold text-white hover:bg-cta-dark"
               >
                 এখনই কিনুন <ArrowRight size={14} />
-              </Link>
+              </button>
             </div>
           );
         })()}
@@ -657,45 +893,168 @@ export function CrossSellModal({
                 iconSize={64}
                 className="aspect-[3/4] w-full rounded-lg shadow-lg"
               />
-              <span className="pointer-events-none absolute left-2 top-2 rounded-full bg-black/50 px-2 py-0.5 text-[10px] font-medium text-white">
-                {ANGLE_LABELS[secondGalleryActive]} · {toBengaliNumber(secondGalleryActive + 1)}/{toBengaliNumber(ANGLE_LABELS.length)}
-              </span>
-              <button
-                type="button"
-                onClick={() => setSecondGalleryActive((a) => (a - 1 + ANGLE_LABELS.length) % ANGLE_LABELS.length)}
-                aria-label="আগের ছবি"
-                className="absolute left-1.5 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white transition hover:bg-black/60"
-              >
-                <ChevronLeft size={16} />
-              </button>
-              <button
-                type="button"
-                onClick={() => setSecondGalleryActive((a) => (a + 1) % ANGLE_LABELS.length)}
-                aria-label="পরের ছবি"
-                className="absolute right-1.5 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white transition hover:bg-black/60"
-              >
-                <ChevronRight size={16} />
-              </button>
+              {secondOffer.category === "gear" && (
+                <>
+                  <span className="pointer-events-none absolute left-2 top-2 rounded-full bg-black/50 px-2 py-0.5 text-[10px] font-medium text-white">
+                    {ANGLE_LABELS[secondGalleryActive]} · {toBengaliNumber(secondGalleryActive + 1)}/{toBengaliNumber(ANGLE_LABELS.length)}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setSecondGalleryActive((a) => (a - 1 + ANGLE_LABELS.length) % ANGLE_LABELS.length)}
+                    aria-label="আগের ছবি"
+                    className="absolute left-1.5 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white transition hover:bg-black/60"
+                  >
+                    <ChevronLeft size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSecondGalleryActive((a) => (a + 1) % ANGLE_LABELS.length)}
+                    aria-label="পরের ছবি"
+                    className="absolute right-1.5 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white transition hover:bg-black/60"
+                  >
+                    <ChevronRight size={16} />
+                  </button>
+                </>
+              )}
             </div>
-            <div className="mt-3 flex items-center justify-center gap-1.5">
-              {ANGLE_LABELS.map((label, i) => (
-                <button
-                  key={label}
-                  type="button"
-                  onClick={() => setSecondGalleryActive(i)}
-                  aria-label={label}
-                  className="h-1.5 rounded-full transition-all"
-                  style={{ width: i === secondGalleryActive ? "20px" : "6px", background: i === secondGalleryActive ? "#16a34a" : "var(--color-border)" }}
-                />
-              ))}
+            {secondOffer.category === "gear" && (
+              <div className="mt-3 flex items-center justify-center gap-1.5">
+                {ANGLE_LABELS.map((label, i) => (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={() => setSecondGalleryActive(i)}
+                    aria-label={label}
+                    className="h-1.5 rounded-full transition-all"
+                    style={{ width: i === secondGalleryActive ? "20px" : "6px", background: i === secondGalleryActive ? "#16a34a" : "var(--color-border)" }}
+                  />
+                ))}
+              </div>
+            )}
+            <div className="mt-3">
+              <p className="font-display text-sm font-bold text-foreground">{secondOffer.product.title}</p>
+              <div className="mt-1 flex items-center gap-1">
+                <Star size={12} className="text-star" fill="currentColor" strokeWidth={0} />
+                <span className="text-xs font-medium text-ink-soft">{secondOffer.product.rating.toFixed(1)}</span>
+                <span className="text-xs text-ink-faint">({toBengaliNumber(secondOffer.product.reviewCount)}+ রিভিউ)</span>
+              </div>
+              <p className="mt-2 text-sm text-ink-soft">{secondOffer.product.shortDescription}</p>
             </div>
-            <Link
-              href={`${categoryMeta[secondOffer.product.category].path}/${secondOffer.product.slug}`}
-              onClick={handleClose}
+            <button
+              type="button"
+              onClick={goToSecondPayment}
               className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-md bg-cta py-2.5 text-center text-sm font-semibold text-white hover:bg-cta-dark"
             >
               এখনই কিনুন <ArrowRight size={14} />
-            </Link>
+            </button>
+          </div>
+        )}
+
+        {view === "secondPayment" && secondOffer && (
+          <div className="text-left">
+            <button
+              type="button"
+              onClick={() => setView("success")}
+              className="text-xs font-medium text-ink-faint hover:text-foreground"
+            >
+              ← ফিরে যান
+            </button>
+            <h2 className="mt-2 font-display text-base font-bold text-foreground">অর্ডার কনফার্ম করুন</h2>
+            <p className="mt-1 text-xs text-ink-soft">আপনার ঠিকানায় পৌঁছে দেওয়া হবে — ক্যাশ অন ডেলিভারি অথবা অনলাইন পেমেন্ট বেছে নিন।</p>
+
+            <div className="mt-3 flex items-center gap-3 rounded-lg border border-border bg-surface-muted p-3">
+              <ProductImage
+                title={secondOffer.product.title}
+                category={secondOffer.product.category}
+                colorFrom={secondOffer.product.colorFrom}
+                colorTo={secondOffer.product.colorTo}
+                imageUrl={secondOffer.product.coverImageUrl}
+                hideLabel
+                className="h-14 w-10 shrink-0 rounded-md"
+              />
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-foreground">{secondOffer.product.title}</p>
+                <p className="mt-0.5 text-xs text-ink-faint">পরিমাণ: ১</p>
+              </div>
+              <span className="shrink-0 text-sm font-bold text-foreground">{formatTaka(secondOffer.product.price)}</span>
+            </div>
+
+            <div className="mt-3 flex flex-col gap-2">
+              <textarea
+                value={secondAddress}
+                onChange={(e) => setSecondAddress(e.target.value)}
+                rows={2}
+                placeholder="সম্পূর্ণ ঠিকানা লিখুন *"
+                className="w-full resize-none rounded-md border border-border bg-surface px-3 py-2 text-sm text-foreground outline-none focus:ring-1 focus:ring-primary"
+              />
+              <AreaSelector zones={zones} value={secondArea} onChange={setSecondArea} />
+            </div>
+
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              {secondMethods.map((m) => {
+                const Icon = m.icon;
+                const active = secondEffectiveMethod === m.id;
+                return (
+                  <button
+                    key={m.id}
+                    type="button"
+                    onClick={() => setSecondPaymentMethod(m.id)}
+                    className={`flex flex-col items-center gap-1 rounded-lg border p-3 text-center ${
+                      active ? "border-primary bg-primary-light" : "border-border bg-surface-muted"
+                    }`}
+                  >
+                    <Icon size={18} className="text-foreground" />
+                    <span className="text-xs font-medium text-foreground">{m.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {secondError && <p className="mt-3 text-xs text-price">{secondError}</p>}
+
+            <button
+              type="button"
+              onClick={placeSecondOrder}
+              disabled={secondSubmitting || !secondEffectiveMethod}
+              className="mt-4 w-full rounded-md bg-cta py-2.5 text-center text-sm font-semibold text-white hover:bg-cta-dark disabled:opacity-60"
+            >
+              {secondSubmitting ? "প্রসেস হচ্ছে..." : `কনফার্ম করুন — ${formatTaka(secondTotal)}`}
+            </button>
+          </div>
+        )}
+
+        {view === "secondSuccess" && secondOffer && (
+          <div className="py-2 text-center text-left">
+            <p className="text-center font-display text-base font-bold text-foreground">অর্ডারটি গ্রহণ করা হয়েছে!</p>
+            <p className="mt-2 text-center text-sm text-ink-soft">
+              আমাদের একজন প্রতিনিধি শীঘ্রই আপনার সাথে যোগাযোগ করবেন। পণ্য হাতে পেয়ে টাকা পরিশোধ করুন।
+            </p>
+            <button
+              type="button"
+              onClick={handleClose}
+              className="mt-4 w-full rounded-md bg-cta py-2.5 text-center text-sm font-semibold text-white hover:bg-cta-dark"
+            >
+              ঠিক আছে
+            </button>
+
+            <div className="mt-5 border-t border-border pt-4">
+              <p className="text-xs font-bold uppercase tracking-wide text-primary">আরও শিখতে চান?</p>
+              <div className="mt-2 flex items-center gap-3 rounded-lg border border-border bg-surface-muted p-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary-light text-primary">
+                  <Newspaper size={20} />
+                </div>
+                <p className="text-left text-xs leading-relaxed text-ink-soft">
+                  আমাদের ব্লগে ইতিমধ্যে <strong className="text-foreground">লক্ষাধিক মানুষ</strong> নিয়মিত পড়ছেন — বই, ক্যারিয়ার ও প্রোডাক্টিভিটি নিয়ে দরকারি সব লেখা পাবেন সেখানে।
+                </p>
+              </div>
+              <Link
+                href="/blog"
+                onClick={handleClose}
+                className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-md border border-border bg-surface py-2.5 text-center text-sm font-semibold text-foreground hover:bg-surface-muted"
+              >
+                ব্লগ দেখুন <ArrowRight size={14} />
+              </Link>
+            </div>
           </div>
         )}
       </Modal>
