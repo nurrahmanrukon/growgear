@@ -6,7 +6,7 @@ import { Product } from "@/lib/types";
 import { ProductImage } from "@/components/ui/ProductImage";
 import { toBengaliNumber } from "@/lib/format";
 
-const ANGLE_LABELS = ["সামনে থেকে", "পাশ থেকে", "উপর থেকে", "প্যাকেজিং সহ", "ব্যবহারের দৃশ্য"];
+export const ANGLE_LABELS = ["সামনে থেকে", "পাশ থেকে", "উপর থেকে", "প্যাকেজিং সহ", "ব্যবহারের দৃশ্য"];
 
 export function ProductImageGallery({ product }: { product: Product }) {
   const [active, setActive] = useState(0);
