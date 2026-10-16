@@ -49,6 +49,7 @@ type View =
   | "preview"
   | "gallery"
   | "video"
+  | "reviews"
   | "payment"
   | "success"
   | "secondPreview"
@@ -67,6 +68,8 @@ export function CrossSellModal({
   soldCount,
   customerName,
   customerPhone,
+  customerAddress,
+  customerArea,
   secondOffer,
   open,
   onClose,
@@ -77,6 +80,8 @@ export function CrossSellModal({
   soldCount: number;
   customerName: string;
   customerPhone: string;
+  customerAddress?: string;
+  customerArea?: string;
   secondOffer?: SecondOffer;
   open: boolean;
   onClose: () => void;
@@ -96,8 +101,9 @@ export function CrossSellModal({
   const [secondGalleryActive, setSecondGalleryActive] = useState(0);
   const [secondVideoActive, setSecondVideoActive] = useState(0);
   const [secondHiddenPayment, setSecondHiddenPayment] = useState<string[]>([]);
-  const [secondAddress, setSecondAddress] = useState("");
-  const [secondArea, setSecondArea] = useState(FALLBACK_ZONES[0].label);
+  const [secondAddress, setSecondAddress] = useState(customerAddress ?? "");
+  const [secondAddressEditing, setSecondAddressEditing] = useState(false);
+  const [secondArea, setSecondArea] = useState(customerArea || FALLBACK_ZONES[0].label);
   const [secondPaymentMethod, setSecondPaymentMethod] = useState<PaymentMethod | null>(null);
   const [secondSubmitting, setSecondSubmitting] = useState(false);
   const [secondError, setSecondError] = useState<string | null>(null);
@@ -139,7 +145,9 @@ export function CrossSellModal({
         if (Array.isArray(data.deliveryZones) && data.deliveryZones.length > 0) {
           setZones(data.deliveryZones);
           if (!isEbook) setArea(data.deliveryZones[0].label);
-          setSecondArea(data.deliveryZones[0].label);
+          setSecondArea((prev: string) =>
+            data.deliveryZones.some((z: DeliveryZone) => z.label === prev) ? prev : data.deliveryZones[0].label
+          );
         }
       })
       .catch(() => {});
@@ -170,12 +178,11 @@ export function CrossSellModal({
     setVideoActive(0);
     setSecondGalleryActive(0);
     setSecondVideoActive(0);
+    setSecondAddressEditing(false);
     onClose();
   }
 
   function goToSecondPayment() {
-    setSecondAddress((prev) => prev || address);
-    setSecondArea((prev) => (zones.some((z) => z.label === prev) ? prev : zones[0]?.label ?? FALLBACK_ZONES[0].label));
     setView("secondPayment");
   }
 
@@ -343,14 +350,21 @@ export function CrossSellModal({
               এখনই অর্ডারে যোগ করুন
             </button>
 
-            <div className="mt-3 grid grid-cols-2 gap-2">
+            <div className="mt-3 grid grid-cols-3 gap-2">
               <TableOfContentsToggle product={product} variant="light" />
               <button
                 type="button"
                 onClick={() => setView("preview")}
-                className="flex items-center justify-center gap-1.5 rounded-lg border border-border bg-surface-muted px-3 py-2.5 text-xs font-medium text-foreground"
+                className="flex items-center justify-center gap-1.5 rounded-lg border border-border bg-surface-muted px-2 py-2.5 text-xs font-medium text-foreground"
               >
-                <BookOpen size={14} /> কেনার আগে ১৫ পৃষ্ঠা পড়ে নিন
+                <BookOpen size={14} /> ১৫ পৃষ্ঠা পড়ুন
+              </button>
+              <button
+                type="button"
+                onClick={() => setView("reviews")}
+                className="flex items-center justify-center gap-1.5 rounded-lg border border-border bg-surface-muted px-2 py-2.5 text-xs font-medium text-foreground"
+              >
+                <MessageSquare size={14} /> রিভিউ দেখুন
               </button>
             </div>
           </div>
@@ -401,44 +415,38 @@ export function CrossSellModal({
                 iconSize={64}
                 className="aspect-[3/4] w-full rounded-lg shadow-lg"
               />
-              {product.category === "gear" && (
-                <>
-                  <span className="pointer-events-none absolute left-2 top-2 rounded-full bg-black/50 px-2 py-0.5 text-[10px] font-medium text-white">
-                    {ANGLE_LABELS[galleryActive]} · {toBengaliNumber(galleryActive + 1)}/{toBengaliNumber(ANGLE_LABELS.length)}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setGalleryActive((a) => (a - 1 + ANGLE_LABELS.length) % ANGLE_LABELS.length)}
-                    aria-label="আগের ছবি"
-                    className="absolute left-1.5 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white transition hover:bg-black/60"
-                  >
-                    <ChevronLeft size={16} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setGalleryActive((a) => (a + 1) % ANGLE_LABELS.length)}
-                    aria-label="পরের ছবি"
-                    className="absolute right-1.5 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white transition hover:bg-black/60"
-                  >
-                    <ChevronRight size={16} />
-                  </button>
-                </>
-              )}
+              <span className="pointer-events-none absolute left-2 top-2 rounded-full bg-black/50 px-2 py-0.5 text-[10px] font-medium text-white">
+                {ANGLE_LABELS[galleryActive]} · {toBengaliNumber(galleryActive + 1)}/{toBengaliNumber(ANGLE_LABELS.length)}
+              </span>
+              <button
+                type="button"
+                onClick={() => setGalleryActive((a) => (a - 1 + ANGLE_LABELS.length) % ANGLE_LABELS.length)}
+                aria-label="আগের ছবি"
+                className="absolute left-1.5 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white transition hover:bg-black/60"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <button
+                type="button"
+                onClick={() => setGalleryActive((a) => (a + 1) % ANGLE_LABELS.length)}
+                aria-label="পরের ছবি"
+                className="absolute right-1.5 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white transition hover:bg-black/60"
+              >
+                <ChevronRight size={16} />
+              </button>
             </div>
-            {product.category === "gear" && (
-              <div className="mt-3 flex items-center justify-center gap-1.5">
-                {ANGLE_LABELS.map((label, i) => (
-                  <button
-                    key={label}
-                    type="button"
-                    onClick={() => setGalleryActive(i)}
-                    aria-label={label}
-                    className="h-1.5 rounded-full transition-all"
-                    style={{ width: i === galleryActive ? "20px" : "6px", background: i === galleryActive ? "#16a34a" : "var(--color-border)" }}
-                  />
-                ))}
-              </div>
-            )}
+            <div className="mt-3 flex items-center justify-center gap-1.5">
+              {ANGLE_LABELS.map((label, i) => (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => setGalleryActive(i)}
+                  aria-label={label}
+                  className="h-1.5 rounded-full transition-all"
+                  style={{ width: i === galleryActive ? "20px" : "6px", background: i === galleryActive ? "#16a34a" : "var(--color-border)" }}
+                />
+              ))}
+            </div>
             <div className="mt-3">
               <p className="font-display text-sm font-bold text-foreground">{product.title}</p>
               <div className="mt-1 flex items-center gap-1">
@@ -520,6 +528,70 @@ export function CrossSellModal({
             </div>
           );
         })()}
+
+        {view === "reviews" && (
+          <div className="text-left">
+            <button type="button" onClick={() => setView("offer")} className="text-xs font-medium text-ink-faint hover:text-foreground">
+              ← ফিরে যান
+            </button>
+            <p className="mt-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-emerald-700">
+              <MessageSquare size={13} /> গ্রাহকদের মতামত
+            </p>
+            <h2 className="mt-1.5 font-display text-base font-bold text-foreground">{product.title}</h2>
+
+            <div className="mt-3 max-h-80 space-y-5 overflow-y-auto pr-1">
+              <div>
+                <p className="mb-2 text-xs font-semibold text-ink-soft">টেক্সট রিভিউ</p>
+                <div className="space-y-2.5">
+                  {getExpertOpinions(product, 3).map((r, i) => (
+                    <div key={i} className="rounded-lg border border-border bg-surface-muted p-3">
+                      <div className="flex items-center gap-1.5">
+                        <Star size={12} className="text-star" fill="currentColor" strokeWidth={0} />
+                        <span className="text-xs font-medium text-foreground">{r.name}</span>
+                      </div>
+                      <p className="mt-1 text-sm leading-relaxed text-ink-soft">&ldquo;{r.quote}&rdquo;</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <p className="mb-2 text-xs font-semibold text-ink-soft">ভিডিও রিভিউ</p>
+                <div className="space-y-2.5">
+                  {getExpertVideoOpinions(product, 3).map((r, i) => (
+                    <div key={i} className="rounded-lg border border-border bg-surface-muted p-3">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="flex h-12 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md"
+                          style={{ background: `linear-gradient(135deg, ${product.colorFrom}, ${product.colorTo})` }}
+                        >
+                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-surface/90">
+                            <Play size={10} className="ml-0.5 text-foreground" fill="currentColor" />
+                          </div>
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <Star size={12} className="text-star" fill="currentColor" strokeWidth={0} />
+                            <span className="text-xs font-medium text-foreground">{r.name}</span>
+                          </div>
+                          <p className="mt-0.5 line-clamp-2 text-xs text-ink-faint">&ldquo;{r.quote}&rdquo;</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setView("payment")}
+              className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-md bg-cta py-2.5 text-center text-sm font-semibold text-white hover:bg-cta-dark"
+            >
+              এখনই অর্ডারে যোগ করুন
+            </button>
+          </div>
+        )}
 
         {view === "payment" && (
           <div className="text-left">
@@ -893,44 +965,38 @@ export function CrossSellModal({
                 iconSize={64}
                 className="aspect-[3/4] w-full rounded-lg shadow-lg"
               />
-              {secondOffer.category === "gear" && (
-                <>
-                  <span className="pointer-events-none absolute left-2 top-2 rounded-full bg-black/50 px-2 py-0.5 text-[10px] font-medium text-white">
-                    {ANGLE_LABELS[secondGalleryActive]} · {toBengaliNumber(secondGalleryActive + 1)}/{toBengaliNumber(ANGLE_LABELS.length)}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setSecondGalleryActive((a) => (a - 1 + ANGLE_LABELS.length) % ANGLE_LABELS.length)}
-                    aria-label="আগের ছবি"
-                    className="absolute left-1.5 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white transition hover:bg-black/60"
-                  >
-                    <ChevronLeft size={16} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setSecondGalleryActive((a) => (a + 1) % ANGLE_LABELS.length)}
-                    aria-label="পরের ছবি"
-                    className="absolute right-1.5 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white transition hover:bg-black/60"
-                  >
-                    <ChevronRight size={16} />
-                  </button>
-                </>
-              )}
+              <span className="pointer-events-none absolute left-2 top-2 rounded-full bg-black/50 px-2 py-0.5 text-[10px] font-medium text-white">
+                {ANGLE_LABELS[secondGalleryActive]} · {toBengaliNumber(secondGalleryActive + 1)}/{toBengaliNumber(ANGLE_LABELS.length)}
+              </span>
+              <button
+                type="button"
+                onClick={() => setSecondGalleryActive((a) => (a - 1 + ANGLE_LABELS.length) % ANGLE_LABELS.length)}
+                aria-label="আগের ছবি"
+                className="absolute left-1.5 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white transition hover:bg-black/60"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <button
+                type="button"
+                onClick={() => setSecondGalleryActive((a) => (a + 1) % ANGLE_LABELS.length)}
+                aria-label="পরের ছবি"
+                className="absolute right-1.5 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white transition hover:bg-black/60"
+              >
+                <ChevronRight size={16} />
+              </button>
             </div>
-            {secondOffer.category === "gear" && (
-              <div className="mt-3 flex items-center justify-center gap-1.5">
-                {ANGLE_LABELS.map((label, i) => (
-                  <button
-                    key={label}
-                    type="button"
-                    onClick={() => setSecondGalleryActive(i)}
-                    aria-label={label}
-                    className="h-1.5 rounded-full transition-all"
-                    style={{ width: i === secondGalleryActive ? "20px" : "6px", background: i === secondGalleryActive ? "#16a34a" : "var(--color-border)" }}
-                  />
-                ))}
-              </div>
-            )}
+            <div className="mt-3 flex items-center justify-center gap-1.5">
+              {ANGLE_LABELS.map((label, i) => (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => setSecondGalleryActive(i)}
+                  aria-label={label}
+                  className="h-1.5 rounded-full transition-all"
+                  style={{ width: i === secondGalleryActive ? "20px" : "6px", background: i === secondGalleryActive ? "#16a34a" : "var(--color-border)" }}
+                />
+              ))}
+            </div>
             <div className="mt-3">
               <p className="font-display text-sm font-bold text-foreground">{secondOffer.product.title}</p>
               <div className="mt-1 flex items-center gap-1">
@@ -979,16 +1045,35 @@ export function CrossSellModal({
               <span className="shrink-0 text-sm font-bold text-foreground">{formatTaka(secondOffer.product.price)}</span>
             </div>
 
-            <div className="mt-3 flex flex-col gap-2">
-              <textarea
-                value={secondAddress}
-                onChange={(e) => setSecondAddress(e.target.value)}
-                rows={2}
-                placeholder="সম্পূর্ণ ঠিকানা লিখুন *"
-                className="w-full resize-none rounded-md border border-border bg-surface px-3 py-2 text-sm text-foreground outline-none focus:ring-1 focus:ring-primary"
-              />
-              <AreaSelector zones={zones} value={secondArea} onChange={setSecondArea} />
-            </div>
+            {customerAddress && !secondAddressEditing ? (
+              <div className="mt-3 rounded-lg border border-border bg-surface-muted p-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="text-xs font-medium text-ink-faint">আপনার দেওয়া ঠিকানায় পাঠানো হবে</p>
+                    <p className="mt-1 text-sm text-foreground">{secondAddress}</p>
+                    {secondArea && <p className="mt-0.5 text-xs text-ink-faint">{secondArea}</p>}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setSecondAddressEditing(true)}
+                    className="shrink-0 text-xs font-medium text-link hover:underline"
+                  >
+                    পরিবর্তন করুন
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="mt-3 flex flex-col gap-2">
+                <textarea
+                  value={secondAddress}
+                  onChange={(e) => setSecondAddress(e.target.value)}
+                  rows={2}
+                  placeholder="সম্পূর্ণ ঠিকানা লিখুন *"
+                  className="w-full resize-none rounded-md border border-border bg-surface px-3 py-2 text-sm text-foreground outline-none focus:ring-1 focus:ring-primary"
+                />
+                <AreaSelector zones={zones} value={secondArea} onChange={setSecondArea} />
+              </div>
+            )}
 
             <div className="mt-3 grid grid-cols-2 gap-2">
               {secondMethods.map((m) => {
@@ -1038,21 +1123,26 @@ export function CrossSellModal({
             </button>
 
             <div className="mt-5 border-t border-border pt-4">
-              <p className="text-xs font-bold uppercase tracking-wide text-primary">আরও শিখতে চান?</p>
-              <div className="mt-2 flex items-center gap-3 rounded-lg border border-border bg-surface-muted p-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary-light text-primary">
-                  <Newspaper size={20} />
+              <p className="text-xs font-bold uppercase tracking-wide text-primary">এখানেই থেমে যাবেন না</p>
+              <div className="mt-2 rounded-lg border border-border bg-surface-muted p-3">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-light text-primary">
+                    <Newspaper size={18} />
+                  </div>
+                  <h3 className="font-display text-sm font-bold leading-snug text-foreground">
+                    যারা এগিয়ে থাকতে চান, তারা এটা এড়িয়ে যান না
+                  </h3>
                 </div>
-                <p className="text-left text-xs leading-relaxed text-ink-soft">
-                  আমাদের ব্লগে ইতিমধ্যে <strong className="text-foreground">লক্ষাধিক মানুষ</strong> নিয়মিত পড়ছেন — বই, ক্যারিয়ার ও প্রোডাক্টিভিটি নিয়ে দরকারি সব লেখা পাবেন সেখানে।
+                <p className="mt-2 text-left text-xs leading-relaxed text-ink-soft">
+                  প্রতি মাসে <strong className="text-foreground">১ লক্ষেরও বেশি মানুষ</strong> আমাদের ব্লগে ফিরে আসেন — একটাই কারণে: এখানে যা লেখা হয়, তা বাস্তবে কাজে লাগে। বই, ক্যারিয়ার ও প্রোডাক্টিভিটি নিয়ে গবেষণাভিত্তিক সব লেখা, যা আজই আপনার একটা সিদ্ধান্ত সহজ করে দিতে পারে। যারা একবার পড়া শুরু করেছেন, তাদের বেশিরভাগই আর থামেননি।
                 </p>
               </div>
               <Link
                 href="/blog"
                 onClick={handleClose}
-                className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-md border border-border bg-surface py-2.5 text-center text-sm font-semibold text-foreground hover:bg-surface-muted"
+                className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-md bg-cta py-2.5 text-center text-sm font-semibold text-white hover:bg-cta-dark"
               >
-                ব্লগ দেখুন <ArrowRight size={14} />
+                আমিও পড়া শুরু করি <ArrowRight size={14} />
               </Link>
             </div>
           </div>

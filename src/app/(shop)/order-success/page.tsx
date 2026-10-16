@@ -76,6 +76,8 @@ export default async function OrderSuccessPage({
           soldCount={crossSell.soldCount}
           customerName={order.customer.name}
           customerPhone={order.customer.phone}
+          customerAddress={order.customer.address}
+          customerArea={order.customer.area}
           secondOffer={secondOffer}
         />
       )}
