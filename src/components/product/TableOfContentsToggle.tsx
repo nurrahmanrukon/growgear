@@ -37,20 +37,31 @@ export function TableOfContentsToggle({
         <ChevronDown size={16} className={`shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
-        <ol
-          className={`space-y-1.5 border-t px-4 py-3 text-left text-xs ${
-            isDark ? "border-white/10 text-white/85" : "border-border text-ink-soft"
-          }`}
-        >
-          {toc.map((chapter, i) => (
-            <li key={i} className="flex gap-2">
-              <span className={`shrink-0 font-semibold ${isDark ? "text-white/60" : "text-ink-faint"}`}>
-                {toBengaliNumber(i + 1)}.
-              </span>
-              <span>{chapter}</span>
-            </li>
-          ))}
-        </ol>
+        <div className={`border-t ${isDark ? "border-white/10" : "border-border"}`}>
+          <ol
+            className={`space-y-1.5 px-4 py-3 text-left text-xs ${
+              isDark ? "text-white/85" : "text-ink-soft"
+            }`}
+          >
+            {toc.map((chapter, i) => (
+              <li key={i} className="flex gap-2">
+                <span className={`shrink-0 font-semibold ${isDark ? "text-white/60" : "text-ink-faint"}`}>
+                  {toBengaliNumber(i + 1)}.
+                </span>
+                <span>{chapter}</span>
+              </li>
+            ))}
+          </ol>
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            className={`flex w-full items-center justify-center gap-1 border-t py-2 text-xs font-medium ${
+              isDark ? "border-white/10 text-white/70 hover:text-white" : "border-border text-ink-faint hover:text-foreground"
+            }`}
+          >
+            <ChevronDown size={14} className="rotate-180" /> উপরে ফিরে যান
+          </button>
+        </div>
       )}
     </div>
   );

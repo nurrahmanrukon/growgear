@@ -10,6 +10,7 @@ import {
   ChevronRight,
   Clock,
   CreditCard,
+  Image as ImageIcon,
   MessageSquare,
   Newspaper,
   Play,
@@ -350,22 +351,24 @@ export function CrossSellModal({
               এখনই অর্ডারে যোগ করুন
             </button>
 
-            <div className="mt-3 grid grid-cols-3 gap-2">
+            <div className="mt-3 flex flex-col gap-2">
               <TableOfContentsToggle product={product} variant="light" />
-              <button
-                type="button"
-                onClick={() => setView("preview")}
-                className="flex items-center justify-center gap-1.5 rounded-lg border border-border bg-surface-muted px-2 py-2.5 text-xs font-medium text-foreground"
-              >
-                <BookOpen size={14} /> ১৫ পৃষ্ঠা পড়ুন
-              </button>
-              <button
-                type="button"
-                onClick={() => setView("reviews")}
-                className="flex items-center justify-center gap-1.5 rounded-lg border border-border bg-surface-muted px-2 py-2.5 text-xs font-medium text-foreground"
-              >
-                <MessageSquare size={14} /> রিভিউ দেখুন
-              </button>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setView("preview")}
+                  className="flex items-center justify-center gap-1.5 rounded-lg border border-border bg-surface-muted px-2 py-2.5 text-xs font-medium text-foreground"
+                >
+                  <BookOpen size={14} /> ১৫ পৃষ্ঠা পড়ুন
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setView("reviews")}
+                  className="flex items-center justify-center gap-1.5 rounded-lg border border-border bg-surface-muted px-2 py-2.5 text-xs font-medium text-foreground"
+                >
+                  <MessageSquare size={14} /> রিভিউ দেখুন
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -544,12 +547,26 @@ export function CrossSellModal({
                 <p className="mb-2 text-xs font-semibold text-ink-soft">টেক্সট রিভিউ</p>
                 <div className="space-y-2.5">
                   {getExpertOpinions(product, 3).map((r, i) => (
-                    <div key={i} className="rounded-lg border border-border bg-surface-muted p-3">
-                      <div className="flex items-center gap-1.5">
-                        <Star size={12} className="text-star" fill="currentColor" strokeWidth={0} />
-                        <span className="text-xs font-medium text-foreground">{r.name}</span>
+                    <div key={i} className="flex gap-2.5 rounded-lg border border-border bg-surface-muted p-3">
+                      {r.hasPhoto ? (
+                        <div
+                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white/80"
+                          style={{ background: `linear-gradient(135deg, ${product.colorFrom}, ${product.colorTo})` }}
+                        >
+                          <ImageIcon size={16} />
+                        </div>
+                      ) : (
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-light text-sm font-semibold text-primary-dark">
+                          {r.name.charAt(0)}
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-medium text-foreground">{r.name}</span>
+                          <Star size={12} className="text-star" fill="currentColor" strokeWidth={0} />
+                        </div>
+                        <p className="mt-1 text-sm leading-relaxed text-ink-soft">&ldquo;{r.quote}&rdquo;</p>
                       </div>
-                      <p className="mt-1 text-sm leading-relaxed text-ink-soft">&ldquo;{r.quote}&rdquo;</p>
                     </div>
                   ))}
                 </div>
@@ -753,7 +770,7 @@ export function CrossSellModal({
                 </button>
 
                 {secondOffer.category === "book" ? (
-                  <div className="mt-2 grid grid-cols-2 gap-2">
+                  <div className="mt-2 flex flex-col gap-2">
                     <TableOfContentsToggle product={secondOffer.product} variant="light" />
                     <button
                       type="button"
@@ -830,12 +847,26 @@ export function CrossSellModal({
                 <p className="mb-2 text-xs font-semibold text-ink-soft">টেক্সট রিভিউ</p>
                 <div className="space-y-2.5">
                   {getExpertOpinions(secondOffer.product, 3).map((r, i) => (
-                    <div key={i} className="rounded-lg border border-border bg-surface-muted p-3">
-                      <div className="flex items-center gap-1.5">
-                        <Star size={12} className="text-star" fill="currentColor" strokeWidth={0} />
-                        <span className="text-xs font-medium text-foreground">{r.name}</span>
+                    <div key={i} className="flex gap-2.5 rounded-lg border border-border bg-surface-muted p-3">
+                      {r.hasPhoto ? (
+                        <div
+                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white/80"
+                          style={{ background: `linear-gradient(135deg, ${secondOffer.product.colorFrom}, ${secondOffer.product.colorTo})` }}
+                        >
+                          <ImageIcon size={16} />
+                        </div>
+                      ) : (
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-light text-sm font-semibold text-primary-dark">
+                          {r.name.charAt(0)}
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-medium text-foreground">{r.name}</span>
+                          <Star size={12} className="text-star" fill="currentColor" strokeWidth={0} />
+                        </div>
+                        <p className="mt-1 text-sm leading-relaxed text-ink-soft">&ldquo;{r.quote}&rdquo;</p>
                       </div>
-                      <p className="mt-1 text-sm leading-relaxed text-ink-soft">&ldquo;{r.quote}&rdquo;</p>
                     </div>
                   ))}
                 </div>
