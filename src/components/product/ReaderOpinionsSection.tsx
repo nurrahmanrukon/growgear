@@ -12,8 +12,10 @@ import {
 import { StarRating } from "@/components/ui/StarRating";
 import { Modal } from "@/components/ui/Modal";
 
-const TEXT_THUMB_COUNT = 3;
+const TEXT_THUMB_COUNT = 5;
+const TEXT_EXTRA_COUNT = 3;
 const VIDEO_THUMB_COUNT = 5;
+const VIDEO_EXTRA_COUNT = 3;
 const DEFAULT_VIDEO_ORDER = Array.from({ length: VIDEO_REVIEW_POOL_SIZE }, (_, i) => i);
 
 function ReaderCardShell({
@@ -191,14 +193,16 @@ function VideoReaderThumb({
 }
 
 export function ReaderOpinionsSection({ product, order }: { product: Product; order?: number[] }) {
-  const textReviews = getReaderOpinions(product, 1 + TEXT_THUMB_COUNT);
+  const textReviews = getReaderOpinions(product, 1 + TEXT_THUMB_COUNT + TEXT_EXTRA_COUNT);
   const featuredText = textReviews[0];
   const thumbTexts = textReviews.slice(1, 1 + TEXT_THUMB_COUNT);
+  const extraTexts = textReviews.slice(1 + TEXT_THUMB_COUNT, 1 + TEXT_THUMB_COUNT + TEXT_EXTRA_COUNT);
   const videoOrder = order && order.length > 0 ? order : DEFAULT_VIDEO_ORDER;
   const allVideos = getReaderVideoOpinions(product, VIDEO_REVIEW_POOL_SIZE);
   const orderedVideos = videoOrder.map((i) => allVideos[i]).filter((v): v is ReaderOpinion => Boolean(v));
   const featuredVideo = orderedVideos[0];
   const thumbVideos = orderedVideos.slice(1, 1 + VIDEO_THUMB_COUNT);
+  const extraVideos = orderedVideos.slice(1 + VIDEO_THUMB_COUNT, 1 + VIDEO_THUMB_COUNT + VIDEO_EXTRA_COUNT);
   const [playingVideo, setPlayingVideo] = useState<ReaderOpinion | null>(null);
   const [expandedText, setExpandedText] = useState<ReaderOpinion | null>(null);
 
@@ -224,6 +228,13 @@ export function ReaderOpinionsSection({ product, order }: { product: Product; or
                   ))}
                 </div>
               )}
+              {extraTexts.length > 0 && (
+                <div className="mt-3 flex flex-col gap-4">
+                  {extraTexts.map((r, i) => (
+                    <TextReaderCard key={`et-${i}`} reader={r} product={product} />
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -240,6 +251,13 @@ export function ReaderOpinionsSection({ product, order }: { product: Product; or
                   <VideoReaderThumb key={`v-${i}`} reader={r} product={product} onPlay={() => setPlayingVideo(r)} />
                 ))}
               </div>
+              {extraVideos.length > 0 && (
+                <div className="mt-3 flex flex-col gap-3">
+                  {extraVideos.map((r, i) => (
+                    <FeaturedVideoReaderCard key={`ev-${i}`} reader={r} product={product} onPlay={() => setPlayingVideo(r)} />
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
