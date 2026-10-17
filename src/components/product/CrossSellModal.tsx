@@ -9,6 +9,7 @@ import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
+  ClipboardList,
   Clock,
   CreditCard,
   Image as ImageIcon,
@@ -17,6 +18,7 @@ import {
   Play,
   Smartphone,
   Star,
+  Trophy,
   Users,
 } from "lucide-react";
 import { Product } from "@/lib/types";
@@ -86,6 +88,7 @@ export function CrossSellModal({
   orderId,
   orderProductTitle,
   orderProductCategory,
+  orderProductPrice,
   secondOffer,
   open,
   onClose,
@@ -101,6 +104,7 @@ export function CrossSellModal({
   orderId?: string;
   orderProductTitle?: string;
   orderProductCategory?: Product["category"];
+  orderProductPrice?: number;
   secondOffer?: SecondOffer;
   open: boolean;
   onClose: () => void;
@@ -1350,7 +1354,64 @@ export function CrossSellModal({
               ঠিক আছে
             </button>
 
-            <div className="mt-5 border-t border-border pt-4">
+            <div className="mt-5 rounded-lg border border-amber-300 bg-amber-50 p-3">
+              <div className="flex items-center gap-2">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+                  <Trophy size={18} />
+                </div>
+                <h3 className="font-display text-sm font-bold leading-snug text-amber-900">
+                  অভিনন্দন — আপনি টপ ১% মানুষের একজন
+                </h3>
+              </div>
+              <p className="mt-2 text-left text-xs leading-relaxed text-amber-800/80">
+                বেশিরভাগ মানুষ নিজের উপর খরচ করাকে শুধু &quot;খরচ&quot; মনে করে। কিন্তু বাস্তবে এটাই সবচেয়ে ভালো বিনিয়োগ — আজ নিজের উপর করা এই খরচ আগামীর জন্য একটা ইনকাম। এই সত্যিটা মাত্র টপ ১% মানুষ বোঝেন, আর তারাই জীবনে এগিয়ে থাকেন। অভিনন্দন, আপনিও আজ সেই টপ ১%-এর একজন।
+              </p>
+            </div>
+
+            <div className="mt-4 rounded-lg border border-border bg-surface p-3 shadow-sm">
+              <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-primary">
+                <ClipboardList size={14} /> আপনার অর্ডার সামারি
+              </p>
+              <div className="mt-2.5 divide-y divide-border">
+                {orderProductTitle && orderProductCategory && typeof orderProductPrice === "number" && (
+                  <div className="flex items-center justify-between gap-2 py-2">
+                    <div className="min-w-0">
+                      <p className="truncate text-xs font-medium text-foreground">{orderProductTitle}</p>
+                      <span className="mt-0.5 inline-block rounded bg-primary-light px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-primary-dark">
+                        {categoryMeta[orderProductCategory].label}
+                      </span>
+                    </div>
+                    <span className="shrink-0 text-xs font-bold text-foreground">{formatTaka(orderProductPrice)}</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between gap-2 py-2">
+                  <div className="min-w-0">
+                    <p className="truncate text-xs font-medium text-foreground">{product.title}</p>
+                    <span className="mt-0.5 inline-block rounded bg-primary-light px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-primary-dark">
+                      {categoryMeta[product.category].label}
+                    </span>
+                  </div>
+                  <span className="shrink-0 text-xs font-bold text-foreground">{formatTaka(product.price)}</span>
+                </div>
+                <div className="flex items-center justify-between gap-2 py-2">
+                  <div className="min-w-0">
+                    <p className="truncate text-xs font-medium text-foreground">{secondOffer.product.title}</p>
+                    <span className="mt-0.5 inline-block rounded bg-primary-light px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-primary-dark">
+                      {categoryMeta[secondOffer.product.category].label}
+                    </span>
+                  </div>
+                  <span className="shrink-0 text-xs font-bold text-foreground">{formatTaka(secondOffer.product.price)}</span>
+                </div>
+              </div>
+              <div className="mt-1 flex items-center justify-between border-t border-border pt-2.5">
+                <span className="text-xs font-bold uppercase tracking-wide text-ink-soft">সর্বমোট</span>
+                <span className="text-base font-bold text-price">
+                  {formatTaka((orderProductPrice ?? 0) + product.price + secondOffer.product.price)}
+                </span>
+              </div>
+            </div>
+
+            <div className="mt-4 rounded-lg border border-border bg-surface p-3 shadow-sm">
               <p className="text-xs font-bold uppercase tracking-wide text-primary">আপনার জন্য একটা উপহার</p>
               <div className="mt-2 rounded-lg border border-sky-300 bg-sky-50 p-3">
                 <div className="flex items-center gap-2">

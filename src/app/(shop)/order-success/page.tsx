@@ -81,6 +81,7 @@ export default async function OrderSuccessPage({
           orderId={orderId}
           orderProductTitle={order.items[0]?.title}
           orderProductCategory={originalCategory}
+          orderProductPrice={order.items[0]?.price}
           secondOffer={secondOffer}
         />
       )}
