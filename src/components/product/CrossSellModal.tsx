@@ -47,6 +47,10 @@ const FALLBACK_ZONES: DeliveryZone[] = [
   { key: "outside-dhaka", label: "ঢাকার বাইরে", days: "৪-৬ দিন", fee: 130 },
 ];
 
+function offerCategoryLabel(category: Product["category"]) {
+  return category === "gear" ? "প্রোডাক্টিভিটি গিয়ার" : categoryMeta[category].label;
+}
+
 type View =
   | "offer"
   | "preview"
@@ -331,7 +335,7 @@ export function CrossSellModal({
               </button>
               <div className="min-w-0">
                 <span className="inline-block rounded bg-primary-light px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-dark">
-                  {categoryMeta[product.category].label}
+                  {offerCategoryLabel(product.category)}
                 </span>
                 <p className="mt-1 truncate font-display text-sm font-bold text-foreground">{product.title}</p>
                 <div className="mt-1 flex items-center gap-1">
@@ -793,7 +797,7 @@ export function CrossSellModal({
                   </button>
                   <div className="min-w-0">
                     <span className="inline-block rounded bg-primary-light px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-dark">
-                      {categoryMeta[secondOffer.category].label}
+                      {offerCategoryLabel(secondOffer.category)}
                     </span>
                     <p className="mt-1 truncate font-display text-sm font-bold text-foreground">{secondOffer.product.title}</p>
                     <div className="mt-1 flex items-center gap-1">
@@ -811,9 +815,9 @@ export function CrossSellModal({
                 </div>
                 <p className="mt-2 text-xs leading-relaxed text-ink-soft">{secondOffer.product.shortDescription}</p>
 
-                <div className="mt-3 rounded-md border border-emerald-300 bg-surface px-3 py-2">
-                  <p className="flex items-start gap-1.5 text-xs font-bold leading-relaxed text-emerald-800">
-                    <Users size={14} className="mt-0.5 shrink-0 text-emerald-600" />
+                <div className="mt-3 rounded-md border border-sky-300 bg-sky-50 px-3 py-2">
+                  <p className="flex items-start gap-1.5 text-xs font-bold leading-relaxed text-sky-900">
+                    <Users size={14} className="mt-0.5 shrink-0 text-sky-600" />
                     <span>ইতিমধ্যে {toBengaliNumber(secondOffer.product.reviewCount)}+ জন এটি ব্যবহার করছেন — আজকের অর্ডারের সাথেই যোগ করে নিন।</span>
                   </p>
                 </div>
@@ -1247,17 +1251,17 @@ export function CrossSellModal({
 
             <div className="mt-5 border-t border-border pt-4">
               <p className="text-xs font-bold uppercase tracking-wide text-primary">এখানেই থেমে যাবেন না</p>
-              <div className="mt-2 rounded-lg border border-border bg-surface-muted p-3">
+              <div className="mt-2 rounded-lg border border-sky-300 bg-sky-50 p-3">
                 <div className="flex items-center gap-2">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-light text-primary">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sky-100 text-sky-600">
                     <Newspaper size={18} />
                   </div>
-                  <h3 className="font-display text-sm font-bold leading-snug text-foreground">
+                  <h3 className="font-display text-sm font-bold leading-snug text-sky-900">
                     যারা এগিয়ে থাকতে চান, তারা এটা এড়িয়ে যান না
                   </h3>
                 </div>
-                <p className="mt-2 text-left text-xs leading-relaxed text-ink-soft">
-                  প্রতি মাসে <strong className="text-foreground">১ লক্ষেরও বেশি মানুষ</strong> আমাদের ব্লগে ফিরে আসেন — একটাই কারণে: এখানে যা লেখা হয়, তা বাস্তবে কাজে লাগে। বই, ক্যারিয়ার ও প্রোডাক্টিভিটি নিয়ে গবেষণাভিত্তিক সব লেখা, যা আজই আপনার একটা সিদ্ধান্ত সহজ করে দিতে পারে। যারা একবার পড়া শুরু করেছেন, তাদের বেশিরভাগই আর থামেননি।
+                <p className="mt-2 text-left text-xs leading-relaxed text-sky-800/80">
+                  প্রতি মাসে <strong className="text-sky-900">১ লক্ষেরও বেশি মানুষ</strong> আমাদের ব্লগে ফিরে আসেন — একটাই কারণে: এখানে যা লেখা হয়, তা বাস্তবে কাজে লাগে। বই, ক্যারিয়ার ও প্রোডাক্টিভিটি নিয়ে গবেষণাভিত্তিক সব লেখা, যা আজই আপনার একটা সিদ্ধান্ত সহজ করে দিতে পারে। যারা একবার পড়া শুরু করেছেন, তাদের বেশিরভাগই আর থামেননি।
                 </p>
               </div>
               <Link
