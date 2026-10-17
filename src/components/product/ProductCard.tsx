@@ -29,7 +29,15 @@ export function ProductCard({ product }: { product: Product }) {
           className="aspect-square w-full"
         />
         {product.badge && (
-          <span className="absolute left-1.5 top-1.5 rounded bg-price px-1.5 py-0.5 text-[10px] font-bold text-white">
+          <span
+            className={`absolute left-1.5 top-1.5 rounded px-1.5 py-0.5 text-[10px] font-bold text-white ${
+              product.badge === "বেস্ট সেলার"
+                ? "bg-amber-500"
+                : product.badge === "নতুন"
+                  ? "bg-sky-500"
+                  : "bg-price"
+            }`}
+          >
             {product.badge}
           </span>
         )}

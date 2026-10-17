@@ -17,6 +17,8 @@ export function OrderSuccessCrossSell({
   customerAddress,
   customerArea,
   orderId,
+  orderProductTitle,
+  orderProductCategory,
   secondOffer,
 }: {
   product: Product;
@@ -28,6 +30,8 @@ export function OrderSuccessCrossSell({
   customerAddress?: string;
   customerArea?: string;
   orderId?: string;
+  orderProductTitle?: string;
+  orderProductCategory?: Product["category"];
   secondOffer?: SecondOffer;
 }) {
   const [open, setOpen] = useState(true);
@@ -72,6 +76,8 @@ export function OrderSuccessCrossSell({
         customerAddress={customerAddress}
         customerArea={customerArea}
         orderId={orderId}
+        orderProductTitle={orderProductTitle}
+        orderProductCategory={orderProductCategory}
         secondOffer={secondOffer}
         open={open}
         onClose={() => setOpen(false)}

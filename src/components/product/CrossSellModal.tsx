@@ -78,6 +78,8 @@ export function CrossSellModal({
   customerAddress,
   customerArea,
   orderId,
+  orderProductTitle,
+  orderProductCategory,
   secondOffer,
   open,
   onClose,
@@ -91,6 +93,8 @@ export function CrossSellModal({
   customerAddress?: string;
   customerArea?: string;
   orderId?: string;
+  orderProductTitle?: string;
+  orderProductCategory?: Product["category"];
   secondOffer?: SecondOffer;
   open: boolean;
   onClose: () => void;
@@ -99,6 +103,8 @@ export function CrossSellModal({
   const [view, setView] = useState<View>("offer");
   const [hiddenPayment, setHiddenPayment] = useState<string[]>([]);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null);
+  const [orderName, setOrderName] = useState(customerName);
+  const [orderPhone, setOrderPhone] = useState(customerPhone);
   const [address, setAddress] = useState("");
   const [zones, setZones] = useState<DeliveryZone[]>(FALLBACK_ZONES);
   const [area, setArea] = useState(FALLBACK_ZONES[0].label);
@@ -202,6 +208,10 @@ export function CrossSellModal({
 
   async function placeOrder() {
     if (!effectiveMethod) return;
+    if (!orderName.trim() || !orderPhone.trim()) {
+      setError("নাম এবং ফোন নম্বর আবশ্যক");
+      return;
+    }
     if (!isEbook && !address.trim()) {
       setError("ঠিকানা আবশ্যক");
       return;
@@ -213,8 +223,8 @@ export function CrossSellModal({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: customerName,
-          phone: customerPhone,
+          name: orderName,
+          phone: orderPhone,
           paymentMethod: effectiveMethod,
           address: isEbook ? undefined : address,
           area: isEbook ? undefined : area,
@@ -241,6 +251,10 @@ export function CrossSellModal({
 
   async function placeSecondOrder() {
     if (!secondOffer || !secondEffectiveMethod) return;
+    if (!orderName.trim() || !orderPhone.trim()) {
+      setSecondError("নাম এবং ফোন নম্বর আবশ্যক");
+      return;
+    }
     if (!secondAddress.trim()) {
       setSecondError("ঠিকানা আবশ্যক");
       return;
@@ -252,8 +266,8 @@ export function CrossSellModal({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: customerName,
-          phone: customerPhone,
+          name: orderName,
+          phone: orderPhone,
           paymentMethod: secondEffectiveMethod,
           address: secondAddress,
           area: secondArea,
@@ -294,7 +308,15 @@ export function CrossSellModal({
               <div className="mb-3 flex items-center gap-2.5 rounded-lg border-2 border-emerald-400 bg-emerald-100 px-3.5 py-3 shadow-sm">
                 <CheckCircle2 size={22} className="shrink-0 text-emerald-600" />
                 <p className="text-sm font-bold text-emerald-900">
-                  আপনার অর্ডারটি সফলভাবে সম্পন্ন হয়েছে — অর্ডার আইডি: <span className="text-emerald-700">{orderId}</span>
+                  {orderProductTitle ? (
+                    <>
+                      <strong>{orderProductTitle}</strong>
+                      {orderProductCategory && ` (${categoryMeta[orderProductCategory].label})`} অর্ডারটি সফলভাবে সম্পন্ন হয়েছে —{" "}
+                    </>
+                  ) : (
+                    "আপনার অর্ডারটি সফলভাবে সম্পন্ন হয়েছে — "
+                  )}
+                  অর্ডার আইডি: <span className="text-emerald-700">{orderId}</span>
                 </p>
               </div>
             )}
@@ -681,8 +703,23 @@ export function CrossSellModal({
                 : "আপনার ঠিকানায় পৌঁছে দেওয়া হবে — ক্যাশ অন ডেলিভারি অথবা অনলাইন পেমেন্ট বেছে নিন।"}
             </p>
 
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <input
+                value={orderName}
+                onChange={(e) => setOrderName(e.target.value)}
+                placeholder="নাম *"
+                className="rounded border border-border bg-surface px-3 py-2 text-sm text-foreground outline-none focus:ring-1 focus:ring-primary"
+              />
+              <input
+                value={orderPhone}
+                onChange={(e) => setOrderPhone(e.target.value)}
+                placeholder="ফোন নম্বর *"
+                className="rounded border border-border bg-surface px-3 py-2 text-sm text-foreground outline-none focus:ring-1 focus:ring-primary"
+              />
+            </div>
+
             {!isEbook && (
-              <div className="mt-3 flex flex-col gap-2">
+              <div className="mt-2 flex flex-col gap-2">
                 <textarea
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
@@ -1148,7 +1185,7 @@ export function CrossSellModal({
               <div className="mt-2 flex items-center gap-2.5 rounded-lg border-2 border-emerald-400 bg-emerald-100 px-3.5 py-3 shadow-sm">
                 <CheckCircle2 size={22} className="shrink-0 text-emerald-600" />
                 <p className="text-sm font-bold text-emerald-900">
-                  আপনার আগের অর্ডারটি সফলভাবে সম্পন্ন হয়েছে — অর্ডার আইডি: <span className="text-emerald-700">{firstOrderId}</span>
+                  <strong>{product.title}</strong> ({categoryMeta[product.category].label}) অর্ডারটি সফলভাবে সম্পন্ন হয়েছে — অর্ডার আইডি: <span className="text-emerald-700">{firstOrderId}</span>
                 </p>
               </div>
             )}
@@ -1170,6 +1207,21 @@ export function CrossSellModal({
                 <p className="mt-0.5 text-xs text-ink-faint">পরিমাণ: ১</p>
               </div>
               <span className="shrink-0 text-sm font-bold text-foreground">{formatTaka(secondOffer.product.price)}</span>
+            </div>
+
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <input
+                value={orderName}
+                onChange={(e) => setOrderName(e.target.value)}
+                placeholder="নাম *"
+                className="rounded border border-border bg-surface px-3 py-2 text-sm text-foreground outline-none focus:ring-1 focus:ring-primary"
+              />
+              <input
+                value={orderPhone}
+                onChange={(e) => setOrderPhone(e.target.value)}
+                placeholder="ফোন নম্বর *"
+                className="rounded border border-border bg-surface px-3 py-2 text-sm text-foreground outline-none focus:ring-1 focus:ring-primary"
+              />
             </div>
 
             {customerAddress && !secondAddressEditing ? (
@@ -1250,18 +1302,19 @@ export function CrossSellModal({
             </button>
 
             <div className="mt-5 border-t border-border pt-4">
-              <p className="text-xs font-bold uppercase tracking-wide text-primary">এখানেই থেমে যাবেন না</p>
+              <p className="text-xs font-bold uppercase tracking-wide text-primary">আপনার জন্য একটা উপহার</p>
               <div className="mt-2 rounded-lg border border-sky-300 bg-sky-50 p-3">
                 <div className="flex items-center gap-2">
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sky-100 text-sky-600">
                     <Newspaper size={18} />
                   </div>
                   <h3 className="font-display text-sm font-bold leading-snug text-sky-900">
-                    যারা এগিয়ে থাকতে চান, তারা এটা এড়িয়ে যান না
+                    আপনার জন্য বেছে রাখা হয়েছে একটা হাই-ভ্যালু রিসোর্স
                   </h3>
                 </div>
                 <p className="mt-2 text-left text-xs leading-relaxed text-sky-800/80">
-                  প্রতি মাসে <strong className="text-sky-900">১ লক্ষেরও বেশি মানুষ</strong> আমাদের ব্লগে ফিরে আসেন — একটাই কারণে: এখানে যা লেখা হয়, তা বাস্তবে কাজে লাগে। বই, ক্যারিয়ার ও প্রোডাক্টিভিটি নিয়ে গবেষণাভিত্তিক সব লেখা, যা আজই আপনার একটা সিদ্ধান্ত সহজ করে দিতে পারে। যারা একবার পড়া শুরু করেছেন, তাদের বেশিরভাগই আর থামেননি।
+                  সম্পূর্ণ <strong className="text-sky-900">ফ্রি</strong> — কোনো টাকা লাগবে না। ইতিমধ্যে{" "}
+                  <strong className="text-sky-900">৫ লক্ষেরও বেশি মানুষ</strong> এই লেখাগুলো পড়ে উপকৃত হয়েছেন — মোট পাঠকসংখ্যা। বই, ক্যারিয়ার ও প্রোডাক্টিভিটি নিয়ে গবেষণাভিত্তিক, প্র্যাক্টিক্যাল গাইড — যা আজই আপনার একটা সিদ্ধান্ত সহজ করে দিতে পারে।
                 </p>
               </div>
               <Link
@@ -1269,7 +1322,7 @@ export function CrossSellModal({
                 onClick={handleClose}
                 className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-md bg-cta py-2.5 text-center text-sm font-semibold text-white hover:bg-cta-dark"
               >
-                আমিও পড়া শুরু করি <ArrowRight size={14} />
+                ফ্রি রিসোর্সটি এখনই দেখি <ArrowRight size={14} />
               </Link>
             </div>
           </div>

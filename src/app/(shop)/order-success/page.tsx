@@ -79,6 +79,8 @@ export default async function OrderSuccessPage({
           customerAddress={order.customer.address}
           customerArea={order.customer.area}
           orderId={orderId}
+          orderProductTitle={order.items[0]?.title}
+          orderProductCategory={originalCategory}
           secondOffer={secondOffer}
         />
       )}
