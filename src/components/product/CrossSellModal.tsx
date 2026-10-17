@@ -6,6 +6,7 @@ import {
   ArrowRight,
   Banknote,
   BookOpen,
+  CheckCircle2,
   ChevronLeft,
   ChevronRight,
   Clock,
@@ -71,6 +72,7 @@ export function CrossSellModal({
   customerPhone,
   customerAddress,
   customerArea,
+  orderId,
   secondOffer,
   open,
   onClose,
@@ -83,6 +85,7 @@ export function CrossSellModal({
   customerPhone: string;
   customerAddress?: string;
   customerArea?: string;
+  orderId?: string;
   secondOffer?: SecondOffer;
   open: boolean;
   onClose: () => void;
@@ -97,6 +100,7 @@ export function CrossSellModal({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [authOpen, setAuthOpen] = useState(false);
+  const [firstOrderId, setFirstOrderId] = useState<string | null>(null);
   const [galleryActive, setGalleryActive] = useState(0);
   const [videoActive, setVideoActive] = useState(0);
   const [secondGalleryActive, setSecondGalleryActive] = useState(0);
@@ -217,6 +221,7 @@ export function CrossSellModal({
         setError(data.error ?? "অর্ডার প্রসেস করা যায়নি, আবার চেষ্টা করুন।");
         return;
       }
+      setFirstOrderId(data.orderId ?? null);
       setView("success");
     } catch {
       setError("নেটওয়ার্ক সমস্যা হয়েছে, আবার চেষ্টা করুন।");
@@ -276,6 +281,14 @@ export function CrossSellModal({
       <Modal open={open && !authOpen} onClose={handleClose} variant="offer">
         {view === "offer" && (
           <div className="text-left">
+            {orderId && (
+              <div className="mb-3 flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2">
+                <CheckCircle2 size={16} className="shrink-0 text-emerald-600" />
+                <p className="text-xs font-medium text-emerald-800">
+                  আপনার অর্ডারটি সফলভাবে সম্পন্ন হয়েছে — অর্ডার আইডি: <span className="font-bold">{orderId}</span>
+                </p>
+              </div>
+            )}
             <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-emerald-700">
               <Clock size={13} /> সীমিত সময়ের বিশেষ অফার
             </p>
@@ -1056,6 +1069,14 @@ export function CrossSellModal({
             >
               ← ফিরে যান
             </button>
+            {firstOrderId && (
+              <div className="mt-2 flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2">
+                <CheckCircle2 size={16} className="shrink-0 text-emerald-600" />
+                <p className="text-xs font-medium text-emerald-800">
+                  আপনার আগের অর্ডারটি সফলভাবে সম্পন্ন হয়েছে — অর্ডার আইডি: <span className="font-bold">{firstOrderId}</span>
+                </p>
+              </div>
+            )}
             <h2 className="mt-2 font-display text-base font-bold text-foreground">অর্ডার কনফার্ম করুন</h2>
             <p className="mt-1 text-xs text-ink-soft">আপনার ঠিকানায় পৌঁছে দেওয়া হবে — ক্যাশ অন ডেলিভারি অথবা অনলাইন পেমেন্ট বেছে নিন।</p>
 
