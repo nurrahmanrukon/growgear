@@ -20,7 +20,8 @@ import {
   Users,
 } from "lucide-react";
 import { Product } from "@/lib/types";
-import { getExpertOpinions, getExpertVideoOpinions, getProductVideoSlots } from "@/lib/data/landingContent";
+import { categoryMeta } from "@/lib/data/products";
+import { ExpertOpinion, getExpertOpinions, getExpertVideoOpinions, getProductVideoSlots } from "@/lib/data/landingContent";
 import { formatTaka, discountPercent, toBengaliNumber } from "@/lib/format";
 import { Modal } from "@/components/ui/Modal";
 import { ProductImage } from "@/components/ui/ProductImage";
@@ -112,6 +113,8 @@ export function CrossSellModal({
   const [secondPaymentMethod, setSecondPaymentMethod] = useState<PaymentMethod | null>(null);
   const [secondSubmitting, setSecondSubmitting] = useState(false);
   const [secondError, setSecondError] = useState<string | null>(null);
+  const [expandedVideoReview, setExpandedVideoReview] = useState<ExpertOpinion | null>(null);
+  const [secondExpandedVideoReview, setSecondExpandedVideoReview] = useState<ExpertOpinion | null>(null);
 
   const discount = discountPercent(product.price, product.oldPrice);
   const text = message.replace("{count}", toBengaliNumber(soldCount));
@@ -184,6 +187,8 @@ export function CrossSellModal({
     setSecondGalleryActive(0);
     setSecondVideoActive(0);
     setSecondAddressEditing(false);
+    setExpandedVideoReview(null);
+    setSecondExpandedVideoReview(null);
     onClose();
   }
 
@@ -282,10 +287,10 @@ export function CrossSellModal({
         {view === "offer" && (
           <div className="text-left">
             {orderId && (
-              <div className="mb-3 flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2">
-                <CheckCircle2 size={16} className="shrink-0 text-emerald-600" />
-                <p className="text-xs font-medium text-emerald-800">
-                  আপনার অর্ডারটি সফলভাবে সম্পন্ন হয়েছে — অর্ডার আইডি: <span className="font-bold">{orderId}</span>
+              <div className="mb-3 flex items-center gap-2.5 rounded-lg border-2 border-emerald-400 bg-emerald-100 px-3.5 py-3 shadow-sm">
+                <CheckCircle2 size={22} className="shrink-0 text-emerald-600" />
+                <p className="text-sm font-bold text-emerald-900">
+                  আপনার অর্ডারটি সফলভাবে সম্পন্ন হয়েছে — অর্ডার আইডি: <span className="text-emerald-700">{orderId}</span>
                 </p>
               </div>
             )}
@@ -325,7 +330,10 @@ export function CrossSellModal({
                 </div>
               </button>
               <div className="min-w-0">
-                <p className="truncate font-display text-sm font-bold text-foreground">{product.title}</p>
+                <span className="inline-block rounded bg-primary-light px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-dark">
+                  {categoryMeta[product.category].label}
+                </span>
+                <p className="mt-1 truncate font-display text-sm font-bold text-foreground">{product.title}</p>
                 <div className="mt-1 flex items-center gap-1">
                   <Star size={12} className="text-star" fill="currentColor" strokeWidth={0} />
                   <span className="text-xs font-medium text-ink-soft">{product.rating.toFixed(1)}</span>
@@ -344,13 +352,14 @@ export function CrossSellModal({
                 </div>
               </div>
             </div>
+            <p className="mt-2 text-xs leading-relaxed text-ink-soft">{product.shortDescription}</p>
 
-            <div className="mt-3 rounded-md border border-amber-300 bg-amber-50 px-3 py-2">
-              <p className="flex items-start gap-1.5 text-xs font-bold leading-relaxed text-amber-900">
-                <Users size={14} className="mt-0.5 shrink-0" />
+            <div className="mt-3 rounded-md border border-sky-300 bg-sky-50 px-3 py-2">
+              <p className="flex items-start gap-1.5 text-xs font-bold leading-relaxed text-sky-900">
+                <Users size={14} className="mt-0.5 shrink-0 text-sky-600" />
                 <span>{text}</span>
               </p>
-              <p className="mt-1 flex items-center gap-1 pl-[21px] text-[11px] text-amber-800/80">
+              <p className="mt-1 flex items-center gap-1 pl-[21px] text-[11px] text-sky-800/80">
                 <Star size={11} className="shrink-0 text-star" fill="currentColor" strokeWidth={0} />
                 {product.rating.toFixed(1)} রেটিং — পাঠকদের আস্থার পছন্দ
               </p>
@@ -547,71 +556,102 @@ export function CrossSellModal({
 
         {view === "reviews" && (
           <div className="text-left">
-            <button type="button" onClick={() => setView("offer")} className="text-xs font-medium text-ink-faint hover:text-foreground">
+            <button
+              type="button"
+              onClick={() => (expandedVideoReview ? setExpandedVideoReview(null) : setView("offer"))}
+              className="text-xs font-medium text-ink-faint hover:text-foreground"
+            >
               ← ফিরে যান
             </button>
-            <p className="mt-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-emerald-700">
-              <MessageSquare size={13} /> গ্রাহকদের মতামত
-            </p>
-            <h2 className="mt-1.5 font-display text-base font-bold text-foreground">{product.title}</h2>
 
-            <div className="mt-3 max-h-80 space-y-5 overflow-y-auto pr-1">
-              <div>
-                <p className="mb-2 text-xs font-semibold text-ink-soft">টেক্সট রিভিউ</p>
-                <div className="space-y-2.5">
-                  {getExpertOpinions(product, 3).map((r, i) => (
-                    <div key={i} className="flex gap-2.5 rounded-lg border border-border bg-surface-muted p-3">
-                      {r.hasPhoto ? (
-                        <div
-                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white/80"
-                          style={{ background: `linear-gradient(135deg, ${product.colorFrom}, ${product.colorTo})` }}
-                        >
-                          <ImageIcon size={16} />
-                        </div>
-                      ) : (
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-light text-sm font-semibold text-primary-dark">
-                          {r.name.charAt(0)}
-                        </div>
-                      )}
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-medium text-foreground">{r.name}</span>
-                          <Star size={12} className="text-star" fill="currentColor" strokeWidth={0} />
-                        </div>
-                        <p className="mt-1 text-sm leading-relaxed text-ink-soft">&ldquo;{r.quote}&rdquo;</p>
-                      </div>
-                    </div>
-                  ))}
+            {expandedVideoReview ? (
+              <div className="mt-3">
+                <div
+                  className="flex aspect-video w-full items-center justify-center overflow-hidden rounded-lg"
+                  style={{ background: `linear-gradient(135deg, ${product.colorFrom}, ${product.colorTo})` }}
+                >
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-surface/90 shadow-sm">
+                    <Play size={28} className="ml-1 text-foreground" fill="currentColor" />
+                  </div>
+                </div>
+                <div className="mt-3">
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-display text-sm font-bold text-foreground">{expandedVideoReview.name}</span>
+                    <Star size={12} className="text-star" fill="currentColor" strokeWidth={0} />
+                  </div>
+                  <p className="mt-2 text-sm leading-relaxed text-ink-soft">&ldquo;{expandedVideoReview.quote}&rdquo;</p>
                 </div>
               </div>
+            ) : (
+              <>
+                <p className="mt-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-emerald-700">
+                  <MessageSquare size={13} /> গ্রাহকদের মতামত
+                </p>
+                <h2 className="mt-1.5 font-display text-base font-bold text-foreground">{product.title}</h2>
 
-              <div>
-                <p className="mb-2 text-xs font-semibold text-ink-soft">ভিডিও রিভিউ</p>
-                <div className="space-y-2.5">
-                  {getExpertVideoOpinions(product, 3).map((r, i) => (
-                    <div key={i} className="rounded-lg border border-border bg-surface-muted p-3">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className="flex h-12 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md"
-                          style={{ background: `linear-gradient(135deg, ${product.colorFrom}, ${product.colorTo})` }}
-                        >
-                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-surface/90">
-                            <Play size={10} className="ml-0.5 text-foreground" fill="currentColor" />
+                <div className="mt-3 max-h-80 space-y-5 overflow-y-auto pr-1">
+                  <div>
+                    <p className="mb-2 text-xs font-semibold text-ink-soft">টেক্সট রিভিউ</p>
+                    <div className="space-y-2.5">
+                      {getExpertOpinions(product, 3).map((r, i) => (
+                        <div key={i} className="flex gap-2.5 rounded-lg border border-border bg-surface-muted p-3">
+                          {r.hasPhoto ? (
+                            <div
+                              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white/80"
+                              style={{ background: `linear-gradient(135deg, ${product.colorFrom}, ${product.colorTo})` }}
+                            >
+                              <ImageIcon size={16} />
+                            </div>
+                          ) : (
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-light text-sm font-semibold text-primary-dark">
+                              {r.name.charAt(0)}
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-xs font-medium text-foreground">{r.name}</span>
+                              <Star size={12} className="text-star" fill="currentColor" strokeWidth={0} />
+                            </div>
+                            <p className="mt-1 text-sm leading-relaxed text-ink-soft">&ldquo;{r.quote}&rdquo;</p>
                           </div>
                         </div>
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <Star size={12} className="text-star" fill="currentColor" strokeWidth={0} />
-                            <span className="text-xs font-medium text-foreground">{r.name}</span>
-                          </div>
-                          <p className="mt-0.5 line-clamp-2 text-xs text-ink-faint">&ldquo;{r.quote}&rdquo;</p>
-                        </div>
-                      </div>
+                      ))}
                     </div>
-                  ))}
+                  </div>
+
+                  <div>
+                    <p className="mb-2 text-xs font-semibold text-ink-soft">ভিডিও রিভিউ</p>
+                    <div className="space-y-2.5">
+                      {getExpertVideoOpinions(product, 3).map((r, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => setExpandedVideoReview(r)}
+                          aria-label={`${r.name} এর ভিডিও রিভিউ বড় করে দেখুন`}
+                          className="group flex w-full items-center gap-3 rounded-lg border border-border bg-surface-muted p-3 text-left"
+                        >
+                          <div
+                            className="flex h-12 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md"
+                            style={{ background: `linear-gradient(135deg, ${product.colorFrom}, ${product.colorTo})` }}
+                          >
+                            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-surface/90 transition group-hover:scale-105">
+                              <Play size={10} className="ml-0.5 text-foreground" fill="currentColor" />
+                            </div>
+                          </div>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <Star size={12} className="text-star" fill="currentColor" strokeWidth={0} />
+                              <span className="text-xs font-medium text-foreground">{r.name}</span>
+                            </div>
+                            <p className="mt-0.5 line-clamp-2 text-xs text-ink-faint">&ldquo;{r.quote}&rdquo;</p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
+              </>
+            )}
 
             <button
               type="button"
@@ -752,7 +792,10 @@ export function CrossSellModal({
                     </div>
                   </button>
                   <div className="min-w-0">
-                    <p className="truncate font-display text-sm font-bold text-foreground">{secondOffer.product.title}</p>
+                    <span className="inline-block rounded bg-primary-light px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-dark">
+                      {categoryMeta[secondOffer.category].label}
+                    </span>
+                    <p className="mt-1 truncate font-display text-sm font-bold text-foreground">{secondOffer.product.title}</p>
                     <div className="mt-1 flex items-center gap-1">
                       <Star size={12} className="text-star" fill="currentColor" strokeWidth={0} />
                       <span className="text-xs font-medium text-ink-soft">{secondOffer.product.rating.toFixed(1)}</span>
@@ -766,6 +809,7 @@ export function CrossSellModal({
                     </div>
                   </div>
                 </div>
+                <p className="mt-2 text-xs leading-relaxed text-ink-soft">{secondOffer.product.shortDescription}</p>
 
                 <div className="mt-3 rounded-md border border-emerald-300 bg-surface px-3 py-2">
                   <p className="flex items-start gap-1.5 text-xs font-bold leading-relaxed text-emerald-800">
@@ -845,73 +889,100 @@ export function CrossSellModal({
           <div className="text-left">
             <button
               type="button"
-              onClick={() => setView("success")}
+              onClick={() => (secondExpandedVideoReview ? setSecondExpandedVideoReview(null) : setView("success"))}
               className="text-xs font-medium text-ink-faint hover:text-foreground"
             >
               ← ফিরে যান
             </button>
-            <p className="mt-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-emerald-700">
-              <MessageSquare size={13} /> গ্রাহকদের মতামত
-            </p>
-            <h2 className="mt-1.5 font-display text-base font-bold text-foreground">{secondOffer.product.title}</h2>
 
-            <div className="mt-3 max-h-80 space-y-5 overflow-y-auto pr-1">
-              <div>
-                <p className="mb-2 text-xs font-semibold text-ink-soft">টেক্সট রিভিউ</p>
-                <div className="space-y-2.5">
-                  {getExpertOpinions(secondOffer.product, 3).map((r, i) => (
-                    <div key={i} className="flex gap-2.5 rounded-lg border border-border bg-surface-muted p-3">
-                      {r.hasPhoto ? (
-                        <div
-                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white/80"
-                          style={{ background: `linear-gradient(135deg, ${secondOffer.product.colorFrom}, ${secondOffer.product.colorTo})` }}
-                        >
-                          <ImageIcon size={16} />
-                        </div>
-                      ) : (
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-light text-sm font-semibold text-primary-dark">
-                          {r.name.charAt(0)}
-                        </div>
-                      )}
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-medium text-foreground">{r.name}</span>
-                          <Star size={12} className="text-star" fill="currentColor" strokeWidth={0} />
-                        </div>
-                        <p className="mt-1 text-sm leading-relaxed text-ink-soft">&ldquo;{r.quote}&rdquo;</p>
-                      </div>
-                    </div>
-                  ))}
+            {secondExpandedVideoReview ? (
+              <div className="mt-3">
+                <div
+                  className="flex aspect-video w-full items-center justify-center overflow-hidden rounded-lg"
+                  style={{ background: `linear-gradient(135deg, ${secondOffer.product.colorFrom}, ${secondOffer.product.colorTo})` }}
+                >
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-surface/90 shadow-sm">
+                    <Play size={28} className="ml-1 text-foreground" fill="currentColor" />
+                  </div>
+                </div>
+                <div className="mt-3">
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-display text-sm font-bold text-foreground">{secondExpandedVideoReview.name}</span>
+                    <Star size={12} className="text-star" fill="currentColor" strokeWidth={0} />
+                  </div>
+                  <p className="mt-2 text-sm leading-relaxed text-ink-soft">&ldquo;{secondExpandedVideoReview.quote}&rdquo;</p>
                 </div>
               </div>
+            ) : (
+              <>
+                <p className="mt-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-emerald-700">
+                  <MessageSquare size={13} /> গ্রাহকদের মতামত
+                </p>
+                <h2 className="mt-1.5 font-display text-base font-bold text-foreground">{secondOffer.product.title}</h2>
 
-              <div>
-                <p className="mb-2 text-xs font-semibold text-ink-soft">ভিডিও রিভিউ</p>
-                <div className="space-y-2.5">
-                  {getExpertVideoOpinions(secondOffer.product, 3).map((r, i) => (
-                    <div key={i} className="rounded-lg border border-border bg-surface-muted p-3">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className="flex h-12 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md"
-                          style={{ background: `linear-gradient(135deg, ${secondOffer.product.colorFrom}, ${secondOffer.product.colorTo})` }}
-                        >
-                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-surface/90">
-                            <Play size={10} className="ml-0.5 text-foreground" fill="currentColor" />
+                <div className="mt-3 max-h-80 space-y-5 overflow-y-auto pr-1">
+                  <div>
+                    <p className="mb-2 text-xs font-semibold text-ink-soft">টেক্সট রিভিউ</p>
+                    <div className="space-y-2.5">
+                      {getExpertOpinions(secondOffer.product, 3).map((r, i) => (
+                        <div key={i} className="flex gap-2.5 rounded-lg border border-border bg-surface-muted p-3">
+                          {r.hasPhoto ? (
+                            <div
+                              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white/80"
+                              style={{ background: `linear-gradient(135deg, ${secondOffer.product.colorFrom}, ${secondOffer.product.colorTo})` }}
+                            >
+                              <ImageIcon size={16} />
+                            </div>
+                          ) : (
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-light text-sm font-semibold text-primary-dark">
+                              {r.name.charAt(0)}
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-xs font-medium text-foreground">{r.name}</span>
+                              <Star size={12} className="text-star" fill="currentColor" strokeWidth={0} />
+                            </div>
+                            <p className="mt-1 text-sm leading-relaxed text-ink-soft">&ldquo;{r.quote}&rdquo;</p>
                           </div>
                         </div>
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <Star size={12} className="text-star" fill="currentColor" strokeWidth={0} />
-                            <span className="text-xs font-medium text-foreground">{r.name}</span>
-                          </div>
-                          <p className="mt-0.5 line-clamp-2 text-xs text-ink-faint">&ldquo;{r.quote}&rdquo;</p>
-                        </div>
-                      </div>
+                      ))}
                     </div>
-                  ))}
+                  </div>
+
+                  <div>
+                    <p className="mb-2 text-xs font-semibold text-ink-soft">ভিডিও রিভিউ</p>
+                    <div className="space-y-2.5">
+                      {getExpertVideoOpinions(secondOffer.product, 3).map((r, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => setSecondExpandedVideoReview(r)}
+                          aria-label={`${r.name} এর ভিডিও রিভিউ বড় করে দেখুন`}
+                          className="group flex w-full items-center gap-3 rounded-lg border border-border bg-surface-muted p-3 text-left"
+                        >
+                          <div
+                            className="flex h-12 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md"
+                            style={{ background: `linear-gradient(135deg, ${secondOffer.product.colorFrom}, ${secondOffer.product.colorTo})` }}
+                          >
+                            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-surface/90 transition group-hover:scale-105">
+                              <Play size={10} className="ml-0.5 text-foreground" fill="currentColor" />
+                            </div>
+                          </div>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <Star size={12} className="text-star" fill="currentColor" strokeWidth={0} />
+                              <span className="text-xs font-medium text-foreground">{r.name}</span>
+                            </div>
+                            <p className="mt-0.5 line-clamp-2 text-xs text-ink-faint">&ldquo;{r.quote}&rdquo;</p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
+              </>
+            )}
 
             <button
               type="button"
@@ -1070,10 +1141,10 @@ export function CrossSellModal({
               ← ফিরে যান
             </button>
             {firstOrderId && (
-              <div className="mt-2 flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2">
-                <CheckCircle2 size={16} className="shrink-0 text-emerald-600" />
-                <p className="text-xs font-medium text-emerald-800">
-                  আপনার আগের অর্ডারটি সফলভাবে সম্পন্ন হয়েছে — অর্ডার আইডি: <span className="font-bold">{firstOrderId}</span>
+              <div className="mt-2 flex items-center gap-2.5 rounded-lg border-2 border-emerald-400 bg-emerald-100 px-3.5 py-3 shadow-sm">
+                <CheckCircle2 size={22} className="shrink-0 text-emerald-600" />
+                <p className="text-sm font-bold text-emerald-900">
+                  আপনার আগের অর্ডারটি সফলভাবে সম্পন্ন হয়েছে — অর্ডার আইডি: <span className="text-emerald-700">{firstOrderId}</span>
                 </p>
               </div>
             )}
