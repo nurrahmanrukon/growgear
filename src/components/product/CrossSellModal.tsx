@@ -51,6 +51,12 @@ function offerCategoryLabel(category: Product["category"]) {
   return category === "gear" ? "প্রোডাক্টিভিটি গিয়ার" : categoryMeta[category].label;
 }
 
+function badgeColorClass(badge?: string) {
+  if (badge === "বেস্ট সেলার") return "bg-amber-500";
+  if (badge === "নতুন") return "bg-sky-500";
+  return "bg-price";
+}
+
 type View =
   | "offer"
   | "preview"
@@ -320,102 +326,111 @@ export function CrossSellModal({
                 </p>
               </div>
             )}
-            <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-emerald-700">
-              <Clock size={13} /> সীমিত সময়ের বিশেষ অফার
-            </p>
-            <h2 className="mt-1.5 font-display text-base font-bold text-foreground">
-              আপনার জন্য বিশেষভাবে বাছাই করা
-            </h2>
+            <div className="mt-4 rounded-lg border border-border bg-surface p-3 shadow-sm">
+              <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-emerald-700">
+                <Clock size={13} /> সীমিত সময়ের বিশেষ অফার
+              </p>
+              <h2 className="mt-1.5 font-display text-base font-bold text-foreground">
+                আপনার জন্য বিশেষভাবে বাছাই করা
+              </h2>
 
-            <div className="mt-3 flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => setView("gallery")}
-                aria-label={`${product.title} এর ছবি বড় করে দেখুন`}
-                className="shrink-0"
-              >
-                <ProductImage
-                  title={product.title}
-                  category={product.category}
-                  colorFrom={product.colorFrom}
-                  colorTo={product.colorTo}
-                  imageUrl={product.coverImageUrl}
-                  hideLabel
-                  className="h-20 w-14 rounded-md"
-                />
-              </button>
-              <button
-                type="button"
-                onClick={() => setView("video")}
-                aria-label={`${product.title} এর ভিডিও দেখুন`}
-                className="group relative flex h-20 w-14 shrink-0 items-center justify-center overflow-hidden rounded-md"
-                style={{ background: `linear-gradient(135deg, ${product.colorFrom}, ${product.colorTo})` }}
-              >
-                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-surface/90 shadow-sm transition group-hover:scale-105">
-                  <Play size={12} className="ml-0.5 text-foreground" fill="currentColor" />
-                </div>
-              </button>
-              <div className="min-w-0">
-                <span className="inline-block rounded bg-primary-light px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-dark">
-                  {offerCategoryLabel(product.category)}
-                </span>
-                <p className="mt-1 truncate font-display text-sm font-bold text-foreground">{product.title}</p>
-                <div className="mt-1 flex items-center gap-1">
-                  <Star size={12} className="text-star" fill="currentColor" strokeWidth={0} />
-                  <span className="text-xs font-medium text-ink-soft">{product.rating.toFixed(1)}</span>
-                  <span className="text-xs text-ink-faint">({toBengaliNumber(product.reviewCount)}+ রিভিউ)</span>
-                </div>
-                <div className="mt-1.5 flex items-center gap-2">
-                  <span className="text-lg font-bold text-foreground">{formatTaka(product.price)}</span>
-                  {product.oldPrice && (
-                    <span className="text-xs text-ink-faint line-through">{formatTaka(product.oldPrice)}</span>
-                  )}
-                  {discount && (
-                    <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-[11px] font-bold text-emerald-700">
-                      -{discount}%
+              <div className="mt-3 flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setView("gallery")}
+                  aria-label={`${product.title} এর ছবি বড় করে দেখুন`}
+                  className="shrink-0"
+                >
+                  <ProductImage
+                    title={product.title}
+                    category={product.category}
+                    colorFrom={product.colorFrom}
+                    colorTo={product.colorTo}
+                    imageUrl={product.coverImageUrl}
+                    hideLabel
+                    className="h-20 w-14 rounded-md"
+                  />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setView("video")}
+                  aria-label={`${product.title} এর ভিডিও দেখুন`}
+                  className="group relative flex h-20 w-14 shrink-0 items-center justify-center overflow-hidden rounded-md"
+                  style={{ background: `linear-gradient(135deg, ${product.colorFrom}, ${product.colorTo})` }}
+                >
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-surface/90 shadow-sm transition group-hover:scale-105">
+                    <Play size={12} className="ml-0.5 text-foreground" fill="currentColor" />
+                  </div>
+                </button>
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-1">
+                    <span className="inline-block rounded bg-primary-light px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-dark">
+                      {offerCategoryLabel(product.category)}
                     </span>
-                  )}
+                    {product.badge && (
+                      <span className={`inline-block rounded px-1.5 py-0.5 text-[10px] font-bold text-white ${badgeColorClass(product.badge)}`}>
+                        {product.badge}
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-1 truncate font-display text-sm font-bold text-foreground">{product.title}</p>
+                  <div className="mt-1 flex items-center gap-1">
+                    <Star size={12} className="text-star" fill="currentColor" strokeWidth={0} />
+                    <span className="text-xs font-medium text-ink-soft">{product.rating.toFixed(1)}</span>
+                    <span className="text-xs text-ink-faint">({toBengaliNumber(product.reviewCount)}+ রিভিউ)</span>
+                  </div>
+                  <div className="mt-1.5 flex items-center gap-2">
+                    <span className="text-lg font-bold text-foreground">{formatTaka(product.price)}</span>
+                    {product.oldPrice && (
+                      <span className="text-xs text-ink-faint line-through">{formatTaka(product.oldPrice)}</span>
+                    )}
+                    {discount && (
+                      <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-[11px] font-bold text-emerald-700">
+                        -{discount}%
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-            <p className="mt-2 text-xs leading-relaxed text-ink-soft">{product.shortDescription}</p>
+              <p className="mt-2 text-xs leading-relaxed text-ink-soft">{product.shortDescription}</p>
 
-            <div className="mt-3 rounded-md border border-sky-300 bg-sky-50 px-3 py-2">
-              <p className="flex items-start gap-1.5 text-xs font-bold leading-relaxed text-sky-900">
-                <Users size={14} className="mt-0.5 shrink-0 text-sky-600" />
-                <span>{text}</span>
-              </p>
-              <p className="mt-1 flex items-center gap-1 pl-[21px] text-[11px] text-sky-800/80">
-                <Star size={11} className="shrink-0 text-star" fill="currentColor" strokeWidth={0} />
-                {product.rating.toFixed(1)} রেটিং — পাঠকদের আস্থার পছন্দ
-              </p>
-            </div>
+              <div className="mt-3 rounded-md border border-sky-300 bg-sky-50 px-3 py-2">
+                <p className="flex items-start gap-1.5 text-xs font-bold leading-relaxed text-sky-900">
+                  <Users size={14} className="mt-0.5 shrink-0 text-sky-600" />
+                  <span>{text}</span>
+                </p>
+                <p className="mt-1 flex items-center gap-1 pl-[21px] text-[11px] text-sky-800/80">
+                  <Star size={11} className="shrink-0 text-star" fill="currentColor" strokeWidth={0} />
+                  {product.rating.toFixed(1)} রেটিং — পাঠকদের আস্থার পছন্দ
+                </p>
+              </div>
 
-            <button
-              type="button"
-              onClick={() => setView("payment")}
-              className="mt-4 w-full rounded-md bg-cta py-2.5 text-center text-sm font-semibold text-white hover:bg-cta-dark"
-            >
-              এখনই অর্ডারে যোগ করুন
-            </button>
+              <button
+                type="button"
+                onClick={() => setView("payment")}
+                className="mt-4 w-full rounded-md bg-cta py-2.5 text-center text-sm font-semibold text-white hover:bg-cta-dark"
+              >
+                এখনই অর্ডারে যোগ করুন
+              </button>
 
-            <div className="mt-3 flex flex-col gap-2">
-              <TableOfContentsToggle product={product} variant="light" />
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setView("preview")}
-                  className="flex items-center justify-center gap-1.5 rounded-lg border border-border bg-surface-muted px-2 py-2.5 text-xs font-medium text-foreground"
-                >
-                  <BookOpen size={14} /> ১৫ পৃষ্ঠা পড়ুন
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setView("reviews")}
-                  className="flex items-center justify-center gap-1.5 rounded-lg border border-border bg-surface-muted px-2 py-2.5 text-xs font-medium text-foreground"
-                >
-                  <MessageSquare size={14} /> রিভিউ দেখুন
-                </button>
+              <div className="mt-3 flex flex-col gap-2">
+                <TableOfContentsToggle product={product} variant="light" />
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setView("preview")}
+                    className="flex items-center justify-center gap-1.5 rounded-lg border border-border bg-surface-muted px-2 py-2.5 text-xs font-medium text-foreground"
+                  >
+                    <BookOpen size={14} /> ১৫ পৃষ্ঠা পড়ুন
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setView("reviews")}
+                    className="flex items-center justify-center gap-1.5 rounded-lg border border-border bg-surface-muted px-2 py-2.5 text-xs font-medium text-foreground"
+                  >
+                    <MessageSquare size={14} /> রিভিউ দেখুন
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -703,6 +718,28 @@ export function CrossSellModal({
                 : "আপনার ঠিকানায় পৌঁছে দেওয়া হবে — ক্যাশ অন ডেলিভারি অথবা অনলাইন পেমেন্ট বেছে নিন।"}
             </p>
 
+            <div className="mt-3 flex items-center gap-3 rounded-lg border border-border bg-surface-muted p-3">
+              <ProductImage
+                title={product.title}
+                category={product.category}
+                colorFrom={product.colorFrom}
+                colorTo={product.colorTo}
+                imageUrl={product.coverImageUrl}
+                hideLabel
+                className="h-14 w-10 shrink-0 rounded-md"
+              />
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-foreground">{product.title}</p>
+                {product.badge && (
+                  <span className={`mt-0.5 inline-block rounded px-1.5 py-0.5 text-[9px] font-bold text-white ${badgeColorClass(product.badge)}`}>
+                    {product.badge}
+                  </span>
+                )}
+                <p className="mt-0.5 text-xs text-ink-faint">পরিমাণ: ১</p>
+              </div>
+              <span className="shrink-0 text-sm font-bold text-foreground">{formatTaka(product.price)}</span>
+            </div>
+
             <div className="mt-3 grid grid-cols-2 gap-2">
               <input
                 value={orderName}
@@ -802,7 +839,7 @@ export function CrossSellModal({
             )}
 
             {secondOffer && (
-              <div className="mt-5 border-t border-border pt-4">
+              <div className="mt-5 rounded-lg border border-border bg-surface p-3 shadow-sm">
                 <p className="text-xs font-bold uppercase tracking-wide text-primary">আপনার জন্য আরও একটি সুযোগ</p>
                 <div className="mt-2 flex items-center gap-2">
                   <button
@@ -833,9 +870,16 @@ export function CrossSellModal({
                     </div>
                   </button>
                   <div className="min-w-0">
-                    <span className="inline-block rounded bg-primary-light px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-dark">
-                      {offerCategoryLabel(secondOffer.category)}
-                    </span>
+                    <div className="flex flex-wrap items-center gap-1">
+                      <span className="inline-block rounded bg-primary-light px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-dark">
+                        {offerCategoryLabel(secondOffer.category)}
+                      </span>
+                      {secondOffer.product.badge && (
+                        <span className={`inline-block rounded px-1.5 py-0.5 text-[10px] font-bold text-white ${badgeColorClass(secondOffer.product.badge)}`}>
+                          {secondOffer.product.badge}
+                        </span>
+                      )}
+                    </div>
                     <p className="mt-1 truncate font-display text-sm font-bold text-foreground">{secondOffer.product.title}</p>
                     <div className="mt-1 flex items-center gap-1">
                       <Star size={12} className="text-star" fill="currentColor" strokeWidth={0} />
@@ -1204,6 +1248,11 @@ export function CrossSellModal({
               />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-foreground">{secondOffer.product.title}</p>
+                {secondOffer.product.badge && (
+                  <span className={`mt-0.5 inline-block rounded px-1.5 py-0.5 text-[9px] font-bold text-white ${badgeColorClass(secondOffer.product.badge)}`}>
+                    {secondOffer.product.badge}
+                  </span>
+                )}
                 <p className="mt-0.5 text-xs text-ink-faint">পরিমাণ: ১</p>
               </div>
               <span className="shrink-0 text-sm font-bold text-foreground">{formatTaka(secondOffer.product.price)}</span>
