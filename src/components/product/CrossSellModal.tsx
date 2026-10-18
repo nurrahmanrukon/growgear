@@ -1354,17 +1354,17 @@ export function CrossSellModal({
               ঠিক আছে
             </button>
 
-            <div className="mt-5 rounded-lg border border-amber-300 bg-amber-50 p-3">
+            <div className="mt-5 rounded-lg border border-violet-300 bg-violet-50 p-3">
               <div className="flex items-center gap-2">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-violet-100 text-violet-600">
                   <Trophy size={18} />
                 </div>
-                <h3 className="font-display text-sm font-bold leading-snug text-amber-900">
-                  অভিনন্দন — আপনি টপ ১% মানুষের একজন
+                <h3 className="font-display text-sm font-bold leading-snug text-violet-900">
+                  অভিনন্দন! আপনি টপ ১% মানুষের একজন!
                 </h3>
               </div>
-              <p className="mt-2 text-left text-xs leading-relaxed text-amber-800/80">
-                বেশিরভাগ মানুষ নিজের উপর খরচ করাকে শুধু &quot;খরচ&quot; মনে করে। কিন্তু বাস্তবে এটাই সবচেয়ে ভালো বিনিয়োগ — আজ নিজের উপর করা এই খরচ আগামীর জন্য একটা ইনকাম। এই সত্যিটা মাত্র টপ ১% মানুষ বোঝেন, আর তারাই জীবনে এগিয়ে থাকেন। অভিনন্দন, আপনিও আজ সেই টপ ১%-এর একজন।
+              <p className="mt-2 text-left text-xs leading-relaxed text-violet-800/80">
+                পৃথিবীর বেশিরভাগ মানুষ নিজের উপর খরচ করাকে &quot;অপচয়&quot; মনে করেন। কিন্তু বাস্তবে এটাই সবচেয়ে ভালো বিনিয়োগ! আজ নিজের উপর করা এই <strong className="text-violet-900">INVESTMENT</strong> টিই ভবিষ্যতে অনেকগুলো <strong className="text-violet-900">INCOME</strong>-এর রাস্তা খুলে দিবে। এই সত্যিটা জানেন অনেকেই, কিন্তু কাজে লাগাতে পারেন টপ ১% মানুষ এবং তারাই জীবনে এগিয়ে থাকেন। অভিনন্দন, আপনিও তাঁদের একজন। আপনার এই সফলতার যাত্রায় পাশে থাকতে পেরে আমরা আনন্দিত এবং আপনার উত্তরোত্তর সাফল্যে কামনা করি।
               </p>
             </div>
 
