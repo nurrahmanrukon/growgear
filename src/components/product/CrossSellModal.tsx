@@ -874,15 +874,6 @@ export function CrossSellModal({
                 ঠিক আছে
               </button>
             )}
-            {isEbook && (
-              <button
-                type="button"
-                onClick={handleClose}
-                className="mt-2 w-full py-1.5 text-center text-xs font-medium text-ink-faint hover:text-foreground"
-              >
-                ঠিক আছে
-              </button>
-            )}
 
             {secondOffer && (
               <div className="mt-5 rounded-lg border border-border bg-surface p-3 shadow-sm">
