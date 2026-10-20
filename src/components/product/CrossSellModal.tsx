@@ -820,7 +820,7 @@ export function CrossSellModal({
                 : "আমাদের একজন প্রতিনিধি শীঘ্রই আপনার সাথে যোগাযোগ করবেন। পণ্য হাতে পেয়ে টাকা পরিশোধ করুন।"}
             </p>
             <p className="mt-2 flex items-center justify-center gap-1 text-xs font-medium text-primary">
-              <Sparkles size={12} className="shrink-0" /> আরেকটা দারুণ সিদ্ধান্ত! আপনি সত্যিই নিজের যত্ন নিচ্ছেন।
+              <Sparkles size={12} className="shrink-0" /> আরেকটা দারুণ সিদ্ধান্ত! আপনি আপনার স্বপ্ন পূরণ করার জন্য সত্যিই অনেক সিরিয়াস!
             </p>
             {isEbook ? (
               <Link
