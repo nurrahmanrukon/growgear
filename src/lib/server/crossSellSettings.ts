@@ -15,6 +15,21 @@ export interface CrossSellSettings {
   message: string;
   /** Whether a second, lighter-touch suggestion shows after the main cross-sell purchase completes. */
   secondOfferEnabled: boolean;
+
+  // --- Marketing copy for the cross-sell modal flow. "**text**" renders bold. ---
+  offerAppreciation: string;
+  offerEyebrow: string;
+  offerHeading: string;
+  secondOfferEyebrow: string;
+  /** "{count}" is replaced with the second offer's review count (Bengali numerals). */
+  secondOfferSocialProof: string;
+  successAppreciation: string;
+  top1PctHeading: string;
+  top1PctBody: string;
+  giftEyebrow: string;
+  giftHeading: string;
+  giftBody: string;
+  giftCta: string;
 }
 
 const FILE_PATH = path.join(process.cwd(), "data", "cross-sell-settings.json");
@@ -27,23 +42,58 @@ const DEFAULTS: CrossSellSettings = {
   soldCount: 5000,
   message: "আমাদের এই প্রোডাক্টটি এখন পর্যন্ত {count}+ মানুষ কিনেছেন — আপনিও নিতে পারেন!",
   secondOfferEnabled: false,
+
+  offerAppreciation: "দারুণ একটা সিদ্ধান্ত! নিজের জন্য এই বিনিয়োগটা করার জন্য অভিনন্দন।",
+  offerEyebrow: "সীমিত সময়ের বিশেষ অফার",
+  offerHeading: "আপনার জন্য বিশেষভাবে বাছাই করা",
+  secondOfferEyebrow: "আপনার জন্য আরও একটি সুযোগ",
+  secondOfferSocialProof: "ইতিমধ্যে {count}+ জন এটি ব্যবহার করছেন — আজকের অর্ডারের সাথেই যোগ করে নিন।",
+  successAppreciation:
+    "একটানা দুইটা দারুণ পদক্ষেপ! এই ধারাবাহিকতাই বলে দিচ্ছে, আপনি নিজের স্বপ্নপূরণের ব্যাপারে কতটা সিরিয়াস। আপনি পিছিয়ে থাকার মানুষ নন!",
+  top1PctHeading: "অভিনন্দন! আপনি টপ ১% মানুষের একজন!",
+  top1PctBody:
+    "বেশিরভাগ মানুষ নিজের জন্য খরচ করাকে অপচয় ভাবে। কিন্তু আপনি জানেন, এটাই আসল বিনিয়োগ। আজকের এই **INVESTMENT** কাল হয়ে উঠবে আপনার অনেকগুলো **INCOME**-এর নতুন উৎস। এই বোঝাপড়াটাই আপনাকে আলাদা করে তোলে। মাত্র টপ ১% মানুষ এমন সিদ্ধান্ত নিতে পারে, আর তারাই জীবনে সবার চেয়ে এগিয়ে থাকে। আপনার এই যাত্রায় পাশে থাকতে পেরে আমরা সত্যিই আনন্দিত। এগিয়ে যান, আরও বড় সাফল্য আপনার অপেক্ষায়!",
+  giftEyebrow: "আপনার জন্য একটা উপহার",
+  giftHeading: "আপনার জন্য রাখা আছে হাই ভ্যালু রিসোর্স",
+  giftBody:
+    "ইতিমধ্যে **১০ লক্ষেরও বেশি মানুষ** এই লেখাগুলো পড়ে উপকৃত হয়েছেন। প্রোডাক্টিভিটি, ক্যারিয়ার এবং বিজনেস নিয়ে গবেষণাভিত্তিক এই লেখাগুলো আপনার চিন্তার দুয়ার খুলে দিবে। প্রতিটি লেখার শেষে দেয়া আছে একশন প্ল্যান যা আপনার গ্রোথের জন্য আজ থেকেই ব্যবহার করতে পারবেন। শেখার জার্নিতে স্বাগতম!",
+  giftCta: "ফ্রি রিসোর্সটি এখনই দেখি",
 };
+
+const STRING_FIELDS = [
+  "ebookSlug",
+  "bookSlug",
+  "gearSlug",
+  "message",
+  "offerAppreciation",
+  "offerEyebrow",
+  "offerHeading",
+  "secondOfferEyebrow",
+  "secondOfferSocialProof",
+  "successAppreciation",
+  "top1PctHeading",
+  "top1PctBody",
+  "giftEyebrow",
+  "giftHeading",
+  "giftBody",
+  "giftCta",
+] as const satisfies readonly (keyof CrossSellSettings)[];
 
 export function getCrossSellSettings(): CrossSellSettings {
   try {
     const raw = fs.readFileSync(FILE_PATH, "utf-8");
     const parsed = JSON.parse(raw) as Partial<CrossSellSettings>;
-    return {
-      enabled: typeof parsed.enabled === "boolean" ? parsed.enabled : DEFAULTS.enabled,
-      ebookSlug: typeof parsed.ebookSlug === "string" ? parsed.ebookSlug.trim() : DEFAULTS.ebookSlug,
-      bookSlug: typeof parsed.bookSlug === "string" ? parsed.bookSlug.trim() : DEFAULTS.bookSlug,
-      gearSlug: typeof parsed.gearSlug === "string" ? parsed.gearSlug.trim() : DEFAULTS.gearSlug,
-      soldCount:
-        typeof parsed.soldCount === "number" && parsed.soldCount >= 0 ? parsed.soldCount : DEFAULTS.soldCount,
-      message: typeof parsed.message === "string" && parsed.message.trim() ? parsed.message : DEFAULTS.message,
-      secondOfferEnabled:
-        typeof parsed.secondOfferEnabled === "boolean" ? parsed.secondOfferEnabled : DEFAULTS.secondOfferEnabled,
-    };
+    const result = { ...DEFAULTS };
+    for (const field of STRING_FIELDS) {
+      const value = parsed[field];
+      if (typeof value === "string" && value.trim()) result[field] = field.endsWith("Slug") ? value.trim() : value;
+    }
+    result.enabled = typeof parsed.enabled === "boolean" ? parsed.enabled : DEFAULTS.enabled;
+    result.secondOfferEnabled =
+      typeof parsed.secondOfferEnabled === "boolean" ? parsed.secondOfferEnabled : DEFAULTS.secondOfferEnabled;
+    result.soldCount =
+      typeof parsed.soldCount === "number" && parsed.soldCount >= 0 ? parsed.soldCount : DEFAULTS.soldCount;
+    return result;
   } catch {
     return DEFAULTS;
   }
@@ -51,16 +101,19 @@ export function getCrossSellSettings(): CrossSellSettings {
 
 export function setCrossSellSettings(update: Partial<CrossSellSettings>): CrossSellSettings {
   const current = getCrossSellSettings();
-  const next: CrossSellSettings = {
-    enabled: update.enabled ?? current.enabled,
-    ebookSlug: update.ebookSlug !== undefined ? update.ebookSlug.trim() : current.ebookSlug,
-    bookSlug: update.bookSlug !== undefined ? update.bookSlug.trim() : current.bookSlug,
-    gearSlug: update.gearSlug !== undefined ? update.gearSlug.trim() : current.gearSlug,
-    soldCount:
-      update.soldCount !== undefined && update.soldCount >= 0 ? update.soldCount : current.soldCount,
-    message: update.message !== undefined && update.message.trim() ? update.message : current.message,
-    secondOfferEnabled: update.secondOfferEnabled ?? current.secondOfferEnabled,
-  };
+  const next = { ...current };
+  for (const field of STRING_FIELDS) {
+    const value = update[field];
+    if (value === undefined) continue;
+    const trimmed = field.endsWith("Slug") ? value.trim() : value;
+    // Slug fields may be intentionally cleared; copy fields fall back to the
+    // current value rather than being saved blank.
+    if (field.endsWith("Slug") || trimmed.trim()) next[field] = trimmed;
+  }
+  next.enabled = update.enabled ?? current.enabled;
+  next.secondOfferEnabled = update.secondOfferEnabled ?? current.secondOfferEnabled;
+  next.soldCount = update.soldCount !== undefined && update.soldCount >= 0 ? update.soldCount : current.soldCount;
+
   fs.mkdirSync(path.dirname(FILE_PATH), { recursive: true });
   fs.writeFileSync(FILE_PATH, JSON.stringify(next, null, 2));
   return next;

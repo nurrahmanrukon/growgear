@@ -60,6 +60,20 @@ function badgeColorClass(badge?: string) {
   return "bg-price";
 }
 
+/** Renders admin-edited copy that may contain "**bold**" markers as React nodes. */
+function renderWithBold(text: string, boldClassName?: string) {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((part, i) =>
+    part.startsWith("**") && part.endsWith("**") ? (
+      <strong key={i} className={boldClassName}>
+        {part.slice(2, -2)}
+      </strong>
+    ) : (
+      part
+    )
+  );
+}
+
 type View =
   | "offer"
   | "preview"
@@ -77,6 +91,21 @@ type View =
 
 export type SecondOffer = { category: "book" | "gear"; product: Product };
 
+export interface CrossSellCopy {
+  offerAppreciation: string;
+  offerEyebrow: string;
+  offerHeading: string;
+  secondOfferEyebrow: string;
+  secondOfferSocialProof: string;
+  successAppreciation: string;
+  top1PctHeading: string;
+  top1PctBody: string;
+  giftEyebrow: string;
+  giftHeading: string;
+  giftBody: string;
+  giftCta: string;
+}
+
 export function CrossSellModal({
   product,
   category,
@@ -91,6 +120,7 @@ export function CrossSellModal({
   orderProductCategory,
   orderProductPrice,
   secondOffer,
+  copy,
   open,
   onClose,
 }: {
@@ -107,6 +137,7 @@ export function CrossSellModal({
   orderProductCategory?: Product["category"];
   orderProductPrice?: number;
   secondOffer?: SecondOffer;
+  copy: CrossSellCopy;
   open: boolean;
   onClose: () => void;
 }) {
@@ -329,17 +360,17 @@ export function CrossSellModal({
                     অর্ডার আইডি: <span className="text-emerald-700">{orderId}</span>
                   </p>
                   <p className="mt-1 flex items-center gap-1 text-xs font-medium text-emerald-700">
-                    <Sparkles size={12} className="shrink-0" /> দারুণ একটা সিদ্ধান্ত! নিজের জন্য এই বিনিয়োগটা করার জন্য অভিনন্দন।
+                    <Sparkles size={12} className="shrink-0" /> {copy.offerAppreciation}
                   </p>
                 </div>
               </div>
             )}
             <div className="mt-4 rounded-lg border border-border bg-surface p-3 shadow-sm">
               <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-emerald-700">
-                <Clock size={13} /> সীমিত সময়ের বিশেষ অফার
+                <Clock size={13} /> {copy.offerEyebrow}
               </p>
               <h2 className="mt-1.5 font-display text-base font-bold text-foreground">
-                আপনার জন্য বিশেষভাবে বাছাই করা
+                {copy.offerHeading}
               </h2>
 
               <div className="mt-3 flex items-center gap-3">
@@ -821,10 +852,7 @@ export function CrossSellModal({
             </p>
             <div className="mt-3 flex items-start gap-1.5 rounded-lg border border-primary/30 bg-primary-light px-3 py-2.5 text-left">
               <Sparkles size={13} className="mt-0.5 shrink-0 text-primary-dark" />
-              <p className="text-xs font-medium leading-relaxed text-primary-dark">
-                একটানা দুইটা দারুণ পদক্ষেপ! এই ধারাবাহিকতাই বলে দিচ্ছে, আপনি নিজের স্বপ্নপূরণের ব্যাপারে কতটা সিরিয়াস। আপনি
-                পিছিয়ে থাকার মানুষ নন!
-              </p>
+              <p className="text-xs font-medium leading-relaxed text-primary-dark">{copy.successAppreciation}</p>
             </div>
             {isEbook ? (
               <Link
@@ -855,7 +883,7 @@ export function CrossSellModal({
 
             {secondOffer && (
               <div className="mt-5 rounded-lg border border-border bg-surface p-3 shadow-sm">
-                <p className="text-xs font-bold uppercase tracking-wide text-primary">আপনার জন্য আরও একটি সুযোগ</p>
+                <p className="text-xs font-bold uppercase tracking-wide text-primary">{copy.secondOfferEyebrow}</p>
                 <div className="mt-2 flex items-center gap-2">
                   <button
                     type="button"
@@ -914,7 +942,9 @@ export function CrossSellModal({
                 <div className="mt-3 rounded-md border border-sky-300 bg-sky-50 px-3 py-2">
                   <p className="flex items-start gap-1.5 text-xs font-bold leading-relaxed text-sky-900">
                     <Users size={14} className="mt-0.5 shrink-0 text-sky-600" />
-                    <span>ইতিমধ্যে {toBengaliNumber(secondOffer.product.reviewCount)}+ জন এটি ব্যবহার করছেন — আজকের অর্ডারের সাথেই যোগ করে নিন।</span>
+                    <span>
+                      {copy.secondOfferSocialProof.replace("{count}", toBengaliNumber(secondOffer.product.reviewCount))}
+                    </span>
                   </p>
                 </div>
 
@@ -1364,14 +1394,10 @@ export function CrossSellModal({
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-violet-100 text-violet-600">
                   <Trophy size={18} />
                 </div>
-                <h3 className="font-display text-sm font-bold leading-snug text-violet-900">
-                  অভিনন্দন! আপনি টপ ১% মানুষের একজন!
-                </h3>
+                <h3 className="font-display text-sm font-bold leading-snug text-violet-900">{copy.top1PctHeading}</h3>
               </div>
               <p className="mt-2 text-left text-xs leading-relaxed text-violet-800/80">
-                বেশিরভাগ মানুষ নিজের জন্য খরচ করাকে অপচয় ভাবে। কিন্তু আপনি জানেন, এটাই আসল বিনিয়োগ। আজকের এই{" "}
-                <strong className="text-violet-900">INVESTMENT</strong> কাল হয়ে উঠবে আপনার অনেকগুলো{" "}
-                <strong className="text-violet-900">INCOME</strong>-এর নতুন উৎস। এই বোঝাপড়াটাই আপনাকে আলাদা করে তোলে। মাত্র টপ ১% মানুষ এমন সিদ্ধান্ত নিতে পারে, আর তারাই জীবনে সবার চেয়ে এগিয়ে থাকে। আপনার এই যাত্রায় পাশে থাকতে পেরে আমরা সত্যিই আনন্দিত। এগিয়ে যান, আরও বড় সাফল্য আপনার অপেক্ষায়!
+                {renderWithBold(copy.top1PctBody, "text-violet-900")}
               </p>
             </div>
 
@@ -1419,18 +1445,16 @@ export function CrossSellModal({
             </div>
 
             <div className="mt-4 rounded-lg border border-border bg-surface p-3 shadow-sm">
-              <p className="text-xs font-bold uppercase tracking-wide text-primary">আপনার জন্য একটা উপহার</p>
+              <p className="text-xs font-bold uppercase tracking-wide text-primary">{copy.giftEyebrow}</p>
               <div className="mt-2 rounded-lg border border-sky-300 bg-sky-50 p-3">
                 <div className="flex items-center gap-2">
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sky-100 text-sky-600">
                     <Newspaper size={18} />
                   </div>
-                  <h3 className="font-display text-sm font-bold leading-snug text-sky-900">
-                    আপনার জন্য রাখা আছে হাই ভ্যালু রিসোর্স
-                  </h3>
+                  <h3 className="font-display text-sm font-bold leading-snug text-sky-900">{copy.giftHeading}</h3>
                 </div>
                 <p className="mt-2 text-left text-xs leading-relaxed text-sky-800/80">
-                  ইতিমধ্যে <strong className="text-sky-900">১০ লক্ষেরও বেশি মানুষ</strong> এই লেখাগুলো পড়ে উপকৃত হয়েছেন। প্রোডাক্টিভিটি, ক্যারিয়ার এবং বিজনেস নিয়ে গবেষণাভিত্তিক এই লেখাগুলো আপনার চিন্তার দুয়ার খুলে দিবে। প্রতিটি লেখার শেষে দেয়া আছে একশন প্ল্যান যা আপনার গ্রোথের জন্য আজ থেকেই ব্যবহার করতে পারবেন। শেখার জার্নিতে স্বাগতম!
+                  {renderWithBold(copy.giftBody, "text-sky-900")}
                 </p>
               </div>
               <Link
@@ -1438,7 +1462,7 @@ export function CrossSellModal({
                 onClick={handleClose}
                 className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-md bg-cta py-2.5 text-center text-sm font-semibold text-white hover:bg-cta-dark"
               >
-                ফ্রি রিসোর্সটি এখনই দেখি <ArrowRight size={14} />
+                {copy.giftCta} <ArrowRight size={14} />
               </Link>
             </div>
           </div>

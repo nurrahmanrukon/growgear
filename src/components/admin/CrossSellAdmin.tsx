@@ -12,6 +12,18 @@ interface CrossSellSettings {
   soldCount: number;
   message: string;
   secondOfferEnabled: boolean;
+  offerAppreciation: string;
+  offerEyebrow: string;
+  offerHeading: string;
+  secondOfferEyebrow: string;
+  secondOfferSocialProof: string;
+  successAppreciation: string;
+  top1PctHeading: string;
+  top1PctBody: string;
+  giftEyebrow: string;
+  giftHeading: string;
+  giftBody: string;
+  giftCta: string;
 }
 
 const fieldClass =
@@ -211,6 +223,127 @@ export function CrossSellAdmin({
             >
               <span className="text-xs font-semibold text-foreground">বন্ধ</span>
             </button>
+          </div>
+        </div>
+
+        <div className="border-t border-border pt-5">
+          <p className="text-sm font-semibold text-foreground">ক্রস-সেল ফ্লোয়ের লেখা</p>
+          <p className="mt-1 text-xs text-ink-soft">
+            অর্ডার সফল হওয়ার পর পুরো ফ্লোয়ে দেখানো মার্কেটিং লেখাগুলো এখান থেকে বদলাতে পারবেন।{" "}
+            <strong>**এভাবে লিখলে**</strong> সেই অংশটা বোল্ড হয়ে দেখাবে।
+          </p>
+
+          <div className="mt-4 space-y-3">
+            <p className="text-xs font-bold uppercase tracking-wide text-ink-faint">১ম অর্ডারের পর (অফার স্ক্রিন)</p>
+            <label className="block text-xs text-ink-soft">
+              ছোট অভিনন্দন লাইন
+              <textarea
+                rows={2}
+                className={`mt-1 ${fieldClass}`}
+                value={settings.offerAppreciation}
+                onChange={(e) => update("offerAppreciation", e.target.value)}
+              />
+            </label>
+            <label className="block text-xs text-ink-soft">
+              অফার কার্ডের উপরের ছোট লেবেল
+              <input
+                className={`mt-1 ${fieldClass}`}
+                value={settings.offerEyebrow}
+                onChange={(e) => update("offerEyebrow", e.target.value)}
+              />
+            </label>
+            <label className="block text-xs text-ink-soft">
+              অফার কার্ডের হেডিং
+              <input
+                className={`mt-1 ${fieldClass}`}
+                value={settings.offerHeading}
+                onChange={(e) => update("offerHeading", e.target.value)}
+              />
+            </label>
+          </div>
+
+          <div className="mt-5 space-y-3">
+            <p className="text-xs font-bold uppercase tracking-wide text-ink-faint">২য় অফার কেনার পর</p>
+            <label className="block text-xs text-ink-soft">
+              অভিনন্দন বক্স
+              <textarea
+                rows={3}
+                className={`mt-1 ${fieldClass}`}
+                value={settings.successAppreciation}
+                onChange={(e) => update("successAppreciation", e.target.value)}
+              />
+            </label>
+            <label className="block text-xs text-ink-soft">
+              দ্বিতীয় অফার কার্ডের উপরের ছোট লেবেল
+              <input
+                className={`mt-1 ${fieldClass}`}
+                value={settings.secondOfferEyebrow}
+                onChange={(e) => update("secondOfferEyebrow", e.target.value)}
+              />
+            </label>
+            <label className="block text-xs text-ink-soft">
+              দ্বিতীয় অফারের সোশ্যাল প্রুফ বার্তা — {"{count}"} লিখলে রিভিউ সংখ্যা বসে যাবে
+              <textarea
+                rows={2}
+                className={`mt-1 ${fieldClass}`}
+                value={settings.secondOfferSocialProof}
+                onChange={(e) => update("secondOfferSocialProof", e.target.value)}
+              />
+            </label>
+          </div>
+
+          <div className="mt-5 space-y-3">
+            <p className="text-xs font-bold uppercase tracking-wide text-ink-faint">৩য়/শেষ অর্ডারের পর</p>
+            <label className="block text-xs text-ink-soft">
+              &quot;টপ ১%&quot; বক্সের হেডিং
+              <input
+                className={`mt-1 ${fieldClass}`}
+                value={settings.top1PctHeading}
+                onChange={(e) => update("top1PctHeading", e.target.value)}
+              />
+            </label>
+            <label className="block text-xs text-ink-soft">
+              &quot;টপ ১%&quot; বক্সের লেখা
+              <textarea
+                rows={5}
+                className={`mt-1 ${fieldClass}`}
+                value={settings.top1PctBody}
+                onChange={(e) => update("top1PctBody", e.target.value)}
+              />
+            </label>
+            <label className="block text-xs text-ink-soft">
+              ব্লগ-উপহার বক্সের উপরের ছোট লেবেল
+              <input
+                className={`mt-1 ${fieldClass}`}
+                value={settings.giftEyebrow}
+                onChange={(e) => update("giftEyebrow", e.target.value)}
+              />
+            </label>
+            <label className="block text-xs text-ink-soft">
+              ব্লগ-উপহার বক্সের হেডিং
+              <input
+                className={`mt-1 ${fieldClass}`}
+                value={settings.giftHeading}
+                onChange={(e) => update("giftHeading", e.target.value)}
+              />
+            </label>
+            <label className="block text-xs text-ink-soft">
+              ব্লগ-উপহার বক্সের লেখা
+              <textarea
+                rows={4}
+                className={`mt-1 ${fieldClass}`}
+                value={settings.giftBody}
+                onChange={(e) => update("giftBody", e.target.value)}
+              />
+            </label>
+            <label className="block text-xs text-ink-soft">
+              ব্লগ-উপহার বাটনের লেখা
+              <input
+                className={`mt-1 ${fieldClass}`}
+                value={settings.giftCta}
+                onChange={(e) => update("giftCta", e.target.value)}
+              />
+            </label>
           </div>
         </div>
 

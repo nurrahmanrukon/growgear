@@ -6,7 +6,7 @@ import { allProducts } from "@/lib/data/products";
 import { getCrossSellSettings, crossSellRotation } from "@/lib/server/crossSellSettings";
 import { getProductBySlugResolved } from "@/lib/server/contentText";
 import { OrderSuccessCrossSell } from "@/components/product/OrderSuccessCrossSell";
-import { SecondOffer } from "@/components/product/CrossSellModal";
+import { CrossSellCopy, SecondOffer } from "@/components/product/CrossSellModal";
 
 export default async function OrderSuccessPage({
   searchParams,
@@ -29,6 +29,21 @@ export default async function OrderSuccessPage({
     (item) => item.slug === firstOfferSlug || item.productId === firstOfferProduct?.id
   );
   const showCrossSell = rotation && firstOfferProduct && !alreadyBoughtFirst;
+
+  const crossSellCopy: CrossSellCopy = {
+    offerAppreciation: crossSell.offerAppreciation,
+    offerEyebrow: crossSell.offerEyebrow,
+    offerHeading: crossSell.offerHeading,
+    secondOfferEyebrow: crossSell.secondOfferEyebrow,
+    secondOfferSocialProof: crossSell.secondOfferSocialProof,
+    successAppreciation: crossSell.successAppreciation,
+    top1PctHeading: crossSell.top1PctHeading,
+    top1PctBody: crossSell.top1PctBody,
+    giftEyebrow: crossSell.giftEyebrow,
+    giftHeading: crossSell.giftHeading,
+    giftBody: crossSell.giftBody,
+    giftCta: crossSell.giftCta,
+  };
 
   let secondOffer: SecondOffer | undefined;
   if (crossSell.secondOfferEnabled && rotation) {
@@ -83,6 +98,7 @@ export default async function OrderSuccessPage({
           orderProductCategory={originalCategory}
           orderProductPrice={order.items[0]?.price}
           secondOffer={secondOffer}
+          copy={crossSellCopy}
         />
       )}
 
