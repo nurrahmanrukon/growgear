@@ -31,6 +31,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin/cross-sell" className="hover:text-white">
             ক্রস-সেল
           </Link>
+          <Link href="/admin/home-sections" className="hover:text-white">
+            হোমপেজ সেকশন
+          </Link>
           <Link href="/admin/product-sections" className="hover:text-white">
             প্রোডাক্ট পেজ সেকশন
           </Link>
