@@ -819,13 +819,13 @@ export function CrossSellModal({
                 ? "ডাউনলোড লিংক আপনার প্রোফাইলে পাওয়া যাবে — যেকোনো সময় পড়তে পারবেন।"
                 : "আমাদের একজন প্রতিনিধি শীঘ্রই আপনার সাথে যোগাযোগ করবেন। পণ্য হাতে পেয়ে টাকা পরিশোধ করুন।"}
             </p>
-            <p className="mt-2 flex items-start justify-center gap-1.5 px-3 text-xs font-medium text-primary">
-              <Sparkles size={12} className="mt-0.5 shrink-0" />
-              <span className="text-center">
-                একটানা দুইটা দারুণ পদক্ষেপ! এই ধারাবাহিকতাই বলে দিচ্ছে, আপনি নিজের স্বপ্নপূরণের ব্যাপারে কতটা সিরিয়াস। আপনার
-                এই যাত্রায় সঙ্গী হতে পেরে আমরা সত্যিই গর্বিত।
-              </span>
-            </p>
+            <div className="mt-3 flex items-start gap-1.5 rounded-lg border border-primary/30 bg-primary-light px-3 py-2.5 text-left">
+              <Sparkles size={13} className="mt-0.5 shrink-0 text-primary-dark" />
+              <p className="text-xs font-medium leading-relaxed text-primary-dark">
+                একটানা দুইটা দারুণ পদক্ষেপ! এই ধারাবাহিকতাই বলে দিচ্ছে, আপনি নিজের স্বপ্নপূরণের ব্যাপারে কতটা সিরিয়াস। আপনি
+                পিছিয়ে থাকার মানুষ নন!
+              </p>
+            </div>
             {isEbook ? (
               <Link
                 href="/profile"
