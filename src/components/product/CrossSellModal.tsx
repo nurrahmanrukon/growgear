@@ -121,7 +121,6 @@ export function CrossSellModal({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [authOpen, setAuthOpen] = useState(false);
-  const [firstOrderId, setFirstOrderId] = useState<string | null>(null);
   const [galleryActive, setGalleryActive] = useState(0);
   const [videoActive, setVideoActive] = useState(0);
   const [secondGalleryActive, setSecondGalleryActive] = useState(0);
@@ -250,7 +249,6 @@ export function CrossSellModal({
         setError(data.error ?? "অর্ডার প্রসেস করা যায়নি, আবার চেষ্টা করুন।");
         return;
       }
-      setFirstOrderId(data.orderId ?? null);
       setView("success");
     } catch {
       setError("নেটওয়ার্ক সমস্যা হয়েছে, আবার চেষ্টা করুন।");
@@ -808,7 +806,7 @@ export function CrossSellModal({
         {view === "success" && (
           <div className="py-2 text-center text-left">
             <p className="text-center font-display text-base font-bold text-foreground">
-              {isEbook ? "ইবুকটি অর্ডার হয়ে গেছে!" : "অর্ডারটি গ্রহণ করা হয়েছে!"}
+              {product.title} ({categoryMeta[product.category].label}) {isEbook ? "অর্ডার হয়ে গেছে!" : "অর্ডারটি গ্রহণ করা হয়েছে!"}
             </p>
             <p className="mt-2 text-center text-sm text-ink-soft">
               {isEbook
@@ -1229,14 +1227,6 @@ export function CrossSellModal({
             >
               ← ফিরে যান
             </button>
-            {firstOrderId && (
-              <div className="mt-2 flex items-center gap-2.5 rounded-lg border-2 border-emerald-400 bg-emerald-100 px-3.5 py-3 shadow-sm">
-                <CheckCircle2 size={22} className="shrink-0 text-emerald-600" />
-                <p className="text-sm font-bold text-emerald-900">
-                  <strong>{product.title}</strong> ({categoryMeta[product.category].label}) অর্ডারটি সফলভাবে সম্পন্ন হয়েছে — অর্ডার আইডি: <span className="text-emerald-700">{firstOrderId}</span>
-                </p>
-              </div>
-            )}
             <h2 className="mt-2 font-display text-base font-bold text-foreground">অর্ডার কনফার্ম করুন</h2>
             <p className="mt-1 text-xs text-ink-soft">আপনার ঠিকানায় পৌঁছে দেওয়া হবে — ক্যাশ অন ডেলিভারি অথবা অনলাইন পেমেন্ট বেছে নিন।</p>
 
@@ -1342,7 +1332,9 @@ export function CrossSellModal({
 
         {view === "secondSuccess" && secondOffer && (
           <div className="py-2 text-center text-left">
-            <p className="text-center font-display text-base font-bold text-foreground">অর্ডারটি গ্রহণ করা হয়েছে!</p>
+            <p className="text-center font-display text-base font-bold text-foreground">
+              {secondOffer.product.title} ({categoryMeta[secondOffer.category].label}) অর্ডারটি গ্রহণ করা হয়েছে!
+            </p>
             <p className="mt-2 text-center text-sm text-ink-soft">
               আমাদের একজন প্রতিনিধি শীঘ্রই আপনার সাথে যোগাযোগ করবেন। পণ্য হাতে পেয়ে টাকা পরিশোধ করুন।
             </p>
