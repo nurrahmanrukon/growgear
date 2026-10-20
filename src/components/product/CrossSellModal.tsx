@@ -440,7 +440,7 @@ export function CrossSellModal({
 
         {view === "preview" && (
           <div className="text-left">
-            <button type="button" onClick={() => setView("offer")} className="text-xs font-medium text-ink-faint hover:text-foreground">
+            <button type="button" onClick={() => setView("offer")} className="inline-flex items-center gap-1 rounded-md border border-primary/30 bg-primary-light px-2.5 py-1.5 text-xs font-bold text-primary-dark hover:bg-primary-light/70">
               ← ফিরে যান
             </button>
             <p className="mt-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-emerald-700">
@@ -470,7 +470,7 @@ export function CrossSellModal({
 
         {view === "gallery" && (
           <div className="text-left">
-            <button type="button" onClick={() => setView("offer")} className="text-xs font-medium text-ink-faint hover:text-foreground">
+            <button type="button" onClick={() => setView("offer")} className="inline-flex items-center gap-1 rounded-md border border-primary/30 bg-primary-light px-2.5 py-1.5 text-xs font-bold text-primary-dark hover:bg-primary-light/70">
               ← ফিরে যান
             </button>
             <div className="relative mt-3">
@@ -540,7 +540,7 @@ export function CrossSellModal({
           const activeSlot = slots[videoActive] ?? slots[0];
           return (
             <div className="text-left">
-              <button type="button" onClick={() => setView("offer")} className="text-xs font-medium text-ink-faint hover:text-foreground">
+              <button type="button" onClick={() => setView("offer")} className="inline-flex items-center gap-1 rounded-md border border-primary/30 bg-primary-light px-2.5 py-1.5 text-xs font-bold text-primary-dark hover:bg-primary-light/70">
                 ← ফিরে যান
               </button>
               <div
@@ -602,7 +602,7 @@ export function CrossSellModal({
             <button
               type="button"
               onClick={() => (expandedVideoReview ? setExpandedVideoReview(null) : setView("offer"))}
-              className="text-xs font-medium text-ink-faint hover:text-foreground"
+              className="inline-flex items-center gap-1 rounded-md border border-primary/30 bg-primary-light px-2.5 py-1.5 text-xs font-bold text-primary-dark hover:bg-primary-light/70"
             >
               ← ফিরে যান
             </button>
@@ -708,7 +708,7 @@ export function CrossSellModal({
 
         {view === "payment" && (
           <div className="text-left">
-            <button type="button" onClick={() => setView("offer")} className="text-xs font-medium text-ink-faint hover:text-foreground">
+            <button type="button" onClick={() => setView("offer")} className="inline-flex items-center gap-1 rounded-md border border-primary/30 bg-primary-light px-2.5 py-1.5 text-xs font-bold text-primary-dark hover:bg-primary-light/70">
               ← ফিরে যান
             </button>
             <h2 className="mt-2 font-display text-base font-bold text-foreground">
@@ -819,7 +819,7 @@ export function CrossSellModal({
                 onClick={handleClose}
                 className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-md bg-cta py-2.5 text-center text-sm font-semibold text-white hover:bg-cta-dark"
               >
-                আমার প্রোফাইলে পড়ুন <ArrowRight size={14} />
+                আপনার প্রোফাইলে পড়ুন <ArrowRight size={14} />
               </Link>
             ) : (
               <button
@@ -943,7 +943,7 @@ export function CrossSellModal({
             <button
               type="button"
               onClick={() => setView("success")}
-              className="text-xs font-medium text-ink-faint hover:text-foreground"
+              className="inline-flex items-center gap-1 rounded-md border border-primary/30 bg-primary-light px-2.5 py-1.5 text-xs font-bold text-primary-dark hover:bg-primary-light/70"
             >
               ← ফিরে যান
             </button>
@@ -977,7 +977,7 @@ export function CrossSellModal({
             <button
               type="button"
               onClick={() => (secondExpandedVideoReview ? setSecondExpandedVideoReview(null) : setView("success"))}
-              className="text-xs font-medium text-ink-faint hover:text-foreground"
+              className="inline-flex items-center gap-1 rounded-md border border-primary/30 bg-primary-light px-2.5 py-1.5 text-xs font-bold text-primary-dark hover:bg-primary-light/70"
             >
               ← ফিরে যান
             </button>
@@ -1090,7 +1090,7 @@ export function CrossSellModal({
               <button
                 type="button"
                 onClick={() => setView("success")}
-                className="text-xs font-medium text-ink-faint hover:text-foreground"
+                className="inline-flex items-center gap-1 rounded-md border border-primary/30 bg-primary-light px-2.5 py-1.5 text-xs font-bold text-primary-dark hover:bg-primary-light/70"
               >
                 ← ফিরে যান
               </button>
@@ -1153,7 +1153,7 @@ export function CrossSellModal({
             <button
               type="button"
               onClick={() => setView("success")}
-              className="text-xs font-medium text-ink-faint hover:text-foreground"
+              className="inline-flex items-center gap-1 rounded-md border border-primary/30 bg-primary-light px-2.5 py-1.5 text-xs font-bold text-primary-dark hover:bg-primary-light/70"
             >
               ← ফিরে যান
             </button>
@@ -1223,7 +1223,7 @@ export function CrossSellModal({
             <button
               type="button"
               onClick={() => setView("success")}
-              className="text-xs font-medium text-ink-faint hover:text-foreground"
+              className="inline-flex items-center gap-1 rounded-md border border-primary/30 bg-primary-light px-2.5 py-1.5 text-xs font-bold text-primary-dark hover:bg-primary-light/70"
             >
               ← ফিরে যান
             </button>
