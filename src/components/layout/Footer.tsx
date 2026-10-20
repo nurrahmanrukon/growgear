@@ -32,7 +32,9 @@ const columns: { title: string; links: { label: string; href: string }[] }[] = [
     links: [
       { label: "কার্ট", href: "/cart" },
       { label: "চেকআউট", href: "/checkout" },
-      { label: "ক্যাশ অন ডেলিভারি", href: "/" },
+      { label: "রিটার্ন ও রিফান্ড পলিসি", href: "/refund-policy" },
+      { label: "ব্যবহারের শর্তাবলী", href: "/terms" },
+      { label: "প্রাইভেসি পলিসি", href: "/privacy" },
     ],
   },
 ];

@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyOtpChallenge } from "@/lib/server/otp";
 import { upsertProfile } from "@/lib/server/profiles";
 import { createProfileSessionToken, PROFILE_COOKIE, PROFILE_SESSION_MAX_AGE_SECONDS } from "@/lib/server/profileAuth";
+import { checkRateLimit, clientIp, RATE_LIMIT_MESSAGE } from "@/lib/server/rateLimit";
+
+const WINDOW_MS = 10 * 60 * 1000;
+const MAX_ATTEMPTS_PER_IP = 20;
 
 export async function POST(req: NextRequest) {
   let body: { challenge?: string; code?: string };
@@ -13,6 +17,12 @@ export async function POST(req: NextRequest) {
 
   if (!body.challenge || !body.code) {
     return NextResponse.json({ error: "কোড আবশ্যক" }, { status: 400 });
+  }
+
+  const ip = clientIp(req);
+  const limit = checkRateLimit(`otp-verify:ip:${ip}`, MAX_ATTEMPTS_PER_IP, WINDOW_MS);
+  if (!limit.allowed) {
+    return NextResponse.json({ error: RATE_LIMIT_MESSAGE }, { status: 429 });
   }
 
   const data = verifyOtpChallenge(body.challenge, body.code);

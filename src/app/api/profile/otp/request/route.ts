@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createOtpChallenge, generateOtpCode } from "@/lib/server/otp";
-import { sendOtpEmail, otpEmailIsDevMode } from "@/lib/server/mailer";
+import { sendOtpEmail, otpDevCodeAllowed } from "@/lib/server/mailer";
+import { checkRateLimit, clientIp, RATE_LIMIT_MESSAGE } from "@/lib/server/rateLimit";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const WINDOW_MS = 15 * 60 * 1000;
+const MAX_PER_IP = 10;
+const MAX_PER_EMAIL = 5;
 
 export async function POST(req: NextRequest) {
   let body: { name?: string; email?: string; whatsapp?: string };
@@ -24,6 +28,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "সঠিক হোয়াটসঅ্যাপ নম্বর দিন" }, { status: 400 });
   }
 
+  const ip = clientIp(req);
+  const ipLimit = checkRateLimit(`otp-request:ip:${ip}`, MAX_PER_IP, WINDOW_MS);
+  const emailLimit = checkRateLimit(`otp-request:email:${email.toLowerCase()}`, MAX_PER_EMAIL, WINDOW_MS);
+  if (!ipLimit.allowed || !emailLimit.allowed) {
+    return NextResponse.json({ error: RATE_LIMIT_MESSAGE }, { status: 429 });
+  }
+
   const code = generateOtpCode();
   const challenge = createOtpChallenge({ email, name, whatsapp }, code);
 
@@ -36,6 +47,6 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({
     ok: true,
     challenge,
-    ...(otpEmailIsDevMode() ? { devCode: code } : {}),
+    ...(otpDevCodeAllowed() ? { devCode: code } : {}),
   });
 }
