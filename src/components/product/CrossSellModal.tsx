@@ -17,6 +17,7 @@ import {
   Newspaper,
   Play,
   Smartphone,
+  Sparkles,
   Star,
   Trophy,
   Users,
@@ -315,17 +316,22 @@ export function CrossSellModal({
             {orderId && (
               <div className="mb-3 flex items-center gap-2.5 rounded-lg border-2 border-emerald-400 bg-emerald-100 px-3.5 py-3 shadow-sm">
                 <CheckCircle2 size={22} className="shrink-0 text-emerald-600" />
-                <p className="text-sm font-bold text-emerald-900">
-                  {orderProductTitle ? (
-                    <>
-                      <strong>{orderProductTitle}</strong>
-                      {orderProductCategory && ` (${categoryMeta[orderProductCategory].label})`} অর্ডারটি সফলভাবে সম্পন্ন হয়েছে —{" "}
-                    </>
-                  ) : (
-                    "আপনার অর্ডারটি সফলভাবে সম্পন্ন হয়েছে — "
-                  )}
-                  অর্ডার আইডি: <span className="text-emerald-700">{orderId}</span>
-                </p>
+                <div>
+                  <p className="text-sm font-bold text-emerald-900">
+                    {orderProductTitle ? (
+                      <>
+                        <strong>{orderProductTitle}</strong>
+                        {orderProductCategory && ` (${categoryMeta[orderProductCategory].label})`} অর্ডারটি সফলভাবে সম্পন্ন হয়েছে —{" "}
+                      </>
+                    ) : (
+                      "আপনার অর্ডারটি সফলভাবে সম্পন্ন হয়েছে — "
+                    )}
+                    অর্ডার আইডি: <span className="text-emerald-700">{orderId}</span>
+                  </p>
+                  <p className="mt-1 flex items-center gap-1 text-xs font-medium text-emerald-700">
+                    <Sparkles size={12} className="shrink-0" /> দারুণ একটা সিদ্ধান্ত! নিজের জন্য এই বিনিয়োগটা করার জন্য অভিনন্দন।
+                  </p>
+                </div>
               </div>
             )}
             <div className="mt-4 rounded-lg border border-border bg-surface p-3 shadow-sm">
@@ -812,6 +818,9 @@ export function CrossSellModal({
               {isEbook
                 ? "ডাউনলোড লিংক আপনার প্রোফাইলে পাওয়া যাবে — যেকোনো সময় পড়তে পারবেন।"
                 : "আমাদের একজন প্রতিনিধি শীঘ্রই আপনার সাথে যোগাযোগ করবেন। পণ্য হাতে পেয়ে টাকা পরিশোধ করুন।"}
+            </p>
+            <p className="mt-2 flex items-center justify-center gap-1 text-xs font-medium text-primary">
+              <Sparkles size={12} className="shrink-0" /> আরেকটা দারুণ সিদ্ধান্ত! আপনি সত্যিই নিজের যত্ন নিচ্ছেন।
             </p>
             {isEbook ? (
               <Link
