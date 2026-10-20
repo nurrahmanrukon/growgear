@@ -24,6 +24,7 @@ import { InlineCtaBar } from "@/components/product/InlineCtaBar";
 import { categoryMeta } from "@/lib/data/products";
 import { getDefaultSectionOrder } from "@/lib/server/sectionOrder";
 import { getVideoOrder, getPainPointsCount } from "@/lib/server/contentText";
+import { getResolvedSocialProofPosts } from "@/lib/server/socialProofPosts";
 
 export function ProductDetailView({
   product,
@@ -42,6 +43,7 @@ export function ProductDetailView({
   const expertVideoOrder = getVideoOrder(product.slug, "expert");
   const productVideoOrder = getVideoOrder(product.slug, "product");
   const painPointsCount = getPainPointsCount(product.slug);
+  const socialProofPosts = getResolvedSocialProofPosts(product);
 
   const sectionRenderers: Record<string, () => React.ReactNode> = {
     video: () => (
@@ -52,7 +54,7 @@ export function ProductDetailView({
     ),
     socialProof: () => (
       <>
-        <SocialProofScreenshotsSection product={product} />
+        <SocialProofScreenshotsSection product={product} posts={socialProofPosts} />
         <InlineCtaBar product={product} />
       </>
     ),

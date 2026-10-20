@@ -2,33 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { ThumbsUp, Heart, MessageCircle, Send, X, ChevronLeft, ChevronRight } from "lucide-react";
-import { Product } from "@/lib/types";
-import { PERSON_NAMES, hashString } from "@/lib/data/social";
+import { ResolvedSocialProofPost, SocialPlatform } from "@/lib/server/socialProofPosts";
 import { toBengaliNumber } from "@/lib/format";
 
 const STACK_SIZE = 3;
-const STACK_COUNT = 6;
-const TOTAL_POSTS = STACK_COUNT * STACK_SIZE;
-
-type Platform = "facebook" | "instagram" | "whatsapp";
-
-const SOCIAL_COMMENTS = [
-  (t: string) => `এইমাত্র "${t}" হাতে পেলাম, প্যাকেজিং টা অসাধারণ ছিল! 😍`,
-  () => `অনেকদিন ধরে এমন কিছু খুঁজছিলাম, অবশেষে পেয়ে গেলাম। দারুণ! 🔥`,
-  (t: string) => `যারা জিজ্ঞেস করেছিলেন "${t}" কেমন — হাতে পেয়ে বলছি, একদম worth it 👍`,
-  () => `কালকে অর্ডার করেছিলাম, আজকেই হাতে পেয়ে গেছি। এত দ্রুত ডেলিভারি আশা করিনি!`,
-  () => `প্রথমে একটু সন্দেহ ছিল, কিন্তু এখন পুরাই সন্তুষ্ট। সবাইকে রেকমেন্ড করবো ❤️`,
-  (t: string) => `"${t}" নিয়ে আমার রিভিউ — সত্যিই দাম উসুল, কোনো কমপ্লেইন নাই।`,
-];
-
-interface SocialPost {
-  name: string;
-  platform: Platform;
-  text: string;
-  likes: number;
-  hoursAgo: number;
-  seed: number;
-}
 
 function initials(name: string) {
   return name.trim().charAt(0);
@@ -38,21 +15,7 @@ function handleFor(name: string, seed: number) {
   return "@" + name.replace(/\s+/g, "").toLowerCase() + (10 + (seed % 89));
 }
 
-function socialProofPosts(product: Product, count: number): SocialPost[] {
-  const base = hashString(product.id + "social");
-  const platforms: Platform[] = ["facebook", "instagram", "whatsapp"];
-  return Array.from({ length: count }).map((_, i) => {
-    const seed = base + i * 41;
-    const name = PERSON_NAMES[seed % PERSON_NAMES.length];
-    const platform = platforms[i % platforms.length];
-    const text = SOCIAL_COMMENTS[Math.floor(seed / 7) % SOCIAL_COMMENTS.length](product.title);
-    const likes = 8 + (seed % 140);
-    const hoursAgo = 1 + (seed % 20);
-    return { name, platform, text, likes, hoursAgo, seed };
-  });
-}
-
-function FacebookMock({ name, text, likes, hoursAgo, seed, large }: SocialPost & { large?: boolean }) {
+function FacebookMock({ name, text, likes, hoursAgo, seed, large }: ResolvedSocialProofPost & { seed: number; large?: boolean }) {
   return (
     <div className={`rounded-md border border-border bg-surface text-left shadow-sm ${large ? "p-4" : "p-2.5"}`}>
       <div>
@@ -89,7 +52,7 @@ function FacebookMock({ name, text, likes, hoursAgo, seed, large }: SocialPost &
   );
 }
 
-function InstagramMock({ name, text, likes, seed, large }: SocialPost & { large?: boolean }) {
+function InstagramMock({ name, text, likes, seed, large }: ResolvedSocialProofPost & { seed: number; large?: boolean }) {
   return (
     <div className={`rounded-md border border-border bg-surface text-left shadow-sm ${large ? "p-4" : "p-2.5"}`}>
       <div>
@@ -122,7 +85,7 @@ function InstagramMock({ name, text, likes, seed, large }: SocialPost & { large?
   );
 }
 
-function WhatsAppMock({ name, text, hoursAgo, large }: SocialPost & { large?: boolean }) {
+function WhatsAppMock({ name, text, hoursAgo, large }: ResolvedSocialProofPost & { seed: number; large?: boolean }) {
   return (
     <div className={`rounded-md border border-border shadow-sm ${large ? "p-4" : "p-2.5"}`} style={{ background: "#e9f5e1" }}>
       <div
@@ -144,13 +107,36 @@ function WhatsAppMock({ name, text, hoursAgo, large }: SocialPost & { large?: bo
   );
 }
 
-function SocialMock({ post, large }: { post: SocialPost; large?: boolean }) {
-  if (post.platform === "facebook") return <FacebookMock {...post} large={large} />;
-  if (post.platform === "instagram") return <InstagramMock {...post} large={large} />;
-  return <WhatsAppMock {...post} large={large} />;
+function platformAccent(platform: SocialPlatform) {
+  if (platform === "facebook") return "text-[#1877F2]";
+  if (platform === "instagram") return "text-[#ee2a7b]";
+  return "text-[#25D366]";
 }
 
-function SocialStackTile({ stack, onOpen }: { stack: SocialPost[]; onOpen: () => void }) {
+/** A real uploaded screenshot, when the admin has provided one — shown as-is instead of
+ *  the synthetic mock card, with just a small platform-colored corner tag for context. */
+function RealScreenshot({ post, large }: { post: ResolvedSocialProofPost; large?: boolean }) {
+  return (
+    <div className={`overflow-hidden rounded-md border border-border bg-surface shadow-sm ${large ? "" : ""}`}>
+      {/* eslint-disable-next-line @next/next/no-img-element -- admin-uploaded screenshot, arbitrary source */}
+      <img
+        src={post.imageUrl}
+        alt={`${post.name} এর মন্তব্যের স্ক্রিনশট`}
+        className={`block w-full object-cover ${large ? "max-h-[70vh]" : "aspect-[4/5]"}`}
+      />
+    </div>
+  );
+}
+
+function SocialMock({ post, large }: { post: ResolvedSocialProofPost; large?: boolean }) {
+  if (post.imageUrl) return <RealScreenshot post={post} large={large} />;
+  const seed = post.id.length + post.name.length + post.likes;
+  if (post.platform === "facebook") return <FacebookMock {...post} seed={seed} large={large} />;
+  if (post.platform === "instagram") return <InstagramMock {...post} seed={seed} large={large} />;
+  return <WhatsAppMock {...post} seed={seed} large={large} />;
+}
+
+function SocialStackTile({ stack, onOpen }: { stack: ResolvedSocialProofPost[]; onOpen: () => void }) {
   return (
     <button
       type="button"
@@ -174,13 +160,21 @@ function SocialStackTile({ stack, onOpen }: { stack: SocialPost[]; onOpen: () =>
   );
 }
 
-export function SocialProofScreenshotsSection({ product }: { product: Product }) {
-  const posts = socialProofPosts(product, TOTAL_POSTS);
-  const stacks = Array.from({ length: STACK_COUNT }, (_, i) => posts.slice(i * STACK_SIZE, i * STACK_SIZE + STACK_SIZE));
+export function SocialProofScreenshotsSection({
+  product,
+  posts,
+}: {
+  product: { title: string };
+  posts: ResolvedSocialProofPost[];
+}) {
+  const stacks: ResolvedSocialProofPost[][] = [];
+  for (let i = 0; i < posts.length; i += STACK_SIZE) {
+    stacks.push(posts.slice(i, i + STACK_SIZE));
+  }
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   function go(delta: number) {
-    setActiveIndex((i) => (i === null ? null : (i + delta + TOTAL_POSTS) % TOTAL_POSTS));
+    setActiveIndex((i) => (i === null ? null : (i + delta + posts.length) % posts.length));
   }
 
   useEffect(() => {
@@ -193,6 +187,8 @@ export function SocialProofScreenshotsSection({ product }: { product: Product })
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, [activeIndex]);
+
+  if (posts.length === 0) return null;
 
   return (
     <section className="container-page py-10">
@@ -228,7 +224,11 @@ export function SocialProofScreenshotsSection({ product }: { product: Product })
 
             <div className="relative">
               <SocialMock post={posts[activeIndex]} large />
-              <span className="pointer-events-none absolute left-2 top-2 rounded-full bg-black/50 px-2 py-0.5 text-[10px] font-medium text-white">
+              <span
+                className={`pointer-events-none absolute left-2 top-2 rounded-full bg-black/50 px-2 py-0.5 text-[10px] font-medium text-white ${platformAccent(
+                  posts[activeIndex].platform
+                )}`}
+              >
                 {toBengaliNumber(activeIndex + 1)}/{toBengaliNumber(posts.length)}
               </span>
               <button

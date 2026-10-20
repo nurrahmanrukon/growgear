@@ -37,6 +37,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin/product-sections" className="hover:text-white">
             প্রোডাক্ট পেজ সেকশন
           </Link>
+          <Link href="/admin/social-proof" className="hover:text-white">
+            সোশ্যাল মিডিয়া স্ক্রিনশট
+          </Link>
           <Link href="/admin/payment-methods" className="hover:text-white">
             পেমেন্ট পদ্ধতি
           </Link>
