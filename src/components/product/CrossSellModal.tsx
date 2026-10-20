@@ -363,9 +363,9 @@ export function CrossSellModal({
               </div>
             )}
             {orderId && (
-              <div className="mb-3 flex items-start gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2.5">
-                <Sparkles size={14} className="mt-0.5 shrink-0 text-amber-500" />
-                <p className="text-xs font-semibold leading-relaxed text-amber-900">{copy.offerAppreciation}</p>
+              <div className="mb-3 flex items-start gap-2 rounded-lg border border-violet-300 bg-violet-50 px-3 py-2.5">
+                <Sparkles size={14} className="mt-0.5 shrink-0 text-violet-600" />
+                <p className="text-xs font-semibold leading-relaxed text-violet-900">{copy.offerAppreciation}</p>
               </div>
             )}
             <div className="mt-4 rounded-lg border border-border bg-surface p-3 shadow-sm">
@@ -853,9 +853,9 @@ export function CrossSellModal({
                 ? "ডাউনলোড লিংক আপনার প্রোফাইলে পাওয়া যাবে — যেকোনো সময় পড়তে পারবেন।"
                 : "আমাদের একজন প্রতিনিধি শীঘ্রই আপনার সাথে যোগাযোগ করবেন। পণ্য হাতে পেয়ে টাকা পরিশোধ করুন।"}
             </p>
-            <div className="mt-3 flex items-start gap-1.5 rounded-lg border border-rose-300 bg-rose-50 px-3 py-2.5 text-left">
-              <Sparkles size={13} className="mt-0.5 shrink-0 text-rose-500" />
-              <p className="text-xs font-semibold leading-relaxed text-rose-900">{copy.successAppreciation}</p>
+            <div className="mt-3 flex items-start gap-1.5 rounded-lg border border-violet-300 bg-violet-50 px-3 py-2.5 text-left">
+              <Sparkles size={13} className="mt-0.5 shrink-0 text-violet-600" />
+              <p className="text-xs font-semibold leading-relaxed text-violet-900">{copy.successAppreciation}</p>
             </div>
             {isEbook ? (
               <Link
