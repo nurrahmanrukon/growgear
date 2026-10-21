@@ -3,9 +3,15 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { PenLine } from "lucide-react";
-import { TOPICS } from "@/lib/data/blog";
+import { TOPICS as ALL_TOPICS } from "@/lib/data/blog";
 
-export function TopicNav({ activeTopic }: { activeTopic?: string }) {
+export function TopicNav({
+  activeTopic,
+  topics = ALL_TOPICS,
+}: {
+  activeTopic?: string;
+  topics?: typeof ALL_TOPICS;
+}) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -41,7 +47,7 @@ export function TopicNav({ activeTopic }: { activeTopic?: string }) {
           >
             সব লেখা
           </Link>
-          {TOPICS.map((topic) => (
+          {topics.map((topic) => (
             <Link
               key={topic.slug}
               href={`/blog?topic=${topic.slug}`}

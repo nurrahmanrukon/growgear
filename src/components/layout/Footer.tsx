@@ -2,52 +2,32 @@
 
 import Link from "next/link";
 import { ArrowUp } from "lucide-react";
-
-const columns: { key: string; links: { label: string; href: string }[] }[] = [
-  {
-    key: "about",
-    links: [
-      { label: "আমাদের সম্পর্কে", href: "/" },
-      { label: "ব্লগ", href: "/blog" },
-      { label: "যোগাযোগ", href: "/" },
-    ],
-  },
-  {
-    key: "shop",
-    links: [
-      { label: "বই", href: "/books" },
-      { label: "ইবুক", href: "/ebooks" },
-      { label: "প্রোডাক্টিভিটি গিয়ার", href: "/gear" },
-    ],
-  },
-  {
-    key: "learn",
-    links: [
-      { label: "সব কোর্স", href: "/course" },
-      { label: "enrich.com.bd", href: "https://enrich.com.bd" },
-    ],
-  },
-  {
-    key: "support",
-    links: [
-      { label: "কার্ট", href: "/cart" },
-      { label: "চেকআউট", href: "/checkout" },
-      { label: "রিটার্ন ও রিফান্ড পলিসি", href: "/refund-policy" },
-      { label: "ব্যবহারের শর্তাবলী", href: "/terms" },
-      { label: "প্রাইভেসি পলিসি", href: "/privacy" },
-    ],
-  },
-];
+import { FOOTER_GROUP_CATALOG, FOOTER_LINK_CATALOG } from "@/lib/data/footerLinks";
 
 export function Footer({
   hiddenGroups = [],
+  groupOrder,
+  linkOrder,
   groupTitles,
   copyright,
 }: {
   hiddenGroups?: string[];
+  groupOrder?: string[];
+  linkOrder?: Record<string, number[]>;
   groupTitles: Record<string, string>;
   copyright: string;
 }) {
+  const orderedKeys =
+    groupOrder && groupOrder.length === FOOTER_GROUP_CATALOG.length
+      ? groupOrder
+      : FOOTER_GROUP_CATALOG.map((g) => g.key);
+  const columns = orderedKeys.map((key) => {
+    const baseLinks = FOOTER_LINK_CATALOG[key] ?? [];
+    const order = linkOrder?.[key];
+    const links =
+      order && order.length === baseLinks.length ? order.map((i) => baseLinks[i]).filter(Boolean) : baseLinks;
+    return { key, links };
+  });
   const visibleColumns = columns.filter((col) => !hiddenGroups.includes(col.key));
   return (
     <footer className="mt-16 bg-foreground text-background/90">

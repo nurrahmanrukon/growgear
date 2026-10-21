@@ -40,7 +40,7 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
   }
 
   const visibleKeys = getVisibleOrderedKeys();
-  const { hiddenGroups } = getFooterSettings();
+  const { hiddenGroups, groupOrder, linkOrder } = getFooterSettings();
   const groupTitles = {
     about: text.footerAboutTitle,
     shop: text.footerShopTitle,
@@ -51,7 +51,13 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
     <>
       <Header visibleKeys={visibleKeys} />
       <main className="flex-1">{children}</main>
-      <Footer hiddenGroups={hiddenGroups} groupTitles={groupTitles} copyright={text.footerCopyright} />
+      <Footer
+        hiddenGroups={hiddenGroups}
+        groupOrder={groupOrder}
+        linkOrder={linkOrder}
+        groupTitles={groupTitles}
+        copyright={text.footerCopyright}
+      />
       {toastEnabled && (
         <PurchaseToast
           products={liveProducts}

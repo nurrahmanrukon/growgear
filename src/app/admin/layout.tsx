@@ -64,6 +64,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin/faq" className="hover:text-white">
             FAQ
           </Link>
+          <Link href="/admin/blog-topics" className="hover:text-white">
+            ব্লগ বিষয়ের ক্রম
+          </Link>
           <Link href="/admin/legal-pages" className="hover:text-white">
             আইনি পেজ
           </Link>

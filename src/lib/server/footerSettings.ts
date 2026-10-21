@@ -1,26 +1,58 @@
 import fs from "fs";
 import path from "path";
+import { FOOTER_GROUP_CATALOG, FOOTER_LINK_CATALOG, FooterGroupMeta } from "@/lib/data/footerLinks";
 
-export interface FooterGroupMeta {
-  key: string;
-  label: string;
-}
-
-export const FOOTER_GROUP_CATALOG: FooterGroupMeta[] = [
-  { key: "about", label: "GrowGear সম্পর্কে" },
-  { key: "shop", label: "কিনুন" },
-  { key: "learn", label: "শিখুন" },
-  { key: "support", label: "গ্রাহক সেবা" },
-];
+export type { FooterGroupMeta };
+export { FOOTER_GROUP_CATALOG };
 
 const VALID_KEYS = new Set(FOOTER_GROUP_CATALOG.map((g) => g.key));
+const DEFAULT_GROUP_ORDER = FOOTER_GROUP_CATALOG.map((g) => g.key);
+const DEFAULT_LINK_ORDER: Record<string, number[]> = Object.fromEntries(
+  Object.entries(FOOTER_LINK_CATALOG).map(([key, links]) => [key, links.map((_, i) => i)]),
+);
 
 export interface FooterSettings {
   hiddenGroups: string[];
+  groupOrder: string[];
+  linkOrder: Record<string, number[]>;
 }
 
 const FILE_PATH = path.join(process.cwd(), "data", "footer-settings.json");
-const DEFAULTS: FooterSettings = { hiddenGroups: [] };
+const DEFAULTS: FooterSettings = {
+  hiddenGroups: [],
+  groupOrder: DEFAULT_GROUP_ORDER,
+  linkOrder: DEFAULT_LINK_ORDER,
+};
+
+function isPermutation(arr: unknown, validSet: Set<string> | number): boolean {
+  if (!Array.isArray(arr)) return false;
+  if (typeof validSet === "number") {
+    if (arr.length !== validSet) return false;
+    const seen = new Set(arr);
+    if (seen.size !== validSet) return false;
+    for (const n of arr) {
+      if (typeof n !== "number" || n < 0 || n >= validSet) return false;
+    }
+    return true;
+  }
+  if (arr.length !== validSet.size) return false;
+  const seen = new Set(arr);
+  if (seen.size !== validSet.size) return false;
+  return arr.every((k) => typeof k === "string" && validSet.has(k));
+}
+
+function normalizeLinkOrder(input: unknown): Record<string, number[]> {
+  const result: Record<string, number[]> = {};
+  const parsed = (input && typeof input === "object" ? (input as Record<string, unknown>) : {}) as Record<
+    string,
+    unknown
+  >;
+  for (const [key, links] of Object.entries(FOOTER_LINK_CATALOG)) {
+    const candidate = parsed[key];
+    result[key] = isPermutation(candidate, links.length) ? (candidate as number[]) : DEFAULT_LINK_ORDER[key];
+  }
+  return result;
+}
 
 export function getFooterSettings(): FooterSettings {
   try {
@@ -29,7 +61,11 @@ export function getFooterSettings(): FooterSettings {
     const hiddenGroups = Array.isArray(parsed.hiddenGroups)
       ? Array.from(new Set(parsed.hiddenGroups.filter((k) => VALID_KEYS.has(k))))
       : DEFAULTS.hiddenGroups;
-    return { hiddenGroups };
+    const groupOrder = isPermutation(parsed.groupOrder, VALID_KEYS)
+      ? (parsed.groupOrder as string[])
+      : DEFAULT_GROUP_ORDER;
+    const linkOrder = normalizeLinkOrder(parsed.linkOrder);
+    return { hiddenGroups, groupOrder, linkOrder };
   } catch {
     return DEFAULTS;
   }
@@ -41,7 +77,12 @@ export function setFooterSettings(update: Partial<FooterSettings>): FooterSettin
     update.hiddenGroups !== undefined
       ? Array.from(new Set(update.hiddenGroups.filter((k) => VALID_KEYS.has(k))))
       : current.hiddenGroups;
-  const next: FooterSettings = { hiddenGroups };
+  const groupOrder =
+    update.groupOrder !== undefined && isPermutation(update.groupOrder, VALID_KEYS)
+      ? update.groupOrder
+      : current.groupOrder;
+  const linkOrder = update.linkOrder !== undefined ? normalizeLinkOrder(update.linkOrder) : current.linkOrder;
+  const next: FooterSettings = { hiddenGroups, groupOrder, linkOrder };
   fs.mkdirSync(path.dirname(FILE_PATH), { recursive: true });
   fs.writeFileSync(FILE_PATH, JSON.stringify(next, null, 2));
   return next;

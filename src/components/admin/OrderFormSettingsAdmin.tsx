@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { LogOut, Check, Plus, X } from "lucide-react";
+import { LogOut, Check, Plus, X, GripVertical, ChevronUp, ChevronDown } from "lucide-react";
 
 interface DeliveryZone {
   key: string;
@@ -38,12 +38,50 @@ export function OrderFormSettingsAdmin({ initial }: { initial: OrderFormSettings
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [dragZoneIndex, setDragZoneIndex] = useState<number | null>(null);
+  const [dragTierIndex, setDragTierIndex] = useState<number | null>(null);
 
   function updateZone(i: number, field: keyof DeliveryZone, value: string | number) {
     setZones((prev) => prev.map((z, idx) => (idx === i ? { ...z, [field]: value } : z)));
   }
   function updateTier(i: number, field: keyof QuantityTier, value: string | number) {
     setTiers((prev) => prev.map((t, idx) => (idx === i ? { ...t, [field]: value } : t)));
+  }
+
+  function moveZone(from: number, to: number) {
+    if (to < 0 || to >= zones.length) return;
+    setZones((prev) => {
+      const next = [...prev];
+      const [item] = next.splice(from, 1);
+      next.splice(to, 0, item);
+      return next;
+    });
+  }
+  function handleZoneDrop(targetIndex: number) {
+    if (dragZoneIndex === null || dragZoneIndex === targetIndex) {
+      setDragZoneIndex(null);
+      return;
+    }
+    moveZone(dragZoneIndex, targetIndex);
+    setDragZoneIndex(null);
+  }
+
+  function moveTier(from: number, to: number) {
+    if (to < 0 || to >= tiers.length) return;
+    setTiers((prev) => {
+      const next = [...prev];
+      const [item] = next.splice(from, 1);
+      next.splice(to, 0, item);
+      return next;
+    });
+  }
+  function handleTierDrop(targetIndex: number) {
+    if (dragTierIndex === null || dragTierIndex === targetIndex) {
+      setDragTierIndex(null);
+      return;
+    }
+    moveTier(dragTierIndex, targetIndex);
+    setDragTierIndex(null);
   }
 
   async function save() {
@@ -112,43 +150,78 @@ export function OrderFormSettingsAdmin({ initial }: { initial: OrderFormSettings
           </p>
           <div className="mt-3 flex flex-col gap-3">
             {zones.map((zone, i) => (
-              <div key={zone.key} className="grid grid-cols-[1fr_1fr_100px_auto] items-end gap-2 rounded-md border border-border p-3">
-                <label className="text-xs text-ink-soft">
-                  এরিয়ার নাম
-                  <input
-                    className={`mt-1 ${fieldClass}`}
-                    value={zone.label}
-                    onChange={(e) => updateZone(i, "label", e.target.value)}
-                  />
-                </label>
-                <label className="text-xs text-ink-soft">
-                  সময় লাগবে
-                  <input
-                    className={`mt-1 ${fieldClass}`}
-                    placeholder="যেমন: ২-৩ দিন"
-                    value={zone.days}
-                    onChange={(e) => updateZone(i, "days", e.target.value)}
-                  />
-                </label>
-                <label className="text-xs text-ink-soft">
-                  ফি (টাকা)
-                  <input
-                    type="number"
-                    min={0}
-                    className={`mt-1 ${fieldClass}`}
-                    value={zone.fee}
-                    onChange={(e) => updateZone(i, "fee", Number(e.target.value) || 0)}
-                  />
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setZones((prev) => prev.filter((_, idx) => idx !== i))}
-                  disabled={zones.length <= 1}
-                  aria-label="মুছে ফেলুন"
-                  className="shrink-0 rounded-md border border-border p-2 text-ink-faint hover:border-price hover:text-price disabled:opacity-30"
-                >
-                  <X size={14} />
-                </button>
+              <div
+                key={zone.key}
+                draggable
+                onDragStart={() => setDragZoneIndex(i)}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={() => handleZoneDrop(i)}
+                onDragEnd={() => setDragZoneIndex(null)}
+                className={`flex items-end gap-2 rounded-md border border-border p-3 transition ${
+                  dragZoneIndex === i ? "opacity-40" : ""
+                }`}
+              >
+                <span className="mb-2 shrink-0 cursor-grab text-ink-faint active:cursor-grabbing" aria-hidden="true">
+                  <GripVertical size={16} />
+                </span>
+                <div className="grid flex-1 grid-cols-[1fr_1fr_100px] gap-2">
+                  <label className="text-xs text-ink-soft">
+                    এরিয়ার নাম
+                    <input
+                      className={`mt-1 ${fieldClass}`}
+                      value={zone.label}
+                      onChange={(e) => updateZone(i, "label", e.target.value)}
+                    />
+                  </label>
+                  <label className="text-xs text-ink-soft">
+                    সময় লাগবে
+                    <input
+                      className={`mt-1 ${fieldClass}`}
+                      placeholder="যেমন: ২-৩ দিন"
+                      value={zone.days}
+                      onChange={(e) => updateZone(i, "days", e.target.value)}
+                    />
+                  </label>
+                  <label className="text-xs text-ink-soft">
+                    ফি (টাকা)
+                    <input
+                      type="number"
+                      min={0}
+                      className={`mt-1 ${fieldClass}`}
+                      value={zone.fee}
+                      onChange={(e) => updateZone(i, "fee", Number(e.target.value) || 0)}
+                    />
+                  </label>
+                </div>
+                <div className="flex shrink-0 items-center gap-0.5">
+                  <button
+                    type="button"
+                    aria-label="উপরে সরান"
+                    disabled={i === 0}
+                    onClick={() => moveZone(i, i - 1)}
+                    className="rounded-md border border-border p-2 text-ink-soft hover:border-primary hover:text-primary disabled:opacity-30"
+                  >
+                    <ChevronUp size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="নিচে সরান"
+                    disabled={i === zones.length - 1}
+                    onClick={() => moveZone(i, i + 1)}
+                    className="rounded-md border border-border p-2 text-ink-soft hover:border-primary hover:text-primary disabled:opacity-30"
+                  >
+                    <ChevronDown size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setZones((prev) => prev.filter((_, idx) => idx !== i))}
+                    disabled={zones.length <= 1}
+                    aria-label="মুছে ফেলুন"
+                    className="rounded-md border border-border p-2 text-ink-faint hover:border-price hover:text-price disabled:opacity-30"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
               </div>
             ))}
             <button
@@ -171,44 +244,79 @@ export function OrderFormSettingsAdmin({ initial }: { initial: OrderFormSettings
           </p>
           <div className="mt-3 flex flex-col gap-3">
             {tiers.map((tier, i) => (
-              <div key={i} className="grid grid-cols-[70px_1fr_1fr_auto] items-end gap-2 rounded-md border border-border p-3">
-                <label className="text-xs text-ink-soft">
-                  কপি
-                  <input
-                    type="number"
-                    min={1}
-                    className={`mt-1 ${fieldClass}`}
-                    value={tier.quantity}
-                    onChange={(e) => updateTier(i, "quantity", Number(e.target.value) || 1)}
-                  />
-                </label>
-                <label className="text-xs text-ink-soft">
-                  বর্ণনা
-                  <input
-                    className={`mt-1 ${fieldClass}`}
-                    placeholder="যেমন: নিজের জন্য"
-                    value={tier.description}
-                    onChange={(e) => updateTier(i, "description", e.target.value)}
-                  />
-                </label>
-                <label className="text-xs text-ink-soft">
-                  ব্যাজ (ঐচ্ছিক)
-                  <input
-                    className={`mt-1 ${fieldClass}`}
-                    placeholder="যেমন: সবচেয়ে জনপ্রিয়"
-                    value={tier.badge ?? ""}
-                    onChange={(e) => updateTier(i, "badge", e.target.value)}
-                  />
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setTiers((prev) => prev.filter((_, idx) => idx !== i))}
-                  disabled={tiers.length <= 1}
-                  aria-label="মুছে ফেলুন"
-                  className="shrink-0 rounded-md border border-border p-2 text-ink-faint hover:border-price hover:text-price disabled:opacity-30"
-                >
-                  <X size={14} />
-                </button>
+              <div
+                key={i}
+                draggable
+                onDragStart={() => setDragTierIndex(i)}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={() => handleTierDrop(i)}
+                onDragEnd={() => setDragTierIndex(null)}
+                className={`flex items-end gap-2 rounded-md border border-border p-3 transition ${
+                  dragTierIndex === i ? "opacity-40" : ""
+                }`}
+              >
+                <span className="mb-2 shrink-0 cursor-grab text-ink-faint active:cursor-grabbing" aria-hidden="true">
+                  <GripVertical size={16} />
+                </span>
+                <div className="grid flex-1 grid-cols-[70px_1fr_1fr] gap-2">
+                  <label className="text-xs text-ink-soft">
+                    কপি
+                    <input
+                      type="number"
+                      min={1}
+                      className={`mt-1 ${fieldClass}`}
+                      value={tier.quantity}
+                      onChange={(e) => updateTier(i, "quantity", Number(e.target.value) || 1)}
+                    />
+                  </label>
+                  <label className="text-xs text-ink-soft">
+                    বর্ণনা
+                    <input
+                      className={`mt-1 ${fieldClass}`}
+                      placeholder="যেমন: নিজের জন্য"
+                      value={tier.description}
+                      onChange={(e) => updateTier(i, "description", e.target.value)}
+                    />
+                  </label>
+                  <label className="text-xs text-ink-soft">
+                    ব্যাজ (ঐচ্ছিক)
+                    <input
+                      className={`mt-1 ${fieldClass}`}
+                      placeholder="যেমন: সবচেয়ে জনপ্রিয়"
+                      value={tier.badge ?? ""}
+                      onChange={(e) => updateTier(i, "badge", e.target.value)}
+                    />
+                  </label>
+                </div>
+                <div className="flex shrink-0 items-center gap-0.5">
+                  <button
+                    type="button"
+                    aria-label="উপরে সরান"
+                    disabled={i === 0}
+                    onClick={() => moveTier(i, i - 1)}
+                    className="rounded-md border border-border p-2 text-ink-soft hover:border-primary hover:text-primary disabled:opacity-30"
+                  >
+                    <ChevronUp size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="নিচে সরান"
+                    disabled={i === tiers.length - 1}
+                    onClick={() => moveTier(i, i + 1)}
+                    className="rounded-md border border-border p-2 text-ink-soft hover:border-primary hover:text-primary disabled:opacity-30"
+                  >
+                    <ChevronDown size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTiers((prev) => prev.filter((_, idx) => idx !== i))}
+                    disabled={tiers.length <= 1}
+                    aria-label="মুছে ফেলুন"
+                    className="rounded-md border border-border p-2 text-ink-faint hover:border-price hover:text-price disabled:opacity-30"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
               </div>
             ))}
             <button

@@ -4,6 +4,7 @@ import { SEGMENTS, TOPICS, searchPosts, relevantTopicsForQuery } from "@/lib/dat
 import { blogPostsResolved, getMostPopularPostsResolved, getPostsByTopicResolved, getFeaturedProductsResolved } from "@/lib/server/contentText";
 import { getCategoryIntro } from "@/lib/server/categoryIntro";
 import { getBlogSearchSettings } from "@/lib/server/blogSearchSettings";
+import { getOrderedTopics } from "@/lib/server/blogTopicOrderSettings";
 import { courses } from "@/lib/data/courses";
 import { BlogTopicSlug } from "@/lib/types";
 import { CategoryHero } from "@/components/product/CategoryHero";
@@ -50,6 +51,7 @@ export default async function BlogPage({
   const searchEnabled = getBlogSearchSettings().enabled;
   const newsletterEnabled = getNewsletterSettings().enabled;
   const text = getSiteTextSettings();
+  const orderedTopics = getOrderedTopics();
   const newsletterCopy = {
     badge: text.newsletterBadge,
     headline: text.newsletterHeadline,
@@ -68,7 +70,7 @@ export default async function BlogPage({
     return (
       <>
         <CategoryHero intro={getCategoryIntro("blog")} />
-        <TopicNav />
+        <TopicNav topics={orderedTopics} />
         <SearchBand initialQuery={query} />
         <div className="container-page py-8">
           <h1 className="font-display text-xl font-bold text-foreground sm:text-2xl">
@@ -135,7 +137,7 @@ export default async function BlogPage({
     return (
       <>
         <CategoryHero intro={getCategoryIntro("blog")} />
-        <TopicNav activeTopic={topicMeta.slug} />
+        <TopicNav activeTopic={topicMeta.slug} topics={orderedTopics} />
         {searchEnabled && <SearchBand />}
         <div className="container-page py-8">
           <div className="flex items-center gap-2.5">
@@ -209,7 +211,7 @@ export default async function BlogPage({
   return (
     <>
       <CategoryHero intro={getCategoryIntro("blog")} />
-      <TopicNav />
+      <TopicNav topics={orderedTopics} />
       {searchEnabled && <SearchBand />}
       <BlogHero popular={popularPosts} />
 
@@ -227,7 +229,7 @@ export default async function BlogPage({
         />
       </section>
 
-      {TOPICS.map((t: { slug: BlogTopicSlug; label: string }) => (
+      {orderedTopics.map((t: { slug: BlogTopicSlug; label: string }) => (
         <TopicSection
           key={t.slug}
           topicSlug={t.slug}

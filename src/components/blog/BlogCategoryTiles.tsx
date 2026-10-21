@@ -1,11 +1,13 @@
 import Link from "next/link";
-import { TOPICS, getPostsByTopic } from "@/lib/data/blog";
+import { getPostsByTopic } from "@/lib/data/blog";
 import { TOPIC_ICONS } from "./topicIcons";
 import { toBengaliNumber } from "@/lib/format";
 import { getSiteTextSettings } from "@/lib/server/siteTextSettings";
+import { getOrderedTopics } from "@/lib/server/blogTopicOrderSettings";
 
 export function BlogCategoryTiles() {
   const { blogTopicTilesHeading } = getSiteTextSettings();
+  const TOPICS = getOrderedTopics();
   return (
     <section className="border-y border-border bg-surface-muted py-10">
       <div className="container-page">

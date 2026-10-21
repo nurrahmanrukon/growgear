@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { LogOut, Check, Plus, X } from "lucide-react";
+import { LogOut, Check, Plus, X, GripVertical, ChevronUp, ChevronDown } from "lucide-react";
 
 interface Faq {
   q: string;
@@ -29,6 +29,7 @@ export function FaqAdmin({ initial }: { initial: FaqSettings }) {
   const router = useRouter();
   const [settings, setSettings] = useState(initial);
   const [tab, setTab] = useState<"book" | "ebook" | "gear">("book");
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,6 +50,26 @@ export function FaqAdmin({ initial }: { initial: FaqSettings }) {
   function removeFaq(category: "book" | "ebook" | "gear", i: number) {
     setSettings((prev) => ({ ...prev, [category]: prev[category].filter((_, idx) => idx !== i) }));
     setSaved(false);
+  }
+
+  function moveFaq(category: "book" | "ebook" | "gear", from: number, to: number) {
+    setSettings((prev) => {
+      const list = [...prev[category]];
+      if (to < 0 || to >= list.length) return prev;
+      const [item] = list.splice(from, 1);
+      list.splice(to, 0, item);
+      return { ...prev, [category]: list };
+    });
+    setSaved(false);
+  }
+
+  function handleDrop(targetIndex: number) {
+    if (dragIndex === null || dragIndex === targetIndex) {
+      setDragIndex(null);
+      return;
+    }
+    moveFaq(tab, dragIndex, targetIndex);
+    setDragIndex(null);
   }
 
   async function save() {
@@ -144,8 +165,19 @@ export function FaqAdmin({ initial }: { initial: FaqSettings }) {
 
         <div className="flex flex-col gap-3">
           {currentFaqs.map((faq, i) => (
-            <div key={i} className="rounded-md border border-border p-3">
+            <div
+              key={i}
+              draggable
+              onDragStart={() => setDragIndex(i)}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={() => handleDrop(i)}
+              onDragEnd={() => setDragIndex(null)}
+              className={`rounded-md border border-border p-3 transition ${dragIndex === i ? "opacity-40" : ""}`}
+            >
               <div className="flex items-start gap-2">
+                <span className="mt-1.5 shrink-0 cursor-grab text-ink-faint active:cursor-grabbing" aria-hidden="true">
+                  <GripVertical size={14} />
+                </span>
                 <div className="min-w-0 flex-1 space-y-2">
                   <label className="block text-xs text-ink-soft">
                     প্রশ্ন
@@ -165,14 +197,34 @@ export function FaqAdmin({ initial }: { initial: FaqSettings }) {
                     />
                   </label>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => removeFaq(tab, i)}
-                  aria-label="মুছে ফেলুন"
-                  className="mt-5 shrink-0 rounded-md border border-border p-1.5 text-ink-faint hover:border-price hover:text-price"
-                >
-                  <X size={14} />
-                </button>
+                <div className="mt-5 flex shrink-0 items-center gap-0.5">
+                  <button
+                    type="button"
+                    aria-label="উপরে সরান"
+                    disabled={i === 0}
+                    onClick={() => moveFaq(tab, i, i - 1)}
+                    className="rounded-md border border-border p-1.5 text-ink-soft hover:border-primary hover:text-primary disabled:opacity-30"
+                  >
+                    <ChevronUp size={12} />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="নিচে সরান"
+                    disabled={i === currentFaqs.length - 1}
+                    onClick={() => moveFaq(tab, i, i + 1)}
+                    className="rounded-md border border-border p-1.5 text-ink-soft hover:border-primary hover:text-primary disabled:opacity-30"
+                  >
+                    <ChevronDown size={12} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => removeFaq(tab, i)}
+                    aria-label="মুছে ফেলুন"
+                    className="rounded-md border border-border p-1.5 text-ink-faint hover:border-price hover:text-price"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
               </div>
             </div>
           ))}

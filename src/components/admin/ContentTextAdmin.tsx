@@ -32,6 +32,9 @@ interface BlogListItem {
   customized: boolean;
 }
 
+const fieldClass =
+  "w-full rounded-md border border-border px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary";
+
 interface ProductForm {
   title: string;
   author: string;
@@ -170,6 +173,107 @@ function VideoOrderList({
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+/** A drag-reorderable list of free-text lines (bullet points, chapters, etc.) with
+ *  inline edit, delete and add — the simple counterpart to VideoOrderList above, for
+ *  lists where the items ARE the content rather than references into a fixed pool. */
+function DraggableTextList({
+  items,
+  onChange,
+  addLabel,
+}: {
+  items: string[];
+  onChange: (items: string[]) => void;
+  addLabel: string;
+}) {
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+
+  function updateAt(i: number, value: string) {
+    const next = [...items];
+    next[i] = value;
+    onChange(next);
+  }
+
+  function removeAt(i: number) {
+    onChange(items.filter((_, idx) => idx !== i));
+  }
+
+  function move(from: number, to: number) {
+    if (to < 0 || to >= items.length) return;
+    const next = [...items];
+    const [item] = next.splice(from, 1);
+    next.splice(to, 0, item);
+    onChange(next);
+  }
+
+  function handleDrop(targetIndex: number) {
+    if (dragIndex === null || dragIndex === targetIndex) {
+      setDragIndex(null);
+      return;
+    }
+    const next = [...items];
+    const [item] = next.splice(dragIndex, 1);
+    next.splice(targetIndex, 0, item);
+    onChange(next);
+    setDragIndex(null);
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      {items.map((item, i) => (
+        <div
+          key={i}
+          draggable
+          onDragStart={() => setDragIndex(i)}
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={() => handleDrop(i)}
+          onDragEnd={() => setDragIndex(null)}
+          className={`flex items-center gap-1.5 rounded-md ${dragIndex === i ? "opacity-40" : ""}`}
+        >
+          <span className="shrink-0 cursor-grab text-ink-faint active:cursor-grabbing" aria-hidden="true">
+            <GripVertical size={14} />
+          </span>
+          <input className={fieldClass} value={item} onChange={(e) => updateAt(i, e.target.value)} />
+          <div className="flex shrink-0 items-center gap-0.5">
+            <button
+              type="button"
+              aria-label="উপরে সরান"
+              disabled={i === 0}
+              onClick={() => move(i, i - 1)}
+              className="rounded border border-border p-1.5 text-ink-soft hover:border-primary hover:text-primary disabled:opacity-30"
+            >
+              <ChevronUp size={12} />
+            </button>
+            <button
+              type="button"
+              aria-label="নিচে সরান"
+              disabled={i === items.length - 1}
+              onClick={() => move(i, i + 1)}
+              className="rounded border border-border p-1.5 text-ink-soft hover:border-primary hover:text-primary disabled:opacity-30"
+            >
+              <ChevronDown size={12} />
+            </button>
+            <button
+              type="button"
+              onClick={() => removeAt(i)}
+              aria-label="মুছে ফেলুন"
+              className="rounded-md border border-border p-1.5 text-ink-faint hover:border-price hover:text-price"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        </div>
+      ))}
+      <button
+        type="button"
+        onClick={() => onChange([...items, ""])}
+        className="flex w-fit items-center gap-1 rounded-md border border-dashed border-border px-3 py-1.5 text-xs font-medium text-ink-soft hover:border-primary hover:text-primary"
+      >
+        <Plus size={13} /> {addLabel}
+      </button>
     </div>
   );
 }
@@ -390,9 +494,6 @@ export function ContentTextAdmin({
     router.refresh();
   }
 
-  const fieldClass =
-    "w-full rounded-md border border-border px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary";
-
   return (
     <div className="container-page py-8">
       <div className="flex items-center justify-between gap-3">
@@ -582,36 +683,11 @@ export function ContentTextAdmin({
                     ? "এটা শুধু “একটু পড়ে দেখুন” প্রিভিউ পপআপে দেখানো হয়"
                     : "এটা প্রোডাক্ট ভিডিওর ঠিক উপরে “এই বই/ইবুকটি নিলে যা পাবেন” অংশে, আর “একটু পড়ে দেখুন” প্রিভিউ পপআপে দেখানো হয়"}
                 </p>
-                <div className="flex flex-col gap-2">
-                  {productForm.bullets.map((b, i) => (
-                    <div key={i} className="flex items-center gap-2">
-                      <input
-                        className={fieldClass}
-                        value={b}
-                        onChange={(e) => {
-                          const bullets = [...productForm.bullets];
-                          bullets[i] = e.target.value;
-                          setProductForm({ ...productForm, bullets });
-                        }}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setProductForm({ ...productForm, bullets: productForm.bullets.filter((_, idx) => idx !== i) })}
-                        aria-label="মুছে ফেলুন"
-                        className="shrink-0 rounded-md border border-border p-2 text-ink-faint hover:border-price hover:text-price"
-                      >
-                        <X size={14} />
-                      </button>
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() => setProductForm({ ...productForm, bullets: [...productForm.bullets, ""] })}
-                    className="flex w-fit items-center gap-1 rounded-md border border-dashed border-border px-3 py-1.5 text-xs font-medium text-ink-soft hover:border-primary hover:text-primary"
-                  >
-                    <Plus size={13} /> বুলেট যোগ করুন
-                  </button>
-                </div>
+                <DraggableTextList
+                  items={productForm.bullets}
+                  onChange={(bullets) => setProductForm({ ...productForm, bullets })}
+                  addLabel="বুলেট যোগ করুন"
+                />
               </div>
 
               {productForm.category !== "gear" && (
@@ -620,43 +696,11 @@ export function ContentTextAdmin({
                   <p className="mb-1.5 text-[11px] text-ink-faint">
                     প্রোডাক্ট পেজে কভার ইমেজের নিচে &ldquo;সূচিপত্র দেখুন&rdquo; বাটনে ক্লিক করলে এই তালিকা দেখানো হয়
                   </p>
-                  <div className="flex flex-col gap-2">
-                    {productForm.tableOfContents.map((chapter, i) => (
-                      <div key={i} className="flex items-center gap-2">
-                        <input
-                          className={fieldClass}
-                          value={chapter}
-                          onChange={(e) => {
-                            const tableOfContents = [...productForm.tableOfContents];
-                            tableOfContents[i] = e.target.value;
-                            setProductForm({ ...productForm, tableOfContents });
-                          }}
-                        />
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setProductForm({
-                              ...productForm,
-                              tableOfContents: productForm.tableOfContents.filter((_, idx) => idx !== i),
-                            })
-                          }
-                          aria-label="মুছে ফেলুন"
-                          className="shrink-0 rounded-md border border-border p-2 text-ink-faint hover:border-price hover:text-price"
-                        >
-                          <X size={14} />
-                        </button>
-                      </div>
-                    ))}
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setProductForm({ ...productForm, tableOfContents: [...productForm.tableOfContents, ""] })
-                      }
-                      className="flex w-fit items-center gap-1 rounded-md border border-dashed border-border px-3 py-1.5 text-xs font-medium text-ink-soft hover:border-primary hover:text-primary"
-                    >
-                      <Plus size={13} /> অধ্যায় যোগ করুন
-                    </button>
-                  </div>
+                  <DraggableTextList
+                    items={productForm.tableOfContents}
+                    onChange={(tableOfContents) => setProductForm({ ...productForm, tableOfContents })}
+                    addLabel="অধ্যায় যোগ করুন"
+                  />
                 </div>
               )}
 
