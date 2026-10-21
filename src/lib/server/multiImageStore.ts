@@ -69,10 +69,12 @@ export function createMultiImageStore(config: MultiImageStoreConfig) {
     return readStore()[slug] ?? [];
   }
 
+  // No "?v=" cache-buster needed here — e.id is already a fresh, unique value per
+  // upload (see the id generator below), so the URL itself already changes whenever
+  // the image does. A query string would also break next/image, which rejects a
+  // nested "?" inside the url it's given.
   function getEntryUrls(slug: string): string[] {
-    return getEntries(slug).map(
-      (e) => `${config.urlPrefix}/${slug}/${e.id}?v=${encodeURIComponent(e.uploadedAt)}`
-    );
+    return getEntries(slug).map((e) => `${config.urlPrefix}/${slug}/${e.id}`);
   }
 
   function addEntry(slug: string, fileName: string, mimeType: string, bytes: Buffer): StoredImage {

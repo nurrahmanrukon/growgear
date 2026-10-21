@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Newspaper } from "lucide-react";
 import { BlogPost } from "@/lib/types";
 
@@ -22,12 +23,9 @@ export function BlogTeaser({ posts }: { posts: BlogPost[] }) {
               className="group rounded-lg border border-border p-3 transition hover:shadow-md"
             >
               {post.coverImageUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element -- uploaded via admin, served dynamically
-                <img
-                  src={post.coverImageUrl}
-                  alt=""
-                  className="h-28 w-full rounded-md object-cover"
-                />
+                <div className="relative h-28 w-full overflow-hidden rounded-md">
+                  <Image src={post.coverImageUrl} alt="" fill sizes="(max-width: 640px) 90vw, 280px" className="object-cover" />
+                </div>
               ) : (
                 <div
                   className="flex h-28 items-center justify-center rounded-md p-3 text-center text-sm font-medium text-white/90"

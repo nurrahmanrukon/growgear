@@ -5,6 +5,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ slu
   const { slug } = await params;
   const result = await handleImageUpload(slug, req);
   if (!result.ok) return result.response;
-  const url = `/api/media/social-proof/${slug}/${result.entry.id}?v=${encodeURIComponent(result.entry.uploadedAt)}`;
+  const url = `/api/media/social-proof/${slug}/${result.entry.id}`;
   return NextResponse.json({ ...result.entry, url });
 }

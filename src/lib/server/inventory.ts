@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { cache } from "react";
 import { allProducts } from "@/lib/data/products";
 import { ProductCategory } from "@/lib/types";
 
@@ -10,13 +11,16 @@ interface InventoryEntry {
 
 const STORE_PATH = path.join(process.cwd(), "data", "inventory.json");
 
-function readStore(): Record<string, InventoryEntry> {
+// Deduped per request — see the matching note in contentText.ts. resolveInStock() is
+// called once per product per resolveProducts() call, and every write path here reads
+// once, mutates, writes back, without needing a post-write re-read in the same request.
+const readStore = cache((): Record<string, InventoryEntry> => {
   try {
     return JSON.parse(fs.readFileSync(STORE_PATH, "utf-8"));
   } catch {
     return {};
   }
-}
+});
 
 function writeStore(store: Record<string, InventoryEntry>) {
   fs.mkdirSync(path.dirname(STORE_PATH), { recursive: true });

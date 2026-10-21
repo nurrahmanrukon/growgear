@@ -119,10 +119,13 @@ export function serveImageFile(slug: string, id: string): NextResponse {
   return imageStore.serveFile(slug, id);
 }
 
+// No "?v=" cache-buster needed — imageId is already a fresh, unique value per upload,
+// so the URL itself changes whenever the image does. See the matching note in
+// multiImageStore.ts (also: next/image rejects a nested "?" inside the url it's given).
 function imageUrl(slug: string, imageId: string): string {
   const entry = imageStore.getEntries(slug).find((e) => e.id === imageId);
   if (!entry) return "";
-  return `/api/media/social-proof/${slug}/${imageId}?v=${encodeURIComponent(entry.uploadedAt)}`;
+  return `/api/media/social-proof/${slug}/${imageId}`;
 }
 
 export function getPostImageUrl(slug: string, imageId: string): string {

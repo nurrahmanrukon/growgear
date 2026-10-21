@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { ThumbsUp, Heart, MessageCircle, Send, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { ResolvedSocialProofPost, SocialPlatform } from "@/lib/server/socialProofPosts";
 import { toBengaliNumber } from "@/lib/format";
@@ -116,13 +117,31 @@ function platformAccent(platform: SocialPlatform) {
 /** A real uploaded screenshot, when the admin has provided one — shown as-is instead of
  *  the synthetic mock card, with just a small platform-colored corner tag for context. */
 function RealScreenshot({ post, large }: { post: ResolvedSocialProofPost; large?: boolean }) {
+  if (!post.imageUrl) return null;
+  if (large) {
+    // The zoomed/lightbox view sizes itself to the image's own natural aspect ratio
+    // (width auto, capped by max-height) — next/image's `fill` needs a container with
+    // fixed dimensions, which would change that auto-sizing behavior, so this one stays
+    // a plain <img>.
+    return (
+      <div className="overflow-hidden rounded-md border border-border bg-surface shadow-sm">
+        {/* eslint-disable-next-line @next/next/no-img-element -- natural-size lightbox view, see comment above */}
+        <img
+          src={post.imageUrl}
+          alt={`${post.name} এর মন্তব্যের স্ক্রিনশট`}
+          className="block max-h-[70vh] w-full object-cover"
+        />
+      </div>
+    );
+  }
   return (
-    <div className={`overflow-hidden rounded-md border border-border bg-surface shadow-sm ${large ? "" : ""}`}>
-      {/* eslint-disable-next-line @next/next/no-img-element -- admin-uploaded screenshot, arbitrary source */}
-      <img
+    <div className="relative aspect-[4/5] overflow-hidden rounded-md border border-border bg-surface shadow-sm">
+      <Image
         src={post.imageUrl}
         alt={`${post.name} এর মন্তব্যের স্ক্রিনশট`}
-        className={`block w-full object-cover ${large ? "max-h-[70vh]" : "aspect-[4/5]"}`}
+        fill
+        sizes="(max-width: 640px) 45vw, 280px"
+        className="object-cover"
       />
     </div>
   );

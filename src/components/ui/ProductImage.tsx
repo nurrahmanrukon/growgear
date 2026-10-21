@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Book, FileText, Package } from "lucide-react";
 import clsx from "clsx";
 import { ProductCategory } from "@/lib/types";
@@ -17,6 +18,7 @@ export function ProductImage({
   iconSize = 40,
   hideLabel = false,
   imageUrl,
+  priority = false,
 }: {
   title: string;
   category: ProductCategory;
@@ -26,14 +28,23 @@ export function ProductImage({
   iconSize?: number;
   hideLabel?: boolean;
   imageUrl?: string;
+  /** Set for the single above-the-fold hero image on a page (e.g. the main product photo)
+   *  so it skips lazy-loading — everywhere else (cards, thumbnails) should leave this off. */
+  priority?: boolean;
 }) {
   const Icon = categoryIcon[category];
 
   if (imageUrl) {
     return (
-      <div className={clsx("overflow-hidden rounded-md", className)}>
-        {/* eslint-disable-next-line @next/next/no-img-element -- uploaded via admin, served dynamically */}
-        <img src={imageUrl} alt={title} className="h-full w-full object-cover" />
+      <div className={clsx("relative overflow-hidden rounded-md", className)}>
+        <Image
+          src={imageUrl}
+          alt={title}
+          fill
+          priority={priority}
+          sizes="(max-width: 640px) 45vw, 240px"
+          className="object-cover"
+        />
       </div>
     );
   }

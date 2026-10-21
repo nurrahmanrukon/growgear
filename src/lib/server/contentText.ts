@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { cache } from "react";
 import { allProducts, getProductBySlug, getRelatedProducts, getFeaturedProducts } from "@/lib/data/products";
 import { books } from "@/lib/data/books";
 import { ebooks } from "@/lib/data/ebooks";
@@ -52,13 +53,18 @@ interface Store {
   blog?: Record<string, BlogTextOverride>;
 }
 
-function readStore(): Store {
+// Deduped per request (via React's cache()) — resolveProducts()/allProductsResolved()
+// are called many times rendering a single page (once per homepage collection count,
+// once for the purchase-toast product list, etc.), and without this every one of those
+// calls would re-read and re-parse this file from disk. A fresh request always gets a
+// fresh read, so an admin's edit still shows up on the very next page load.
+const readStore = cache((): Store => {
   try {
     return JSON.parse(fs.readFileSync(STORE_PATH, "utf-8"));
   } catch {
     return {};
   }
-}
+});
 
 function writeStore(store: Store) {
   fs.mkdirSync(path.dirname(STORE_PATH), { recursive: true });

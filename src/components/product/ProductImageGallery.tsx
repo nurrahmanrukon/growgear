@@ -55,6 +55,7 @@ export function ProductImageGallery({ product }: { product: Product }) {
             colorTo={product.colorTo}
             iconSize={76}
             imageUrl={product.coverImageUrl}
+            priority
             className="aspect-[3/4] w-full rounded-lg shadow-2xl transition hover:brightness-105"
           />
         </button>

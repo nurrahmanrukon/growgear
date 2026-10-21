@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { cache } from "react";
 import { decrementStockForItems } from "@/lib/server/inventory";
 
 export type OrderStatus = "pending" | "confirmed" | "rejected" | "delivered";
@@ -37,13 +38,19 @@ export interface OrderRecord {
 
 const STORE_PATH = path.join(process.cwd(), "data", "orders.json");
 
-function readStore(): Record<string, OrderRecord> {
+// Deduped per request — resolveProducts() calls getSalesCounts() for every product it
+// resolves, and a single page render resolves the catalog many times over (see the
+// matching note in contentText.ts), so without this every one of those calls would
+// re-read and re-parse this file. Safe: every write path here reads once, mutates the
+// in-memory object, writes it back, and returns that same object — nothing re-reads
+// the store afterward expecting to see its own write.
+const readStore = cache((): Record<string, OrderRecord> => {
   try {
     return JSON.parse(fs.readFileSync(STORE_PATH, "utf-8"));
   } catch {
     return {};
   }
-}
+});
 
 function writeStore(store: Record<string, OrderRecord>) {
   fs.mkdirSync(path.dirname(STORE_PATH), { recursive: true });
@@ -90,7 +97,7 @@ export function getOrder(orderId: string): OrderRecord | undefined {
 /** Aggregate quantity sold per product across orders, so listings can surface real
  *  best-sellers instead of the seeded "bestSeller" flag. Rejected orders never happened,
  *  so they're excluded; pending/confirmed/delivered all reflect demonstrated demand. */
-export function getSalesCounts(): Record<string, number> {
+export const getSalesCounts = cache((): Record<string, number> => {
   const counts: Record<string, number> = {};
   for (const order of Object.values(readStore())) {
     if (order.status === "rejected") continue;
@@ -99,7 +106,7 @@ export function getSalesCounts(): Record<string, number> {
     }
   }
   return counts;
-}
+});
 
 export function getAllOrders(): OrderRecord[] {
   return Object.values(readStore()).sort(

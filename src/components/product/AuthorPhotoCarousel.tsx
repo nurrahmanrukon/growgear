@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { toBengaliNumber } from "@/lib/format";
 
@@ -22,12 +23,17 @@ export function AuthorPhotoCarousel({ photoUrls, authorName }: { photoUrls: stri
         className="flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth rounded-xl border-2 border-star p-1.5 scrollbar-none"
       >
         {photoUrls.map((url, i) => (
-          <div key={url} data-author-photo className="w-full shrink-0 snap-center overflow-hidden rounded-lg">
-            {/* eslint-disable-next-line @next/next/no-img-element -- admin-uploaded author photo, served from /api/media */}
-            <img
+          <div
+            key={url}
+            data-author-photo
+            className="relative aspect-[4/5] w-full shrink-0 snap-center overflow-hidden rounded-lg"
+          >
+            <Image
               src={url}
               alt={`${authorName} — ছবি ${toBengaliNumber(i + 1)}`}
-              className="aspect-[4/5] w-full object-cover"
+              fill
+              sizes="(max-width: 640px) 90vw, 400px"
+              className="object-cover"
             />
           </div>
         ))}

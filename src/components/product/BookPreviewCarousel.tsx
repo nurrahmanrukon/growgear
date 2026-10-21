@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { ChevronLeft, ChevronRight, Maximize2, X } from "lucide-react";
 import { toBengaliNumber } from "@/lib/format";
 
@@ -60,13 +61,14 @@ export function BookPreviewCarousel({ pageUrls, title }: { pageUrls: string[]; t
           type="button"
           onClick={() => setZoomOpen(true)}
           aria-label="পাতা বড় করে দেখুন"
-          className="block w-full overflow-hidden rounded-lg border border-border shadow-2xl"
+          className="relative block aspect-[3/4] w-full overflow-hidden rounded-lg border border-border shadow-2xl"
         >
-          {/* eslint-disable-next-line @next/next/no-img-element -- admin-uploaded book page, served from /api/media */}
-          <img
+          <Image
             src={pageUrls[active]}
             alt={`${title} — পাতা ${toBengaliNumber(active + 1)}`}
-            className="aspect-[3/4] w-full object-cover transition hover:brightness-105"
+            fill
+            sizes="(max-width: 640px) 90vw, 420px"
+            className="object-cover transition hover:brightness-105"
           />
         </button>
         <span className="pointer-events-none absolute left-2 top-2 rounded-full bg-black/50 px-2 py-0.5 text-[10px] font-medium text-white">
@@ -118,12 +120,17 @@ export function BookPreviewCarousel({ pageUrls, title }: { pageUrls: string[]; t
             >
               <X size={18} />
             </button>
-            <div className="relative" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
-              {/* eslint-disable-next-line @next/next/no-img-element -- admin-uploaded book page, served from /api/media */}
-              <img
+            <div
+              className="relative aspect-[3/4] w-full"
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+            >
+              <Image
                 src={pageUrls[active]}
                 alt={`${title} — পাতা ${toBengaliNumber(active + 1)}`}
-                className="aspect-[3/4] w-full rounded-lg object-cover shadow-2xl"
+                fill
+                sizes="(max-width: 640px) 95vw, 448px"
+                className="rounded-lg object-cover shadow-2xl"
               />
               <span className="pointer-events-none absolute left-3 top-3 rounded-full bg-black/50 px-2.5 py-1 text-xs font-medium text-white">
                 পাতা {toBengaliNumber(active + 1)}/{toBengaliNumber(pageUrls.length)}

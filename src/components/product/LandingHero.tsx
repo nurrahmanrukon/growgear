@@ -44,6 +44,7 @@ export function LandingHero({ product }: { product: Product }) {
             colorTo={product.colorTo}
             iconSize={56}
             imageUrl={product.coverImageUrl}
+            priority
             className="aspect-[3/4] w-48 rounded-lg shadow-2xl sm:w-56"
           />
         )}

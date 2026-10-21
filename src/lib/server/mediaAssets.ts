@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { Readable } from "stream";
+import { cache } from "react";
 import { NextRequest, NextResponse } from "next/server";
 import { allProducts } from "@/lib/data/products";
 import { blogPosts } from "@/lib/data/blog";
@@ -63,13 +64,16 @@ export const MAX_PDF_BYTES = 50 * 1024 * 1024; // 50MB
 
 type Store = Partial<Record<MediaKind, Record<string, MediaEntry>>>;
 
-function readStore(): Store {
+// Deduped per request — see the matching note in contentText.ts. Every write path here
+// reads once, mutates, writes back, and returns that same in-memory result, so nothing
+// needs a second, post-write read within the same request.
+const readStore = cache((): Store => {
   try {
     return JSON.parse(fs.readFileSync(STORE_PATH, "utf-8"));
   } catch {
     return {};
   }
-}
+});
 
 function writeStore(store: Store) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -174,7 +178,11 @@ export function getAllBlogMediaEntries() {
 function mediaUrl(kind: MediaKind, slug: string): string | undefined {
   const entry = getMediaEntry(kind, slug);
   if (!entry) return undefined;
-  return `/api/media/${kind}/${slug}?v=${encodeURIComponent(entry.uploadedAt)}`;
+  // A path segment, not a "?v=" query string — these responses are served with a
+  // one-year immutable Cache-Control, so each upload needs a genuinely distinct URL to
+  // bust old caches, and Next's built-in image optimizer rejects a nested "?" inside
+  // the url it's given (next/image is used for several of these across the site).
+  return `/api/media/${kind}/${slug}/${encodeURIComponent(entry.uploadedAt)}`;
 }
 
 export function getProductImageUrl(slug: string): string | undefined {

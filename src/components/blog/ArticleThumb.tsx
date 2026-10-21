@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Lock, Newspaper } from "lucide-react";
 import clsx from "clsx";
 import { BlogTopicSlug } from "@/lib/types";
@@ -27,8 +28,7 @@ export function ArticleThumb({
       style={imageUrl ? undefined : { background: `linear-gradient(135deg, ${colorFrom}, ${colorTo})` }}
     >
       {imageUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element -- uploaded via admin, served dynamically
-        <img src={imageUrl} alt="" className="h-full w-full object-cover" />
+        <Image src={imageUrl} alt="" fill sizes="(max-width: 640px) 45vw, 240px" className="object-cover" />
       ) : (
         <Icon size={iconSize} className="text-white/85" strokeWidth={1.5} />
       )}
