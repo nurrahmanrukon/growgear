@@ -20,6 +20,7 @@ export function OrderSuccessCrossSell({
   orderProductTitle,
   orderProductCategory,
   orderProductPrice,
+  orderDiscount,
   secondOffer,
   copy,
 }: {
@@ -35,6 +36,7 @@ export function OrderSuccessCrossSell({
   orderProductTitle?: string;
   orderProductCategory?: Product["category"];
   orderProductPrice?: number;
+  orderDiscount?: number;
   secondOffer?: SecondOffer;
   copy: CrossSellCopy;
 }) {
@@ -83,6 +85,7 @@ export function OrderSuccessCrossSell({
         orderProductTitle={orderProductTitle}
         orderProductCategory={orderProductCategory}
         orderProductPrice={orderProductPrice}
+        orderDiscount={orderDiscount}
         secondOffer={secondOffer}
         copy={copy}
         open={open}

@@ -1,27 +1,51 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { Briefcase, Gift, Mail, TrendingUp, Zap } from "lucide-react";
+import { Briefcase, CheckCircle2, Gift, Mail, TrendingUp, Zap } from "lucide-react";
 
 const NEWSLETTERS = [
-  { icon: Briefcase, title: "সাপ্তাহিক বিজনেস ইনসাইট", desc: "ব্যবসা ও উদ্যোক্তা হওয়ার বাস্তব শিক্ষা" },
-  { icon: Zap, title: "প্রোডাক্টিভিটি টিপস", desc: "প্রতি সপ্তাহে একটি করে কার্যকর কৌশল" },
-  { icon: TrendingUp, title: "মার্কেটিং ও সেলস আপডেট", desc: "গ্রোথ, ব্র্যান্ডিং ও বিক্রি বাড়ানোর কৌশল" },
+  { key: "business", icon: Briefcase, title: "সাপ্তাহিক বিজনেস ইনসাইট", desc: "ব্যবসা ও উদ্যোক্তা হওয়ার বাস্তব শিক্ষা" },
+  { key: "productivity", icon: Zap, title: "প্রোডাক্টিভিটি টিপস", desc: "প্রতি সপ্তাহে একটি করে কার্যকর কৌশল" },
+  { key: "marketing", icon: TrendingUp, title: "মার্কেটিং ও সেলস আপডেট", desc: "গ্রোথ, ব্র্যান্ডিং ও বিক্রি বাড়ানোর কৌশল" },
 ];
 
 export function NewsletterSection() {
   const [selected, setSelected] = useState<number[]>([0]);
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [blogSent, setBlogSent] = useState(false);
+  const [blogTitle, setBlogTitle] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   function toggle(i: number) {
     setSelected((prev) => (prev.includes(i) ? prev.filter((x) => x !== i) : [...prev, i]));
   }
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!email.trim() || selected.length === 0) return;
-    setSubscribed(true);
+    if (!email.trim() || selected.length === 0 || submitting) return;
+    setSubmitting(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/newsletter/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), topics: selected.map((i) => NEWSLETTERS[i].key) }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "সাবস্ক্রাইব করা যায়নি, আবার চেষ্টা করুন।");
+        return;
+      }
+      setSubscribed(true);
+      setBlogSent(!!data.blogSent);
+      setBlogTitle(data.blogTitle ?? null);
+    } catch {
+      setError("নেটওয়ার্ক সমস্যা হয়েছে, আবার চেষ্টা করুন।");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -89,18 +113,38 @@ export function NewsletterSection() {
             <input
               type="email"
               required
+              disabled={subscribed}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="আপনার ইমেইল ঠিকানা লিখুন"
-              className="flex-1 rounded-md border border-white/20 bg-white/95 px-4 py-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-amber-400"
+              className="flex-1 rounded-md border border-white/20 bg-white/95 px-4 py-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-amber-400 disabled:opacity-70"
             />
             <button
               type="submit"
-              className="shrink-0 rounded-md bg-amber-400 px-7 py-3 text-sm font-bold text-slate-900 shadow-sm transition hover:bg-amber-300"
+              disabled={submitting || subscribed}
+              className="shrink-0 rounded-md bg-amber-400 px-7 py-3 text-sm font-bold text-slate-900 shadow-sm transition hover:bg-amber-300 disabled:opacity-70"
             >
-              {subscribed ? "সাবস্ক্রাইব হয়েছে ✓" : "সাবস্ক্রাইব করুন — ফ্রি"}
+              {subscribed ? "সাবস্ক্রাইব হয়েছে ✓" : submitting ? "প্রসেস হচ্ছে..." : "সাবস্ক্রাইব করুন — ফ্রি"}
             </button>
           </div>
+
+          {subscribed && (
+            <div className="mt-4 flex items-start gap-2.5 rounded-lg border border-amber-400/40 bg-amber-400/10 px-4 py-3">
+              <CheckCircle2 size={18} className="mt-0.5 shrink-0 text-amber-400" />
+              <p className="text-sm text-white">
+                {blogSent ? (
+                  <>
+                    সাবস্ক্রাইব সফল হয়েছে! আপনার প্রিমিয়াম ব্লগ <strong>&ldquo;{blogTitle}&rdquo;</strong> আপনার ইমেইলে
+                    পাঠিয়ে দেওয়া হয়েছে — চেক করুন।
+                  </>
+                ) : (
+                  "সাবস্ক্রাইব সফল হয়েছে! নিউজলেটারের লেখাগুলো এখন থেকে আপনার ইনবক্সে পাবেন।"
+                )}
+              </p>
+            </div>
+          )}
+          {error && <p className="mt-3 text-center text-xs text-amber-300">{error}</p>}
+
           <p className="mt-3 text-center text-[11px] text-white/60">
             সাবস্ক্রাইব করার মাধ্যমে আপনি আমাদের প্রাইভেসি নীতিতে সম্মত হচ্ছেন। যেকোনো সময় unsubscribe করা যাবে।
           </p>

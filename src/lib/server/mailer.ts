@@ -42,3 +42,29 @@ export async function sendOtpEmail(email: string, code: string): Promise<void> {
 export function otpEmailIsDevMode(): boolean {
   return !RESEND_API_KEY;
 }
+
+/** General-purpose transactional email (newsletter freebies etc.) — unlike sendOtpEmail,
+ *  a missing API key here isn't a security concern, just a configuration gap, so it logs
+ *  and returns instead of throwing. The caller still gets a clean success/failure signal
+ *  for genuine send failures (API key present but the request itself failed). */
+export async function sendTransactionalEmail(to: string, subject: string, text: string): Promise<boolean> {
+  if (!RESEND_API_KEY) {
+    console.log(`[EMAIL DEV MODE — কোনো RESEND_API_KEY সেট নেই] ${to} → বিষয়: ${subject}`);
+    return false;
+  }
+
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${RESEND_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ from: FROM_EMAIL, to, subject, text }),
+  });
+
+  if (!res.ok) {
+    console.error("Transactional email failed to send:", await res.text());
+    return false;
+  }
+  return true;
+}

@@ -97,6 +97,7 @@ export default async function OrderSuccessPage({
           orderProductTitle={order.items[0]?.title}
           orderProductCategory={originalCategory}
           orderProductPrice={order.items[0]?.price}
+          orderDiscount={order.discount}
           secondOffer={secondOffer}
           copy={crossSellCopy}
         />

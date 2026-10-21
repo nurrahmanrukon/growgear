@@ -120,6 +120,7 @@ export function CrossSellModal({
   orderProductTitle,
   orderProductCategory,
   orderProductPrice,
+  orderDiscount,
   secondOffer,
   copy,
   open,
@@ -137,6 +138,7 @@ export function CrossSellModal({
   orderProductTitle?: string;
   orderProductCategory?: Product["category"];
   orderProductPrice?: number;
+  orderDiscount?: number;
   secondOffer?: SecondOffer;
   copy: CrossSellCopy;
   open: boolean;
@@ -187,6 +189,11 @@ export function CrossSellModal({
     ? Math.round(((secondOffer?.product.price ?? 0) * secondCoupon.discountPercent) / 100)
     : 0;
   const secondTotal = (secondOffer?.product.price ?? 0) + secondDeliveryFee - secondCouponDiscount;
+
+  // Total coupon savings across the whole 3-purchase journey (original order + both cross-sell
+  // offers), for the order-summary box's "total discount" line — never re-derived client-side
+  // for the original order, which already has its server-validated discount on the order record.
+  const journeyDiscount = (orderDiscount ?? 0) + couponDiscount + secondCouponDiscount;
 
   useEffect(() => {
     let cancelled = false;
@@ -1445,11 +1452,21 @@ export function CrossSellModal({
                   <span className="shrink-0 text-xs font-bold text-foreground">{formatTaka(secondOffer.product.price)}</span>
                 </div>
               </div>
-              <div className="mt-1 flex items-center justify-between border-t border-border pt-2.5">
-                <span className="text-xs font-bold uppercase tracking-wide text-ink-soft">সর্বমোট</span>
-                <span className="text-base font-bold text-price">
-                  {formatTaka((orderProductPrice ?? 0) + product.price + secondOffer.product.price)}
-                </span>
+              <div className="mt-1 space-y-1 border-t border-border pt-2.5">
+                {journeyDiscount > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium text-success">আপনি মোট ছাড় পেয়েছেন</span>
+                    <span className="text-xs font-bold text-success">− {formatTaka(journeyDiscount)}</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wide text-ink-soft">সর্বমোট</span>
+                  <span className="text-base font-bold text-price">
+                    {formatTaka(
+                      (orderProductPrice ?? 0) - (orderDiscount ?? 0) + product.price - couponDiscount + secondOffer.product.price - secondCouponDiscount
+                    )}
+                  </span>
+                </div>
               </div>
             </div>
 

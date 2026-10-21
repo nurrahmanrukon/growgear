@@ -49,6 +49,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin/coupon" className="hover:text-white">
             ডিসকাউন্ট কুপন
           </Link>
+          <Link href="/admin/newsletter" className="hover:text-white">
+            নিউজলেটার
+          </Link>
           <Link href="/admin/category-intro" className="hover:text-white">
             ক্যাটাগরি পেজের লেখা
           </Link>
