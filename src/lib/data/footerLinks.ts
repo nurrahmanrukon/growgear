@@ -33,6 +33,7 @@ export const FOOTER_LINK_CATALOG: Record<string, FooterLink[]> = {
   support: [
     { label: "কার্ট", href: "/cart" },
     { label: "চেকআউট", href: "/checkout" },
+    { label: "অর্ডার ট্র্যাক করুন", href: "/track-order" },
     { label: "রিটার্ন ও রিফান্ড পলিসি", href: "/refund-policy" },
     { label: "ব্যবহারের শর্তাবলী", href: "/terms" },
     { label: "প্রাইভেসি পলিসি", href: "/privacy" },

@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { cache } from "react";
-import { decrementStockForItems } from "@/lib/server/inventory";
+import { decrementStockForItems, incrementStockForItems } from "@/lib/server/inventory";
 
 export type OrderStatus = "pending" | "confirmed" | "rejected" | "delivered";
 
@@ -87,11 +87,29 @@ export function createOrder(input: {
   };
   store[orderId] = order;
   writeStore(store);
+  // Stock is reserved the moment an order is placed, not just when an admin later confirms
+  // it — otherwise two overlapping pending orders can both succeed against the same last
+  // unit, and the admin only discovers the oversell when trying to confirm the second one.
+  decrementStockForItems(order.items);
   return order;
 }
 
 export function getOrder(orderId: string): OrderRecord | undefined {
   return readStore()[orderId];
+}
+
+function normalizedPhoneTail(phone: string): string {
+  return phone.replace(/\D/g, "").slice(-10);
+}
+
+/** Public order lookup for the customer-facing tracking page — requires the order ID AND a
+ *  matching phone number so a guessed/leaked order ID alone can't pull up someone else's order. */
+export function findOrderForTracking(orderId: string, phone: string): OrderRecord | undefined {
+  const order = readStore()[orderId.trim().toUpperCase()];
+  if (!order) return undefined;
+  const tail = normalizedPhoneTail(phone);
+  if (!tail || normalizedPhoneTail(order.customer.phone) !== tail) return undefined;
+  return order;
 }
 
 /** Aggregate quantity sold per product across orders, so listings can surface real
@@ -150,13 +168,17 @@ export function updateOrderStatus(orderId: string, status: OrderStatus): OrderRe
   const store = readStore();
   const order = store[orderId];
   if (!order) throw new Error("অর্ডার পাওয়া যায়নি");
-  const wasConfirmed = order.status === "confirmed";
+  // Stock is held for every order that isn't rejected (reserved up front at creation) and
+  // released the moment it's rejected; re-confirming a previously rejected order re-reserves it.
+  const wasHeld = order.status !== "rejected";
+  const willBeHeld = status !== "rejected";
   order.status = status;
   order.statusUpdatedAt = new Date().toISOString();
   store[orderId] = order;
   writeStore(store);
-  // Decrement inventory exactly once, the moment an order first becomes confirmed.
-  if (status === "confirmed" && !wasConfirmed) {
+  if (wasHeld && !willBeHeld) {
+    incrementStockForItems(order.items);
+  } else if (!wasHeld && willBeHeld) {
     decrementStockForItems(order.items);
   }
   return order;

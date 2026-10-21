@@ -9,6 +9,7 @@ import { getProductBySlugResolved } from "@/lib/server/contentText";
 import { OrderSuccessCrossSell } from "@/components/product/OrderSuccessCrossSell";
 import { CrossSellCopy, SecondOffer } from "@/components/product/CrossSellModal";
 import { ORDER_ACCESS_COOKIE, tokenGrantsAccess } from "@/lib/server/orderAccess";
+import { getWhatsAppSettings } from "@/lib/server/whatsappSettings";
 
 export default async function OrderSuccessPage({
   searchParams,
@@ -24,6 +25,7 @@ export default async function OrderSuccessPage({
   const orderCategories = order?.items.map((item) => allProducts.find((p) => p.id === item.productId)?.category) ?? [];
   const hasEbook = orderCategories.includes("ebook");
 
+  const whatsapp = getWhatsAppSettings();
   const crossSell = getCrossSellSettings();
   const originalCategory = orderCategories[0];
   const rotation = originalCategory ? crossSellRotation(originalCategory) : undefined;
@@ -85,6 +87,33 @@ export default async function OrderSuccessPage({
               আমার প্রোফাইল
             </Link>{" "}
             থেকে যান।
+          </p>
+        )}
+        {orderId && (
+          <p className="mt-3 border-t border-border pt-3 text-xs text-ink-faint">
+            পরে যেকোনো সময় অর্ডারের অবস্থা দেখতে চাইলে{" "}
+            <Link
+              href={`/track-order?orderId=${encodeURIComponent(orderId)}`}
+              className="font-medium text-primary underline hover:no-underline"
+            >
+              অর্ডার ট্র্যাক করুন
+            </Link>
+            {whatsapp.enabled && (
+              <>
+                {" "}অথবা{" "}
+                <a
+                  href={`https://wa.me/${whatsapp.number}?text=${encodeURIComponent(
+                    `আসসালামু আলাইকুম, আমি অর্ডার ${orderId} নিয়ে জানতে চাইছি।`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-primary underline hover:no-underline"
+                >
+                  হোয়াটসঅ্যাপে জিজ্ঞেস করুন
+                </a>
+              </>
+            )}
+            ।
           </p>
         )}
       </div>

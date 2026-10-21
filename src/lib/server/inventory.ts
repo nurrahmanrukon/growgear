@@ -66,6 +66,22 @@ export function decrementStockForItems(items: { slug?: string; quantity: number 
   if (changed) writeStore(store);
 }
 
+/** Restores stock for an order's items — the mirror of decrementStockForItems, used when a
+ *  reserved order is rejected (and re-decremented if a rejected order is un-rejected). */
+export function incrementStockForItems(items: { slug?: string; quantity: number }[]) {
+  const store = readStore();
+  let changed = false;
+  for (const item of items) {
+    if (!item.slug) continue;
+    const entry = store[item.slug];
+    if (!entry) continue;
+    entry.stockCount = entry.stockCount + item.quantity;
+    entry.updatedAt = new Date().toISOString();
+    changed = true;
+  }
+  if (changed) writeStore(store);
+}
+
 export interface InventoryRow {
   slug: string;
   title: string;
