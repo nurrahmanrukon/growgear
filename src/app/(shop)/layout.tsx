@@ -6,6 +6,7 @@ import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 import { LockedNav } from "@/components/layout/LockedNav";
 import { getVisibleOrderedKeys } from "@/lib/server/navMenu";
 import { getLandingLockConfig, parseContentPath, resolveAllowedLinks } from "@/lib/server/landingLock";
+import { allProductsResolved } from "@/lib/server/contentText";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +14,7 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
   const pathname = (await headers()).get("x-pathname") ?? "";
   const parsed = parseContentPath(pathname);
   const lock = parsed ? getLandingLockConfig(parsed.kind, parsed.slug) : null;
+  const liveProducts = allProductsResolved().filter((p) => p.inStock);
 
   if (lock && lock.mode !== "off") {
     const links = lock.mode === "curated" ? resolveAllowedLinks(lock.allowed) : [];
@@ -20,7 +22,7 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
       <>
         <LockedNav links={links} />
         <main className="flex-1">{children}</main>
-        <PurchaseToast />
+        <PurchaseToast products={liveProducts} />
         <WhatsAppButton />
       </>
     );
@@ -32,7 +34,7 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
       <Header visibleKeys={visibleKeys} />
       <main className="flex-1">{children}</main>
       <Footer />
-      <PurchaseToast />
+      <PurchaseToast products={liveProducts} />
       <WhatsAppButton />
     </>
   );

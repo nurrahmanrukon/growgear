@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { X } from "lucide-react";
 import { Product } from "@/lib/types";
-import { allProducts, catalogByCategory, categoryMeta } from "@/lib/data/products";
+import { categoryMeta } from "@/lib/data/products";
 import { PERSON_NAMES, BD_LOCATIONS, hashString } from "@/lib/data/social";
 
 const SUPPRESSED_PREFIXES = ["/checkout"];
@@ -14,11 +14,11 @@ const SHOW_DURATION_MS = 5500;
 const GAP_MIN_MS = 9000;
 const GAP_RANGE_MS = 8000;
 
-function poolForPath(pathname: string): Product[] {
-  if (pathname.startsWith("/books")) return catalogByCategory.book;
-  if (pathname.startsWith("/ebooks")) return catalogByCategory.ebook;
-  if (pathname.startsWith("/gear")) return catalogByCategory.gear;
-  return allProducts;
+function poolForPath(pathname: string, products: Product[]): Product[] {
+  if (pathname.startsWith("/books")) return products.filter((p) => p.category === "book");
+  if (pathname.startsWith("/ebooks")) return products.filter((p) => p.category === "ebook");
+  if (pathname.startsWith("/gear")) return products.filter((p) => p.category === "gear");
+  return products;
 }
 
 interface ToastData {
@@ -28,7 +28,10 @@ interface ToastData {
   product: Product;
 }
 
-export function PurchaseToast() {
+/** `products` must already be filtered to what's actually live and purchasable (in stock) —
+ *  this component never shows a "just bought" notification for anything else, and automatically
+ *  picks up newly launched products since the pool comes from the resolved catalog, not a fixed list. */
+export function PurchaseToast({ products }: { products: Product[] }) {
   const pathname = usePathname();
   const [toast, setToast] = useState<ToastData | null>(null);
   const [visible, setVisible] = useState(false);
@@ -41,7 +44,7 @@ export function PurchaseToast() {
     if (timerRef.current) clearTimeout(timerRef.current);
 
     if (SUPPRESSED_PREFIXES.some((p) => pathname.startsWith(p))) return;
-    const pool = poolForPath(pathname);
+    const pool = poolForPath(pathname, products);
     if (pool.length === 0) return;
 
     function scheduleNext(delay: number) {
@@ -65,7 +68,7 @@ export function PurchaseToast() {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [pathname]);
+  }, [pathname, products]);
 
   if (!toast) return null;
 
