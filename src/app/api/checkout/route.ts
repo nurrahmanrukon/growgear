@@ -5,6 +5,8 @@ import { getStockOverride } from "@/lib/server/inventory";
 import { verifyProfileSessionToken, PROFILE_COOKIE } from "@/lib/server/profileAuth";
 import { addEbookPurchase } from "@/lib/server/profiles";
 import { getDeliveryFeeMap } from "@/lib/server/orderFormSettings";
+import { validateCoupon } from "@/lib/server/couponSettings";
+import { validatePromoCode } from "@/lib/data/promo";
 
 interface CheckoutPayload {
   name: string;
@@ -14,8 +16,27 @@ interface CheckoutPayload {
   area?: string;
   paymentMethod: string;
   promoCode?: string | null;
-  discount?: number;
   items: { productId: string; title: string; price: number; quantity: number }[];
+}
+
+/** Never trust a client-sent discount amount — re-derive it here from the submitted
+ *  code, checking the admin-controlled single coupon first, then the existing fixed
+ *  marketing promo codes (NUR10 etc.). Anything else resolves to no discount. */
+function resolveDiscount(subtotal: number, promoCodeRaw: string | null | undefined): { discount: number; promoCode?: string } {
+  const code = promoCodeRaw?.trim();
+  if (!code) return { discount: 0 };
+
+  const coupon = validateCoupon(code);
+  if (coupon.valid) {
+    return { discount: Math.round((subtotal * coupon.discountPercent) / 100), promoCode: code };
+  }
+
+  const promo = validatePromoCode(code);
+  if (promo) {
+    return { discount: Math.round((subtotal * promo.discountPercent) / 100), promoCode: promo.code };
+  }
+
+  return { discount: 0 };
 }
 
 export async function POST(req: NextRequest) {
@@ -79,7 +100,7 @@ export async function POST(req: NextRequest) {
   const deliveryFeeMap = getDeliveryFeeMap();
   const fallbackFee = Math.max(0, ...Object.values(deliveryFeeMap));
   const deliveryFee = address?.trim() ? deliveryFeeMap[area ?? ""] ?? fallbackFee : 0;
-  const discount = Math.max(0, Math.min(Number(body.discount) || 0, subtotal));
+  const { discount, promoCode } = resolveDiscount(subtotal, body.promoCode);
   const total = Math.max(0, subtotal + deliveryFee - discount);
 
   const order = createOrder({
@@ -95,7 +116,7 @@ export async function POST(req: NextRequest) {
     subtotal,
     deliveryFee,
     discount,
-    promoCode: body.promoCode?.trim() || undefined,
+    promoCode,
     total,
   });
 

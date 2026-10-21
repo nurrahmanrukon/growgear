@@ -32,6 +32,7 @@ import { AreaSelector, DeliveryZone } from "@/components/product/AreaSelector";
 import { TableOfContentsToggle } from "@/components/product/TableOfContentsToggle";
 import { ANGLE_LABELS } from "@/components/product/ProductImageGallery";
 import { ProfileAuthModal } from "@/components/profile/ProfileAuthModal";
+import { CouponBox, AppliedCoupon } from "@/components/product/CouponBox";
 
 const SECOND_VIDEO_THUMB_COUNT = 5;
 
@@ -152,6 +153,7 @@ export function CrossSellModal({
   const [area, setArea] = useState(FALLBACK_ZONES[0].label);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [coupon, setCoupon] = useState<AppliedCoupon | null>(null);
   const [authOpen, setAuthOpen] = useState(false);
   const [galleryActive, setGalleryActive] = useState(0);
   const [videoActive, setVideoActive] = useState(0);
@@ -164,6 +166,7 @@ export function CrossSellModal({
   const [secondPaymentMethod, setSecondPaymentMethod] = useState<PaymentMethod | null>(null);
   const [secondSubmitting, setSecondSubmitting] = useState(false);
   const [secondError, setSecondError] = useState<string | null>(null);
+  const [secondCoupon, setSecondCoupon] = useState<AppliedCoupon | null>(null);
   const [expandedVideoReview, setExpandedVideoReview] = useState<ExpertOpinion | null>(null);
   const [secondExpandedVideoReview, setSecondExpandedVideoReview] = useState<ExpertOpinion | null>(null);
 
@@ -173,13 +176,17 @@ export function CrossSellModal({
   const methods = allMethods.filter((m) => !hiddenPayment.includes(m.id));
   const effectiveMethod = paymentMethod && methods.some((m) => m.id === paymentMethod) ? paymentMethod : methods[0]?.id;
   const deliveryFee = isEbook ? 0 : zones.find((z) => z.label === area)?.fee ?? zones[0]?.fee ?? 0;
-  const total = product.price + deliveryFee;
+  const couponDiscount = coupon ? Math.round((product.price * coupon.discountPercent) / 100) : 0;
+  const total = product.price + deliveryFee - couponDiscount;
 
   const secondMethods = BOOK_PAYMENT_METHODS.filter((m) => !secondHiddenPayment.includes(m.id));
   const secondEffectiveMethod =
     secondPaymentMethod && secondMethods.some((m) => m.id === secondPaymentMethod) ? secondPaymentMethod : secondMethods[0]?.id;
   const secondDeliveryFee = zones.find((z) => z.label === secondArea)?.fee ?? zones[0]?.fee ?? 0;
-  const secondTotal = (secondOffer?.product.price ?? 0) + secondDeliveryFee;
+  const secondCouponDiscount = secondCoupon
+    ? Math.round(((secondOffer?.product.price ?? 0) * secondCoupon.discountPercent) / 100)
+    : 0;
+  const secondTotal = (secondOffer?.product.price ?? 0) + secondDeliveryFee - secondCouponDiscount;
 
   useEffect(() => {
     let cancelled = false;
@@ -233,6 +240,8 @@ export function CrossSellModal({
     setView("offer");
     setError(null);
     setSecondError(null);
+    setCoupon(null);
+    setSecondCoupon(null);
     setGalleryActive(0);
     setVideoActive(0);
     setSecondGalleryActive(0);
@@ -269,6 +278,7 @@ export function CrossSellModal({
           paymentMethod: effectiveMethod,
           address: isEbook ? undefined : address,
           area: isEbook ? undefined : area,
+          promoCode: coupon?.code,
           items: [{ productId: product.id, title: product.title, price: product.price, quantity: 1 }],
         }),
       });
@@ -311,6 +321,7 @@ export function CrossSellModal({
           paymentMethod: secondEffectiveMethod,
           address: secondAddress,
           area: secondArea,
+          promoCode: secondCoupon?.code,
           items: [
             {
               productId: secondOffer.product.id,
@@ -829,6 +840,8 @@ export function CrossSellModal({
                 );
               })}
             </div>
+
+            <CouponBox applied={coupon} onApplied={setCoupon} />
 
             {error && <p className="mt-3 text-xs text-price">{error}</p>}
 
@@ -1353,6 +1366,8 @@ export function CrossSellModal({
                 );
               })}
             </div>
+
+            <CouponBox applied={secondCoupon} onApplied={setSecondCoupon} />
 
             {secondError && <p className="mt-3 text-xs text-price">{secondError}</p>}
 

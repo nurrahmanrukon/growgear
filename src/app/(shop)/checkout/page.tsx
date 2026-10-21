@@ -108,7 +108,6 @@ export default function CheckoutPage() {
           area,
           paymentMethod,
           promoCode: promo?.code ?? null,
-          discount,
           items: items.map((i) => ({
             productId: i.productId,
             title: i.title,

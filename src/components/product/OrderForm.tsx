@@ -7,6 +7,7 @@ import { formatTaka, toBengaliNumber } from "@/lib/format";
 import { Button } from "@/components/ui/Button";
 import { AreaSelector, DeliveryZone } from "@/components/product/AreaSelector";
 import { QuantitySelector, QuantityTier, BulkInfo } from "@/components/product/QuantitySelector";
+import { CouponBox, AppliedCoupon } from "@/components/product/CouponBox";
 
 const FALLBACK_ZONES: DeliveryZone[] = [
   { key: "inside-dhaka", label: "ঢাকার ভিতরে", days: "২-৩ দিন", fee: 70 },
@@ -52,6 +53,7 @@ export function OrderForm({ product, onOrdered }: { product: Product; onOrdered?
   const [hiddenPayment, setHiddenPayment] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [coupon, setCoupon] = useState<AppliedCoupon | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -99,7 +101,9 @@ export function OrderForm({ product, onOrdered }: { product: Product; onOrdered?
     : paymentMethods[0]?.id ?? allMethods[0].id;
 
   const deliveryFee = isEbook ? 0 : zones.find((z) => z.label === area)?.fee ?? zones[0]?.fee ?? 0;
-  const total = product.price * quantity + deliveryFee;
+  const subtotal = product.price * quantity;
+  const couponDiscount = coupon ? Math.round((subtotal * coupon.discountPercent) / 100) : 0;
+  const total = subtotal + deliveryFee - couponDiscount;
   const savingsPerUnit = product.oldPrice && product.oldPrice > product.price ? product.oldPrice - product.price : 0;
 
   async function handleSubmit(e: FormEvent) {
@@ -117,6 +121,7 @@ export function OrderForm({ product, onOrdered }: { product: Product; onOrdered?
           address: isEbook ? undefined : address,
           area: isEbook ? undefined : area,
           paymentMethod: effectivePaymentMethod,
+          promoCode: coupon?.code,
           items: [{ productId: product.id, title: product.title, price: product.price, quantity }],
         }),
       });
@@ -219,10 +224,13 @@ export function OrderForm({ product, onOrdered }: { product: Product; onOrdered?
           </div>
         </div>
 
+        <CouponBox applied={coupon} onApplied={setCoupon} />
+
         <div className="flex items-center justify-between rounded bg-surface-muted px-3 py-2 text-xs text-ink-soft">
           <span>
             {formatTaka(product.price)} × {toBengaliNumber(quantity)}
             {!isEbook && <> + ডেলিভারি {formatTaka(deliveryFee)}</>}
+            {couponDiscount > 0 && <> − ছাড় {formatTaka(couponDiscount)}</>}
           </span>
           <span className="text-sm font-bold text-price">মোট {formatTaka(total)}</span>
         </div>
