@@ -1,11 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ADMIN_COOKIE, checkAdminPassword, createSessionToken, SESSION_MAX_AGE_SECONDS } from "@/lib/server/adminAuth";
+import {
+  ADMIN_COOKIE,
+  adminAuthConfigured,
+  checkAdminPassword,
+  createSessionToken,
+  SESSION_MAX_AGE_SECONDS,
+} from "@/lib/server/adminAuth";
 import { checkRateLimit, clientIp, RATE_LIMIT_MESSAGE } from "@/lib/server/rateLimit";
 
 const WINDOW_MS = 15 * 60 * 1000;
 const MAX_ATTEMPTS_PER_IP = 10;
 
 export async function POST(req: NextRequest) {
+  if (!adminAuthConfigured()) {
+    return NextResponse.json(
+      { error: "সার্ভার কনফিগারেশন অসম্পূর্ণ — ADMIN_PASSWORD ও ADMIN_SESSION_SECRET এনভায়রনমেন্ট ভ্যারিয়েবল সেট করা নেই।" },
+      { status: 500 }
+    );
+  }
+
   const ip = clientIp(req);
   const limit = checkRateLimit(`admin-login:ip:${ip}`, MAX_ATTEMPTS_PER_IP, WINDOW_MS);
   if (!limit.allowed) {

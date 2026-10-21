@@ -7,6 +7,8 @@ import { addEbookPurchase } from "@/lib/server/profiles";
 import { getDeliveryFeeMap } from "@/lib/server/orderFormSettings";
 import { validateCoupon } from "@/lib/server/couponSettings";
 import { validatePromoCode } from "@/lib/data/promo";
+import { addOrderToAccessToken, ORDER_ACCESS_COOKIE, ORDER_ACCESS_MAX_AGE_SECONDS } from "@/lib/server/orderAccess";
+import { checkRateLimit, clientIp, RATE_LIMIT_MESSAGE } from "@/lib/server/rateLimit";
 
 interface CheckoutPayload {
   name: string;
@@ -39,7 +41,15 @@ function resolveDiscount(subtotal: number, promoCodeRaw: string | null | undefin
   return { discount: 0 };
 }
 
+const WINDOW_MS = 15 * 60 * 1000;
+const MAX_PER_IP = 20;
+
 export async function POST(req: NextRequest) {
+  const rate = checkRateLimit(`checkout:ip:${clientIp(req)}`, MAX_PER_IP, WINDOW_MS);
+  if (!rate.allowed) {
+    return NextResponse.json({ error: RATE_LIMIT_MESSAGE }, { status: 429 });
+  }
+
   let body: Partial<CheckoutPayload>;
   try {
     body = await req.json();
@@ -128,5 +138,17 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ orderId: order.orderId }, { status: 200 });
+  const res = NextResponse.json({ orderId: order.orderId }, { status: 200 });
+  // Only a browser carrying this token can later view this order's customer details
+  // on /order-success — the order ID alone (visible in the URL) isn't enough, so a
+  // guessed or shared order ID doesn't leak another customer's name/phone/address.
+  const existingAccessToken = req.cookies.get(ORDER_ACCESS_COOKIE)?.value;
+  res.cookies.set(ORDER_ACCESS_COOKIE, addOrderToAccessToken(existingAccessToken, order.orderId), {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: ORDER_ACCESS_MAX_AGE_SECONDS,
+    path: "/",
+  });
+  return res;
 }

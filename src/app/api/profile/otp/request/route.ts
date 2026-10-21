@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createOtpChallenge, generateOtpCode } from "@/lib/server/otp";
+import { createOtpChallenge, generateOtpCode, otpSecretConfigured } from "@/lib/server/otp";
 import { sendOtpEmail, otpDevCodeAllowed } from "@/lib/server/mailer";
 import { checkRateLimit, clientIp, RATE_LIMIT_MESSAGE } from "@/lib/server/rateLimit";
 
@@ -9,6 +9,13 @@ const MAX_PER_IP = 10;
 const MAX_PER_EMAIL = 5;
 
 export async function POST(req: NextRequest) {
+  if (!otpSecretConfigured()) {
+    return NextResponse.json(
+      { error: "সার্ভার কনফিগারেশন অসম্পূর্ণ — OTP_SESSION_SECRET এনভায়রনমেন্ট ভ্যারিয়েবল সেট করা নেই।" },
+      { status: 500 }
+    );
+  }
+
   let body: { name?: string; email?: string; whatsapp?: string };
   try {
     body = await req.json();

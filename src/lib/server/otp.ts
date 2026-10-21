@@ -1,6 +1,9 @@
 import crypto from "crypto";
 
-const OTP_SECRET = process.env.OTP_SESSION_SECRET || "growgear-dev-otp-secret";
+// No hardcoded fallback — anyone who knew this secret could craft their own
+// codeHash and "verify" it with a code of their own choosing, bypassing the whole
+// point of OTP (proving the requester actually received the email).
+const OTP_SECRET = process.env.OTP_SESSION_SECRET;
 const OTP_TTL_MS = 10 * 60 * 1000;
 
 export interface OtpSignupData {
@@ -9,7 +12,14 @@ export interface OtpSignupData {
   whatsapp: string;
 }
 
+export function otpSecretConfigured(): boolean {
+  return Boolean(OTP_SECRET);
+}
+
 function sign(payload: string): string {
+  if (!OTP_SECRET) {
+    throw new Error("OTP_SESSION_SECRET সেট করা নেই — এনভায়রনমেন্ট ভ্যারিয়েবল কনফিগার করুন।");
+  }
   return crypto.createHmac("sha256", OTP_SECRET).update(payload).digest("hex");
 }
 
@@ -29,6 +39,7 @@ export function createOtpChallenge(data: OtpSignupData, code: string): string {
 }
 
 export function verifyOtpChallenge(challenge: string, code: string): OtpSignupData | null {
+  if (!OTP_SECRET) return null;
   const [payload, signature] = challenge.split(".");
   if (!payload || !signature) return null;
   if (sign(payload) !== signature) return null;

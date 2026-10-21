@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { getOrder } from "@/lib/server/orders";
@@ -7,6 +8,7 @@ import { getCrossSellSettings, crossSellRotation } from "@/lib/server/crossSellS
 import { getProductBySlugResolved } from "@/lib/server/contentText";
 import { OrderSuccessCrossSell } from "@/components/product/OrderSuccessCrossSell";
 import { CrossSellCopy, SecondOffer } from "@/components/product/CrossSellModal";
+import { ORDER_ACCESS_COOKIE, tokenGrantsAccess } from "@/lib/server/orderAccess";
 
 export default async function OrderSuccessPage({
   searchParams,
@@ -14,7 +16,11 @@ export default async function OrderSuccessPage({
   searchParams: Promise<{ orderId?: string }>;
 }) {
   const { orderId } = await searchParams;
-  const order = orderId ? getOrder(orderId) : undefined;
+  // The order ID alone (visible in the URL) never unlocks another customer's details —
+  // only the browser that just placed this order carries the matching access cookie.
+  const accessToken = (await cookies()).get(ORDER_ACCESS_COOKIE)?.value;
+  const authorized = Boolean(orderId && tokenGrantsAccess(accessToken, orderId));
+  const order = authorized && orderId ? getOrder(orderId) : undefined;
   const orderCategories = order?.items.map((item) => allProducts.find((p) => p.id === item.productId)?.category) ?? [];
   const hasEbook = orderCategories.includes("ebook");
 
