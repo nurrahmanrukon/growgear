@@ -58,6 +58,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin/footer" className="hover:text-white">
             ফুটার
           </Link>
+          <Link href="/admin/site-text" className="hover:text-white">
+            সাইটের লেখা
+          </Link>
+          <Link href="/admin/faq" className="hover:text-white">
+            FAQ
+          </Link>
+          <Link href="/admin/legal-pages" className="hover:text-white">
+            আইনি পেজ
+          </Link>
           <Link href="/admin/category-intro" className="hover:text-white">
             ক্যাটাগরি পেজের লেখা
           </Link>

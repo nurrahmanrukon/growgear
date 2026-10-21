@@ -9,6 +9,7 @@ import { getLandingLockConfig, parseContentPath, resolveAllowedLinks } from "@/l
 import { allProductsResolved } from "@/lib/server/contentText";
 import { getPurchaseToastSettings } from "@/lib/server/purchaseToastSettings";
 import { getFooterSettings } from "@/lib/server/footerSettings";
+import { getSiteTextSettings } from "@/lib/server/siteTextSettings";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +19,7 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
   const lock = parsed ? getLandingLockConfig(parsed.kind, parsed.slug) : null;
   const toastEnabled = getPurchaseToastSettings().enabled;
   const liveProducts = toastEnabled ? allProductsResolved().filter((p) => p.inStock) : [];
+  const text = getSiteTextSettings();
 
   if (lock && lock.mode !== "off") {
     const links = lock.mode === "curated" ? resolveAllowedLinks(lock.allowed) : [];
@@ -25,7 +27,13 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
       <>
         <LockedNav links={links} />
         <main className="flex-1">{children}</main>
-        {toastEnabled && <PurchaseToast products={liveProducts} />}
+        {toastEnabled && (
+          <PurchaseToast
+            products={liveProducts}
+            boughtText={text.purchaseToastBoughtText}
+            minutesAgoSuffix={text.purchaseToastMinutesAgoSuffix}
+          />
+        )}
         <WhatsAppButton />
       </>
     );
@@ -33,12 +41,24 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
 
   const visibleKeys = getVisibleOrderedKeys();
   const { hiddenGroups } = getFooterSettings();
+  const groupTitles = {
+    about: text.footerAboutTitle,
+    shop: text.footerShopTitle,
+    learn: text.footerLearnTitle,
+    support: text.footerSupportTitle,
+  };
   return (
     <>
       <Header visibleKeys={visibleKeys} />
       <main className="flex-1">{children}</main>
-      <Footer hiddenGroups={hiddenGroups} />
-      {toastEnabled && <PurchaseToast products={liveProducts} />}
+      <Footer hiddenGroups={hiddenGroups} groupTitles={groupTitles} copyright={text.footerCopyright} />
+      {toastEnabled && (
+        <PurchaseToast
+          products={liveProducts}
+          boughtText={text.purchaseToastBoughtText}
+          minutesAgoSuffix={text.purchaseToastMinutesAgoSuffix}
+        />
+      )}
       <WhatsAppButton />
     </>
   );

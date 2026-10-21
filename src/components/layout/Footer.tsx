@@ -3,10 +3,9 @@
 import Link from "next/link";
 import { ArrowUp } from "lucide-react";
 
-const columns: { key: string; title: string; links: { label: string; href: string }[] }[] = [
+const columns: { key: string; links: { label: string; href: string }[] }[] = [
   {
     key: "about",
-    title: "GrowGear সম্পর্কে",
     links: [
       { label: "আমাদের সম্পর্কে", href: "/" },
       { label: "ব্লগ", href: "/blog" },
@@ -15,7 +14,6 @@ const columns: { key: string; title: string; links: { label: string; href: strin
   },
   {
     key: "shop",
-    title: "কিনুন",
     links: [
       { label: "বই", href: "/books" },
       { label: "ইবুক", href: "/ebooks" },
@@ -24,7 +22,6 @@ const columns: { key: string; title: string; links: { label: string; href: strin
   },
   {
     key: "learn",
-    title: "শিখুন",
     links: [
       { label: "সব কোর্স", href: "/course" },
       { label: "enrich.com.bd", href: "https://enrich.com.bd" },
@@ -32,7 +29,6 @@ const columns: { key: string; title: string; links: { label: string; href: strin
   },
   {
     key: "support",
-    title: "গ্রাহক সেবা",
     links: [
       { label: "কার্ট", href: "/cart" },
       { label: "চেকআউট", href: "/checkout" },
@@ -43,7 +39,15 @@ const columns: { key: string; title: string; links: { label: string; href: strin
   },
 ];
 
-export function Footer({ hiddenGroups = [] }: { hiddenGroups?: string[] }) {
+export function Footer({
+  hiddenGroups = [],
+  groupTitles,
+  copyright,
+}: {
+  hiddenGroups?: string[];
+  groupTitles: Record<string, string>;
+  copyright: string;
+}) {
   const visibleColumns = columns.filter((col) => !hiddenGroups.includes(col.key));
   return (
     <footer className="mt-16 bg-foreground text-background/90">
@@ -57,7 +61,7 @@ export function Footer({ hiddenGroups = [] }: { hiddenGroups?: string[] }) {
       <div className="container-page grid grid-cols-2 gap-8 py-12 sm:grid-cols-4">
         {visibleColumns.map((col) => (
           <div key={col.key}>
-            <h3 className="mb-3 text-sm font-semibold text-background">{col.title}</h3>
+            <h3 className="mb-3 text-sm font-semibold text-background">{groupTitles[col.key]}</h3>
             <ul className="space-y-2">
               {col.links.map((link) => (
                 <li key={link.label}>
@@ -80,9 +84,7 @@ export function Footer({ hiddenGroups = [] }: { hiddenGroups?: string[] }) {
           <span className="font-display text-lg font-bold text-background">
             Grow<span className="text-primary">Gear</span>
           </span>
-          <p className="text-xs text-background/50">
-            © ২০২৬ GrowGear. সর্বস্বত্ব সংরক্ষিত। সারাদেশে ক্যাশ অন ডেলিভারি সুবিধা।
-          </p>
+          <p className="text-xs text-background/50">{copyright}</p>
           <Link href="/admin" className="mt-1 text-[11px] text-background/30 hover:text-background/60 hover:underline">
             অ্যাডমিন
           </Link>

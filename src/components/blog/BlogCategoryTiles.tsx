@@ -2,13 +2,15 @@ import Link from "next/link";
 import { TOPICS, getPostsByTopic } from "@/lib/data/blog";
 import { TOPIC_ICONS } from "./topicIcons";
 import { toBengaliNumber } from "@/lib/format";
+import { getSiteTextSettings } from "@/lib/server/siteTextSettings";
 
 export function BlogCategoryTiles() {
+  const { blogTopicTilesHeading } = getSiteTextSettings();
   return (
     <section className="border-y border-border bg-surface-muted py-10">
       <div className="container-page">
         <h2 className="text-center font-display text-lg font-bold text-foreground sm:text-xl">
-          বিষয় অনুযায়ী ব্লগ দেখুন
+          {blogTopicTilesHeading}
         </h2>
         <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {TOPICS.map((topic) => {

@@ -15,6 +15,7 @@ import { TopicSection } from "@/components/blog/TopicSection";
 import { BlogCategoryTiles } from "@/components/blog/BlogCategoryTiles";
 import { NewsletterSection } from "@/components/blog/NewsletterSection";
 import { getNewsletterSettings } from "@/lib/server/newsletterSettings";
+import { getSiteTextSettings } from "@/lib/server/siteTextSettings";
 import { Pagination } from "@/components/blog/Pagination";
 import { ProductRail } from "@/components/home/ProductRail";
 import { CourseTeaser } from "@/components/home/CourseTeaser";
@@ -48,6 +49,13 @@ export default async function BlogPage({
   const currentPage = Math.max(1, Number(page) || 1);
   const searchEnabled = getBlogSearchSettings().enabled;
   const newsletterEnabled = getNewsletterSettings().enabled;
+  const text = getSiteTextSettings();
+  const newsletterCopy = {
+    badge: text.newsletterBadge,
+    headline: text.newsletterHeadline,
+    description: text.newsletterDescription,
+    topics: text.newsletterTopics,
+  };
 
   if (searchEnabled && q && q.trim()) {
     const query = q.trim();
@@ -104,7 +112,7 @@ export default async function BlogPage({
           )}
         </div>
         <BlogCategoryTiles />
-        {newsletterEnabled && <NewsletterSection />}
+        {newsletterEnabled && <NewsletterSection copy={newsletterCopy} />}
       </>
     );
   }
@@ -188,7 +196,7 @@ export default async function BlogPage({
           />
         </div>
         <BlogCategoryTiles />
-        {newsletterEnabled && <NewsletterSection />}
+        {newsletterEnabled && <NewsletterSection copy={newsletterCopy} />}
       </>
     );
   }
@@ -231,7 +239,7 @@ export default async function BlogPage({
       <ProductRail title="পড়ার সাথে সাথে কিনুন" viewAllHref="/books" products={getFeaturedProductsResolved(8)} />
       <CourseTeaser courses={courses.slice(0, 6)} />
       <BlogCategoryTiles />
-      {newsletterEnabled && <NewsletterSection />}
+      {newsletterEnabled && <NewsletterSection copy={newsletterCopy} />}
     </>
   );
 }

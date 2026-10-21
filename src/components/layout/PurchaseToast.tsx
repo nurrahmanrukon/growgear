@@ -31,7 +31,15 @@ interface ToastData {
 /** `products` must already be filtered to what's actually live and purchasable (in stock) —
  *  this component never shows a "just bought" notification for anything else, and automatically
  *  picks up newly launched products since the pool comes from the resolved catalog, not a fixed list. */
-export function PurchaseToast({ products }: { products: Product[] }) {
+export function PurchaseToast({
+  products,
+  boughtText,
+  minutesAgoSuffix,
+}: {
+  products: Product[];
+  boughtText: string;
+  minutesAgoSuffix: string;
+}) {
   const pathname = usePathname();
   const [toast, setToast] = useState<ToastData | null>(null);
   const [visible, setVisible] = useState(false);
@@ -100,9 +108,11 @@ export function PurchaseToast({ products }: { products: Product[] }) {
               {toast.name} <span className="font-normal text-ink-faint">— {toast.location}</span>
             </span>
             <span className="mt-0.5 block truncate text-xs text-ink-soft">
-              &ldquo;{toast.product.title}&rdquo; কিনেছেন
+              &ldquo;{toast.product.title}&rdquo; {boughtText}
             </span>
-            <span className="mt-0.5 block text-[11px] text-ink-faint">{toast.minutesAgo} মিনিট আগে</span>
+            <span className="mt-0.5 block text-[11px] text-ink-faint">
+              {toast.minutesAgo} {minutesAgoSuffix}
+            </span>
           </span>
         </Link>
       </div>

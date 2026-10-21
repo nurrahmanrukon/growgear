@@ -3,6 +3,7 @@ import { Play } from "lucide-react";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { NewsletterSection } from "@/components/blog/NewsletterSection";
 import { getNewsletterSettings } from "@/lib/server/newsletterSettings";
+import { getSiteTextSettings } from "@/lib/server/siteTextSettings";
 
 export const metadata: Metadata = { title: "লেখকের কথা — GrowGear ব্লগ" };
 
@@ -16,6 +17,13 @@ const NOTE_PARAGRAPHS = [
 
 export default function AuthorNotePage() {
   const newsletterEnabled = getNewsletterSettings().enabled;
+  const text = getSiteTextSettings();
+  const newsletterCopy = {
+    badge: text.newsletterBadge,
+    headline: text.newsletterHeadline,
+    description: text.newsletterDescription,
+    topics: text.newsletterTopics,
+  };
   return (
     <>
       <div className="container-page pt-4">
@@ -58,7 +66,7 @@ export default function AuthorNotePage() {
         </div>
       </section>
 
-      {newsletterEnabled && <NewsletterSection />}
+      {newsletterEnabled && <NewsletterSection copy={newsletterCopy} />}
     </>
   );
 }

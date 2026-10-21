@@ -23,6 +23,7 @@ import {
   Users,
 } from "lucide-react";
 import { Product } from "@/lib/types";
+import { renderWithBold } from "@/lib/richText";
 import { categoryMeta } from "@/lib/data/products";
 import { ExpertOpinion, getExpertOpinions, getExpertVideoOpinions, getProductVideoSlots } from "@/lib/data/landingContent";
 import { formatTaka, discountPercent, toBengaliNumber } from "@/lib/format";
@@ -59,20 +60,6 @@ function badgeColorClass(badge?: string) {
   if (badge === "বেস্ট সেলার") return "bg-amber-500";
   if (badge === "নতুন") return "bg-sky-500";
   return "bg-price";
-}
-
-/** Renders admin-edited copy that may contain "**bold**" markers as React nodes. */
-function renderWithBold(text: string, boldClassName?: string) {
-  const parts = text.split(/(\*\*[^*]+\*\*)/g);
-  return parts.map((part, i) =>
-    part.startsWith("**") && part.endsWith("**") ? (
-      <strong key={i} className={boldClassName}>
-        {part.slice(2, -2)}
-      </strong>
-    ) : (
-      part
-    )
-  );
 }
 
 type View =

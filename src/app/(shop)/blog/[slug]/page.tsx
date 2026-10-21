@@ -10,6 +10,7 @@ import { ArticleThumb } from "@/components/blog/ArticleThumb";
 import { ArticleCard } from "@/components/blog/ArticleCard";
 import { NewsletterSection } from "@/components/blog/NewsletterSection";
 import { getNewsletterSettings } from "@/lib/server/newsletterSettings";
+import { getSiteTextSettings } from "@/lib/server/siteTextSettings";
 import { PremiumGate } from "@/components/blog/PremiumGate";
 import { BlogReviewsSection } from "@/components/blog/BlogReviewsSection";
 import { TOPIC_ICONS } from "@/components/blog/topicIcons";
@@ -48,6 +49,13 @@ export default async function BlogPostPage({
     .slice(0, 3);
   const hiddenFormats = getHiddenFormats(post.slug);
   const newsletterEnabled = getNewsletterSettings().enabled;
+  const text = getSiteTextSettings();
+  const newsletterCopy = {
+    badge: text.newsletterBadge,
+    headline: text.newsletterHeadline,
+    description: text.newsletterDescription,
+    topics: text.newsletterTopics,
+  };
   const isFullyLocked = getLandingLockConfig("blog", post.slug).mode === "full";
 
   return (
@@ -128,7 +136,7 @@ export default async function BlogPostPage({
         </section>
       )}
 
-      {newsletterEnabled && <NewsletterSection />}
+      {newsletterEnabled && <NewsletterSection copy={newsletterCopy} />}
       <BlogReviewsSection post={post} />
     </>
   );
