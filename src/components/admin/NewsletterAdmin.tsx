@@ -5,6 +5,7 @@ import { useState } from "react";
 import { LogOut, Check } from "lucide-react";
 
 interface NewsletterSettings {
+  enabled: boolean;
   premiumBlogSlug: string;
 }
 
@@ -70,13 +71,45 @@ export function NewsletterAdmin({
       </div>
 
       <div className="mt-6 max-w-xl space-y-5">
+        <div>
+          <span className="mb-1.5 block text-xs text-ink-soft">নিউজলেটার বক্স ব্লগ পেজে দেখাবেন কিনা</span>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                setSettings((s) => ({ ...s, enabled: true }));
+                setSaved(false);
+              }}
+              disabled={saving}
+              className={`rounded-lg border p-3 text-center ${
+                settings.enabled ? "border-cta bg-cta-light" : "border-border hover:border-cta/50"
+              } disabled:opacity-50`}
+            >
+              <span className="text-xs font-semibold text-foreground">চালু আছে</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setSettings((s) => ({ ...s, enabled: false }));
+                setSaved(false);
+              }}
+              disabled={saving}
+              className={`rounded-lg border p-3 text-center ${
+                !settings.enabled ? "border-cta bg-cta-light" : "border-border hover:border-cta/50"
+              } disabled:opacity-50`}
+            >
+              <span className="text-xs font-semibold text-foreground">বন্ধ আছে</span>
+            </button>
+          </div>
+        </div>
+
         <label className="block text-xs text-ink-soft">
           কোন প্রিমিয়াম ব্লগটা ফ্রি পাঠাবেন
           <select
             className="mt-1 w-full rounded-md border border-border bg-surface px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary"
             value={settings.premiumBlogSlug}
             onChange={(e) => {
-              setSettings({ premiumBlogSlug: e.target.value });
+              setSettings((s) => ({ ...s, premiumBlogSlug: e.target.value }));
               setSaved(false);
             }}
           >

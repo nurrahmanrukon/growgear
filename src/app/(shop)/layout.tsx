@@ -7,6 +7,8 @@ import { LockedNav } from "@/components/layout/LockedNav";
 import { getVisibleOrderedKeys } from "@/lib/server/navMenu";
 import { getLandingLockConfig, parseContentPath, resolveAllowedLinks } from "@/lib/server/landingLock";
 import { allProductsResolved } from "@/lib/server/contentText";
+import { getPurchaseToastSettings } from "@/lib/server/purchaseToastSettings";
+import { getFooterSettings } from "@/lib/server/footerSettings";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +16,8 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
   const pathname = (await headers()).get("x-pathname") ?? "";
   const parsed = parseContentPath(pathname);
   const lock = parsed ? getLandingLockConfig(parsed.kind, parsed.slug) : null;
-  const liveProducts = allProductsResolved().filter((p) => p.inStock);
+  const toastEnabled = getPurchaseToastSettings().enabled;
+  const liveProducts = toastEnabled ? allProductsResolved().filter((p) => p.inStock) : [];
 
   if (lock && lock.mode !== "off") {
     const links = lock.mode === "curated" ? resolveAllowedLinks(lock.allowed) : [];
@@ -22,19 +25,20 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
       <>
         <LockedNav links={links} />
         <main className="flex-1">{children}</main>
-        <PurchaseToast products={liveProducts} />
+        {toastEnabled && <PurchaseToast products={liveProducts} />}
         <WhatsAppButton />
       </>
     );
   }
 
   const visibleKeys = getVisibleOrderedKeys();
+  const { hiddenGroups } = getFooterSettings();
   return (
     <>
       <Header visibleKeys={visibleKeys} />
       <main className="flex-1">{children}</main>
-      <Footer />
-      <PurchaseToast products={liveProducts} />
+      <Footer hiddenGroups={hiddenGroups} />
+      {toastEnabled && <PurchaseToast products={liveProducts} />}
       <WhatsAppButton />
     </>
   );

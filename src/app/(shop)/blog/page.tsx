@@ -14,6 +14,7 @@ import { ArticleCard } from "@/components/blog/ArticleCard";
 import { TopicSection } from "@/components/blog/TopicSection";
 import { BlogCategoryTiles } from "@/components/blog/BlogCategoryTiles";
 import { NewsletterSection } from "@/components/blog/NewsletterSection";
+import { getNewsletterSettings } from "@/lib/server/newsletterSettings";
 import { Pagination } from "@/components/blog/Pagination";
 import { ProductRail } from "@/components/home/ProductRail";
 import { CourseTeaser } from "@/components/home/CourseTeaser";
@@ -46,6 +47,7 @@ export default async function BlogPage({
   const { topic, segment, page, q } = await searchParams;
   const currentPage = Math.max(1, Number(page) || 1);
   const searchEnabled = getBlogSearchSettings().enabled;
+  const newsletterEnabled = getNewsletterSettings().enabled;
 
   if (searchEnabled && q && q.trim()) {
     const query = q.trim();
@@ -102,7 +104,7 @@ export default async function BlogPage({
           )}
         </div>
         <BlogCategoryTiles />
-        <NewsletterSection />
+        {newsletterEnabled && <NewsletterSection />}
       </>
     );
   }
@@ -186,7 +188,7 @@ export default async function BlogPage({
           />
         </div>
         <BlogCategoryTiles />
-        <NewsletterSection />
+        {newsletterEnabled && <NewsletterSection />}
       </>
     );
   }
@@ -229,7 +231,7 @@ export default async function BlogPage({
       <ProductRail title="পড়ার সাথে সাথে কিনুন" viewAllHref="/books" products={getFeaturedProductsResolved(8)} />
       <CourseTeaser courses={courses.slice(0, 6)} />
       <BlogCategoryTiles />
-      <NewsletterSection />
+      {newsletterEnabled && <NewsletterSection />}
     </>
   );
 }

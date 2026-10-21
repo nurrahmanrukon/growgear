@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { Play } from "lucide-react";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { NewsletterSection } from "@/components/blog/NewsletterSection";
+import { getNewsletterSettings } from "@/lib/server/newsletterSettings";
 
 export const metadata: Metadata = { title: "লেখকের কথা — GrowGear ব্লগ" };
 
@@ -14,6 +15,7 @@ const NOTE_PARAGRAPHS = [
 ];
 
 export default function AuthorNotePage() {
+  const newsletterEnabled = getNewsletterSettings().enabled;
   return (
     <>
       <div className="container-page pt-4">
@@ -56,7 +58,7 @@ export default function AuthorNotePage() {
         </div>
       </section>
 
-      <NewsletterSection />
+      {newsletterEnabled && <NewsletterSection />}
     </>
   );
 }

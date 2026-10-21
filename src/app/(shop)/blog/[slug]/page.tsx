@@ -9,6 +9,7 @@ import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { ArticleThumb } from "@/components/blog/ArticleThumb";
 import { ArticleCard } from "@/components/blog/ArticleCard";
 import { NewsletterSection } from "@/components/blog/NewsletterSection";
+import { getNewsletterSettings } from "@/lib/server/newsletterSettings";
 import { PremiumGate } from "@/components/blog/PremiumGate";
 import { BlogReviewsSection } from "@/components/blog/BlogReviewsSection";
 import { TOPIC_ICONS } from "@/components/blog/topicIcons";
@@ -46,6 +47,7 @@ export default async function BlogPostPage({
     .filter((p) => p.id !== post.id)
     .slice(0, 3);
   const hiddenFormats = getHiddenFormats(post.slug);
+  const newsletterEnabled = getNewsletterSettings().enabled;
   const isFullyLocked = getLandingLockConfig("blog", post.slug).mode === "full";
 
   return (
@@ -126,7 +128,7 @@ export default async function BlogPostPage({
         </section>
       )}
 
-      <NewsletterSection />
+      {newsletterEnabled && <NewsletterSection />}
       <BlogReviewsSection post={post} />
     </>
   );

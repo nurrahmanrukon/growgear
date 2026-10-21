@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { ArrowUp } from "lucide-react";
 
-const columns: { title: string; links: { label: string; href: string }[] }[] = [
+const columns: { key: string; title: string; links: { label: string; href: string }[] }[] = [
   {
+    key: "about",
     title: "GrowGear সম্পর্কে",
     links: [
       { label: "আমাদের সম্পর্কে", href: "/" },
@@ -13,6 +14,7 @@ const columns: { title: string; links: { label: string; href: string }[] }[] = [
     ],
   },
   {
+    key: "shop",
     title: "কিনুন",
     links: [
       { label: "বই", href: "/books" },
@@ -21,6 +23,7 @@ const columns: { title: string; links: { label: string; href: string }[] }[] = [
     ],
   },
   {
+    key: "learn",
     title: "শিখুন",
     links: [
       { label: "সব কোর্স", href: "/course" },
@@ -28,6 +31,7 @@ const columns: { title: string; links: { label: string; href: string }[] }[] = [
     ],
   },
   {
+    key: "support",
     title: "গ্রাহক সেবা",
     links: [
       { label: "কার্ট", href: "/cart" },
@@ -39,7 +43,8 @@ const columns: { title: string; links: { label: string; href: string }[] }[] = [
   },
 ];
 
-export function Footer() {
+export function Footer({ hiddenGroups = [] }: { hiddenGroups?: string[] }) {
+  const visibleColumns = columns.filter((col) => !hiddenGroups.includes(col.key));
   return (
     <footer className="mt-16 bg-foreground text-background/90">
       <button
@@ -50,8 +55,8 @@ export function Footer() {
       </button>
 
       <div className="container-page grid grid-cols-2 gap-8 py-12 sm:grid-cols-4">
-        {columns.map((col) => (
-          <div key={col.title}>
+        {visibleColumns.map((col) => (
+          <div key={col.key}>
             <h3 className="mb-3 text-sm font-semibold text-background">{col.title}</h3>
             <ul className="space-y-2">
               {col.links.map((link) => (
