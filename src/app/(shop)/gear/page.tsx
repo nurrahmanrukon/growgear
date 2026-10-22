@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { GEAR_SUBCATEGORIES } from "@/lib/data/gear";
+import { getGearSubcategoriesResolved } from "@/lib/server/gearSubcategorySettings";
 import { gearResolved } from "@/lib/server/contentText";
 import { getCategoryIntro } from "@/lib/server/categoryIntro";
 import { ProductListing } from "@/components/product/ProductListing";
@@ -14,7 +14,7 @@ export default async function GearPage({
   searchParams: Promise<{ badge?: string; category?: string }>;
 }) {
   const { badge, category } = await searchParams;
-  const subcategory = GEAR_SUBCATEGORIES.find((c) => c.slug === category);
+  const subcategory = getGearSubcategoriesResolved().find((c) => c.slug === category);
   return (
     <>
       <CategoryHero intro={getCategoryIntro("gear")} />

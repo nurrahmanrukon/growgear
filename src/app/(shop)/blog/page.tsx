@@ -1,10 +1,15 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { SEGMENTS, TOPICS, searchPosts, relevantTopicsForQuery } from "@/lib/data/blog";
+import { SEGMENTS, searchPosts, relevantTopicsForQuery } from "@/lib/data/blog";
 import { blogPostsResolved, getMostPopularPostsResolved, getPostsByTopicResolved, getFeaturedProductsResolved } from "@/lib/server/contentText";
 import { getCategoryIntro } from "@/lib/server/categoryIntro";
 import { getBlogSearchSettings } from "@/lib/server/blogSearchSettings";
-import { getOrderedTopics } from "@/lib/server/blogTopicOrderSettings";
+import {
+  getAllTopicsResolved,
+  getVisibleTopicsResolved,
+  getVisibleSegmentsForTopic,
+  getSegmentLabelResolved,
+} from "@/lib/server/blogTopicSettings";
 import { courses } from "@/lib/data/courses";
 import { BlogTopicSlug } from "@/lib/types";
 import { CategoryHero } from "@/components/product/CategoryHero";
@@ -51,7 +56,8 @@ export default async function BlogPage({
   const searchEnabled = getBlogSearchSettings().enabled;
   const newsletterEnabled = getNewsletterSettings().enabled;
   const text = getSiteTextSettings();
-  const orderedTopics = getOrderedTopics();
+  const orderedTopics = getVisibleTopicsResolved();
+  const allTopics = getAllTopicsResolved();
   const newsletterCopy = {
     badge: text.newsletterBadge,
     headline: text.newsletterHeadline,
@@ -120,7 +126,7 @@ export default async function BlogPage({
   }
 
   if (topic) {
-    const topicMeta = TOPICS.find((t) => t.slug === topic);
+    const topicMeta = allTopics.find((t) => t.slug === topic);
     if (!topicMeta) {
       return (
         <div className="container-page py-16 text-center">
@@ -128,7 +134,10 @@ export default async function BlogPage({
         </div>
       );
     }
+    // Unfiltered lookup — a direct link to a hidden segment should still filter posts correctly,
+    // even though the pill for it no longer appears below.
     const segmentMeta = segment ? SEGMENTS[topicMeta.slug].find((s) => s.slug === segment) : undefined;
+    const visibleSegments = getVisibleSegmentsForTopic(topicMeta.slug);
     const Icon = TOPIC_ICONS[topicMeta.slug];
     const all = getPostsByTopicResolved(topicMeta.slug, segmentMeta?.slug);
     const totalPages = Math.ceil(all.length / TOPIC_PAGE_SIZE);
@@ -147,7 +156,9 @@ export default async function BlogPage({
             <div>
               <h1 className="font-display text-xl font-bold text-foreground sm:text-2xl">
                 {topicMeta.label}
-                {segmentMeta && <span className="text-ink-soft"> — {segmentMeta.label}</span>}
+                {segmentMeta && (
+                  <span className="text-ink-soft"> — {getSegmentLabelResolved(segmentMeta.slug, segmentMeta.label)}</span>
+                )}
               </h1>
               <p className="text-xs text-ink-faint">{toBengaliNumber(all.length)} টি লেখা</p>
             </div>
@@ -155,7 +166,7 @@ export default async function BlogPage({
 
           <p className="mt-3 max-w-xl text-sm text-ink-soft">{topicMeta.description}</p>
 
-          {SEGMENTS[topicMeta.slug].length > 0 && (
+          {visibleSegments.length > 0 && (
             <div className="mt-4 flex flex-wrap gap-2">
               <Link
                 href={`/blog?topic=${topicMeta.slug}`}
@@ -167,7 +178,7 @@ export default async function BlogPage({
               >
                 সব
               </Link>
-              {SEGMENTS[topicMeta.slug].map((seg) => (
+              {visibleSegments.map((seg) => (
                 <Link
                   key={seg.slug}
                   href={`/blog?topic=${topicMeta.slug}&segment=${seg.slug}`}

@@ -7,50 +7,14 @@ import { Search, ShoppingCart, User, X } from "lucide-react";
 import clsx from "clsx";
 import { useCartStore, useHasHydrated } from "@/store/cart";
 import { toBengaliNumber } from "@/lib/format";
-import { GEAR_SUBCATEGORIES } from "@/lib/data/gear";
-
-const productSub = (basePath: string) => [
-  { label: `সব ${basePath === "/books" ? "বই" : basePath === "/ebooks" ? "ইবুক" : "গিয়ার"}`, href: basePath },
-  { label: "বেস্ট সেলার", href: `${basePath}?badge=${encodeURIComponent("বেস্ট সেলার")}` },
-  { label: "নতুন", href: `${basePath}?badge=${encodeURIComponent("নতুন")}` },
-  { label: "অফার", href: `${basePath}?badge=${encodeURIComponent("লিমিটেড অফার")}` },
-];
-
-const gearSub = [
-  { label: "সব গিয়ার", href: "/gear" },
-  ...GEAR_SUBCATEGORIES.map((c) => ({ label: c.label, href: `/gear?category=${c.slug}` })),
-  { label: "বেস্ট সেলার", href: `/gear?badge=${encodeURIComponent("বেস্ট সেলার")}` },
-  { label: "নতুন", href: `/gear?badge=${encodeURIComponent("নতুন")}` },
-  { label: "অফার", href: `/gear?badge=${encodeURIComponent("লিমিটেড অফার")}` },
-];
-
 const navLinks: { key: string; label: string; href: string; sub?: { label: string; href: string }[] }[] = [
-  {
-    key: "home",
-    label: "হোম",
-    href: "/",
-    sub: [
-      { label: "সব প্রোডাক্ট", href: "/" },
-      { label: "বেস্ট সেলার", href: `/search?badge=${encodeURIComponent("বেস্ট সেলার")}` },
-      { label: "নতুন", href: `/search?badge=${encodeURIComponent("নতুন")}` },
-      { label: "অফার", href: `/search?badge=${encodeURIComponent("লিমিটেড অফার")}` },
-    ],
-  },
-  { key: "book", label: "বই", href: "/books", sub: productSub("/books") },
-  { key: "ebook", label: "ইবুক", href: "/ebooks", sub: productSub("/ebooks") },
-  { key: "gear", label: "গিয়ার", href: "/gear", sub: gearSub },
-  { key: "course", label: "কোর্স", href: "/course", sub: [{ label: "সব কোর্স", href: "/course" }] },
+  { key: "home", label: "হোম", href: "/" },
+  { key: "book", label: "বই", href: "/books" },
+  { key: "ebook", label: "ইবুক", href: "/ebooks" },
+  { key: "gear", label: "গিয়ার", href: "/gear" },
+  { key: "course", label: "কোর্স", href: "/course" },
   { key: "blog", label: "ব্লগ", href: "/blog" },
-  {
-    key: "growguide",
-    label: "GrowGuide",
-    href: "/growguide",
-    sub: [
-      { label: "শিক্ষার্থী", href: "/growguide/student" },
-      { label: "প্রফেশনাল", href: "/growguide/professional" },
-      { label: "উদ্যোক্তা", href: "/growguide/entrepreneur" },
-    ],
-  },
+  { key: "growguide", label: "GrowGuide", href: "/growguide" },
   { key: "decisionmaster", label: "ডিসিশনমাস্টার", href: "/decisionmaster" },
 ];
 
@@ -100,7 +64,10 @@ function getActiveCategoryKey(pathname: string): string {
   return "home";
 }
 
-export function Header({ visibleKeys }: { visibleKeys?: string[] } = {}) {
+export function Header({
+  visibleKeys,
+  subNavByKey,
+}: { visibleKeys?: string[]; subNavByKey?: Record<string, { label: string; href: string }[]> } = {}) {
   const router = useRouter();
   const pathname = usePathname();
   const [query, setQuery] = useState("");
@@ -111,6 +78,7 @@ export function Header({ visibleKeys }: { visibleKeys?: string[] } = {}) {
 
   const activeKey = getActiveCategoryKey(pathname);
   const activeCategory = navLinks.find((l) => l.key === activeKey);
+  const activeSub = activeCategory ? subNavByKey?.[activeCategory.key] ?? activeCategory.sub : undefined;
 
   const visibleNavLinks = visibleKeys
     ? (visibleKeys.map((k) => navLinks.find((l) => l.key === k)).filter(Boolean) as typeof navLinks)
@@ -227,11 +195,11 @@ export function Header({ visibleKeys }: { visibleKeys?: string[] } = {}) {
           ))}
         </div>
         {/* Sub-category bar (layer 2) — subcategories of the currently active menu item */}
-        {activeCategory?.sub && activeCategory.sub.length > 0 && (
+        {activeSub && activeSub.length > 0 && (
           <div style={{ background: "#37475a" }}>
             <div className="container-page flex items-center gap-4 overflow-x-auto py-1.5 text-xs scrollbar-none">
               <Suspense
-                fallback={activeCategory.sub.map((s) => (
+                fallback={activeSub.map((s) => (
                   <Link
                     key={s.href}
                     href={s.href}
@@ -241,7 +209,7 @@ export function Header({ visibleKeys }: { visibleKeys?: string[] } = {}) {
                   </Link>
                 ))}
               >
-                <SubNavLinks sub={activeCategory.sub} />
+                <SubNavLinks sub={activeSub} />
               </Suspense>
             </div>
           </div>

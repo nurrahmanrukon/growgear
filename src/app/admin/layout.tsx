@@ -16,8 +16,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin/nav-menu" className="hover:text-white">
             হেডার মেনু
           </Link>
+          <Link href="/admin/header-subnav" className="hover:text-white">
+            হেডার সাব-মেনু
+          </Link>
+          <Link href="/admin/gear-subcategories" className="hover:text-white">
+            গিয়ার সাব-ক্যাটাগরি
+          </Link>
           <Link href="/admin/landing-lock" className="hover:text-white">
             ল্যান্ডিং পেজ লক
+          </Link>
+          <Link href="/admin/course-page" className="hover:text-white">
+            কোর্স পেজ
+          </Link>
+          <Link href="/admin/decisionmaster" className="hover:text-white">
+            ডিসিশনমাস্টার পেজ
           </Link>
           <Link href="/admin/blog" className="hover:text-white">
             ব্লগ ফরম্যাট
@@ -65,7 +77,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             FAQ
           </Link>
           <Link href="/admin/blog-topics" className="hover:text-white">
-            ব্লগ বিষয়ের ক্রম
+            ব্লগ বিষয় ও সেগমেন্ট
           </Link>
           <Link href="/admin/legal-pages" className="hover:text-white">
             আইনি পেজ

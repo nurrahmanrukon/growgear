@@ -8,14 +8,18 @@ import { courses } from "@/lib/data/courses";
 import { getBestSellersResolved, getProductsBySegmentResolved, blogPostsResolved } from "@/lib/server/contentText";
 import { ALL_SEGMENTS } from "@/lib/data/segments";
 import { getHomeSectionConfig } from "@/lib/server/homeSectionOrder";
+import { getBlogTopicSettings } from "@/lib/server/blogTopicSettings";
 
 export const dynamic = "force-dynamic";
 
 export default function Home() {
-  const segmentRails = ALL_SEGMENTS.map((segment) => ({
-    segment,
-    products: getProductsBySegmentResolved(segment.slug, 10),
-  })).filter((rail) => rail.products.length > 0);
+  const { hiddenSegments, segmentLabelOverrides } = getBlogTopicSettings();
+  const segmentRails = ALL_SEGMENTS.filter((segment) => !hiddenSegments.includes(segment.slug))
+    .map((segment) => ({
+      segment: { ...segment, label: segmentLabelOverrides[segment.slug] ?? segment.label },
+      products: getProductsBySegmentResolved(segment.slug, 10),
+    }))
+    .filter((rail) => rail.products.length > 0);
 
   const sections: Record<string, React.ReactNode> = {
     hero: <Hero key="hero" />,

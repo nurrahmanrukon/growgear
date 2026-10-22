@@ -10,6 +10,9 @@ import { allProductsResolved } from "@/lib/server/contentText";
 import { getPurchaseToastSettings } from "@/lib/server/purchaseToastSettings";
 import { getFooterSettings } from "@/lib/server/footerSettings";
 import { getSiteTextSettings } from "@/lib/server/siteTextSettings";
+import { resolveHeaderSubNav } from "@/lib/server/headerSubNavSettings";
+import { getGearSubcategoriesResolved } from "@/lib/server/gearSubcategorySettings";
+import { HEADER_SUBNAV_CATALOG } from "@/lib/data/headerSubNav";
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +43,16 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
   }
 
   const visibleKeys = getVisibleOrderedKeys();
-  const { hiddenGroups, groupOrder, linkOrder } = getFooterSettings();
+  const subNavByKey: Record<string, { label: string; href: string }[]> = {};
+  for (const key of Object.keys(HEADER_SUBNAV_CATALOG)) {
+    subNavByKey[key] = resolveHeaderSubNav(key);
+  }
+  // Gear's dynamic subcategories are spliced in right after "সব গিয়ার" (if still shown), before the badge filters.
+  const gearItems = getGearSubcategoriesResolved().map((c) => ({ label: c.label, href: `/gear?category=${c.slug}` }));
+  const allGearIndex = subNavByKey.gear.findIndex((i) => i.href === "/gear");
+  const spliceAt = allGearIndex === -1 ? 0 : allGearIndex + 1;
+  subNavByKey.gear = [...subNavByKey.gear.slice(0, spliceAt), ...gearItems, ...subNavByKey.gear.slice(spliceAt)];
+  const { hiddenGroups, groupOrder, linkOrder, hiddenLinks, linkLabelOverrides } = getFooterSettings();
   const groupTitles = {
     about: text.footerAboutTitle,
     shop: text.footerShopTitle,
@@ -49,12 +61,14 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
   };
   return (
     <>
-      <Header visibleKeys={visibleKeys} />
+      <Header visibleKeys={visibleKeys} subNavByKey={subNavByKey} />
       <main className="flex-1">{children}</main>
       <Footer
         hiddenGroups={hiddenGroups}
         groupOrder={groupOrder}
         linkOrder={linkOrder}
+        hiddenLinks={hiddenLinks}
+        linkLabelOverrides={linkLabelOverrides}
         groupTitles={groupTitles}
         copyright={text.footerCopyright}
       />

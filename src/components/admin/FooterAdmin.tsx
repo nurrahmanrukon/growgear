@@ -9,18 +9,41 @@ interface FooterSettings {
   hiddenGroups: string[];
   groupOrder: string[];
   linkOrder: Record<string, number[]>;
+  hiddenLinks: Record<string, number[]>;
+  linkLabelOverrides: Record<string, Record<number, string>>;
 }
+
+const fieldClass =
+  "w-full rounded-md border border-border px-2 py-1 text-xs outline-none focus:ring-1 focus:ring-primary";
 
 export function FooterAdmin({ initial }: { initial: FooterSettings }) {
   const router = useRouter();
   const [hidden, setHidden] = useState<Set<string>>(new Set(initial.hiddenGroups));
   const [groupOrder, setGroupOrder] = useState<string[]>(initial.groupOrder);
   const [linkOrder, setLinkOrder] = useState<Record<string, number[]>>(initial.linkOrder);
+  const [hiddenLinks, setHiddenLinks] = useState<Record<string, number[]>>(initial.hiddenLinks);
+  const [linkLabels, setLinkLabels] = useState<Record<string, Record<number, string>>>(initial.linkLabelOverrides);
   const [dragGroupIndex, setDragGroupIndex] = useState<number | null>(null);
   const [dragLink, setDragLink] = useState<{ key: string; index: number } | null>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  function toggleLinkHidden(key: string, originalIndex: number) {
+    setHiddenLinks((prev) => {
+      const current = prev[key] ?? [];
+      const next = current.includes(originalIndex)
+        ? current.filter((i) => i !== originalIndex)
+        : [...current, originalIndex];
+      return { ...prev, [key]: next };
+    });
+    setSaved(false);
+  }
+
+  function updateLinkLabel(key: string, originalIndex: number, value: string) {
+    setLinkLabels((prev) => ({ ...prev, [key]: { ...(prev[key] ?? {}), [originalIndex]: value } }));
+    setSaved(false);
+  }
 
   function toggleHidden(key: string) {
     setHidden((prev) => {
@@ -80,7 +103,13 @@ export function FooterAdmin({ initial }: { initial: FooterSettings }) {
       const res = await fetch("/api/admin/footer", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ hiddenGroups: Array.from(hidden), groupOrder, linkOrder }),
+        body: JSON.stringify({
+          hiddenGroups: Array.from(hidden),
+          groupOrder,
+          linkOrder,
+          hiddenLinks,
+          linkLabelOverrides: linkLabels,
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -90,6 +119,8 @@ export function FooterAdmin({ initial }: { initial: FooterSettings }) {
       setHidden(new Set(data.hiddenGroups));
       setGroupOrder(data.groupOrder);
       setLinkOrder(data.linkOrder);
+      setHiddenLinks(data.hiddenLinks);
+      setLinkLabels(data.linkLabelOverrides);
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
     } catch {
@@ -129,7 +160,14 @@ export function FooterAdmin({ initial }: { initial: FooterSettings }) {
       <div className="mt-6 max-w-md space-y-3">
         {groupOrder.map((key, i) => {
           const isHidden = hidden.has(key);
-          const links = (linkOrder[key] ?? []).map((idx) => FOOTER_LINK_CATALOG[key]?.[idx]).filter(Boolean);
+          const links = (linkOrder[key] ?? [])
+            .map((originalIndex) => {
+              const base = FOOTER_LINK_CATALOG[key]?.[originalIndex];
+              return base ? { originalIndex, label: base.label } : null;
+            })
+            .filter((l): l is { originalIndex: number; label: string } => l !== null);
+          const hiddenForGroup = new Set(hiddenLinks[key] ?? []);
+          const labelsForGroup = linkLabels[key] ?? {};
           return (
             <div
               key={key}
@@ -189,44 +227,62 @@ export function FooterAdmin({ initial }: { initial: FooterSettings }) {
               </div>
 
               <div className="mt-3 flex flex-col gap-1 border-t border-border pt-3">
-                {links.map((link, li) => (
-                  <div
-                    key={li}
-                    draggable
-                    onDragStart={() => setDragLink({ key, index: li })}
-                    onDragOver={(e) => e.preventDefault()}
-                    onDrop={() => handleLinkDrop(key, li)}
-                    onDragEnd={() => setDragLink(null)}
-                    className={`flex items-center justify-between gap-2 rounded-md px-2 py-1 ${
-                      dragLink?.key === key && dragLink.index === li ? "opacity-40" : ""
-                    }`}
-                  >
-                    <span className="flex items-center gap-1.5 text-xs text-ink-soft">
+                {links.map((link, li) => {
+                  const linkHidden = hiddenForGroup.has(link.originalIndex);
+                  return (
+                    <div
+                      key={link.originalIndex}
+                      draggable
+                      onDragStart={() => setDragLink({ key, index: li })}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={() => handleLinkDrop(key, li)}
+                      onDragEnd={() => setDragLink(null)}
+                      className={`flex items-center gap-1.5 rounded-md px-2 py-1 ${
+                        dragLink?.key === key && dragLink.index === li ? "opacity-40" : ""
+                      }`}
+                    >
                       <GripVertical size={12} className="shrink-0 cursor-grab text-ink-faint active:cursor-grabbing" />
-                      {link.label}
-                    </span>
-                    <div className="flex shrink-0 items-center gap-0.5">
-                      <button
-                        type="button"
-                        aria-label="উপরে সরান"
-                        disabled={li === 0}
-                        onClick={() => moveLink(key, li, li - 1)}
-                        className="rounded border border-border p-1 text-ink-soft hover:border-primary hover:text-primary disabled:opacity-30"
-                      >
-                        <ChevronUp size={11} />
-                      </button>
-                      <button
-                        type="button"
-                        aria-label="নিচে সরান"
-                        disabled={li === links.length - 1}
-                        onClick={() => moveLink(key, li, li + 1)}
-                        className="rounded border border-border p-1 text-ink-soft hover:border-primary hover:text-primary disabled:opacity-30"
-                      >
-                        <ChevronDown size={11} />
-                      </button>
+                      <input
+                        className={`flex-1 ${fieldClass} ${linkHidden ? "opacity-50" : ""}`}
+                        value={labelsForGroup[link.originalIndex] ?? link.label}
+                        onChange={(e) => updateLinkLabel(key, link.originalIndex, e.target.value)}
+                        disabled={linkHidden}
+                      />
+                      <div className="flex shrink-0 items-center gap-0.5">
+                        <button
+                          type="button"
+                          aria-label="উপরে সরান"
+                          disabled={li === 0}
+                          onClick={() => moveLink(key, li, li - 1)}
+                          className="rounded border border-border p-1 text-ink-soft hover:border-primary hover:text-primary disabled:opacity-30"
+                        >
+                          <ChevronUp size={11} />
+                        </button>
+                        <button
+                          type="button"
+                          aria-label="নিচে সরান"
+                          disabled={li === links.length - 1}
+                          onClick={() => moveLink(key, li, li + 1)}
+                          className="rounded border border-border p-1 text-ink-soft hover:border-primary hover:text-primary disabled:opacity-30"
+                        >
+                          <ChevronDown size={11} />
+                        </button>
+                        <button
+                          type="button"
+                          aria-label={linkHidden ? "দেখান" : "লুকান"}
+                          onClick={() => toggleLinkHidden(key, link.originalIndex)}
+                          className={`rounded border p-1 ${
+                            linkHidden
+                              ? "border-price/40 bg-price/10 text-price"
+                              : "border-border text-ink-soft hover:border-primary hover:text-primary"
+                          }`}
+                        >
+                          {linkHidden ? <EyeOff size={11} /> : <Eye size={11} />}
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           );

@@ -3,11 +3,11 @@ import { getPostsByTopic } from "@/lib/data/blog";
 import { TOPIC_ICONS } from "./topicIcons";
 import { toBengaliNumber } from "@/lib/format";
 import { getSiteTextSettings } from "@/lib/server/siteTextSettings";
-import { getOrderedTopics } from "@/lib/server/blogTopicOrderSettings";
+import { getVisibleTopicsResolved } from "@/lib/server/blogTopicSettings";
 
 export function BlogCategoryTiles() {
   const { blogTopicTilesHeading } = getSiteTextSettings();
-  const TOPICS = getOrderedTopics();
+  const TOPICS = getVisibleTopicsResolved();
   return (
     <section className="border-y border-border bg-surface-muted py-10">
       <div className="container-page">

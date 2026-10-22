@@ -8,12 +8,16 @@ export function Footer({
   hiddenGroups = [],
   groupOrder,
   linkOrder,
+  hiddenLinks,
+  linkLabelOverrides,
   groupTitles,
   copyright,
 }: {
   hiddenGroups?: string[];
   groupOrder?: string[];
   linkOrder?: Record<string, number[]>;
+  hiddenLinks?: Record<string, number[]>;
+  linkLabelOverrides?: Record<string, Record<number, string>>;
   groupTitles: Record<string, string>;
   copyright: string;
 }) {
@@ -24,8 +28,13 @@ export function Footer({
   const columns = orderedKeys.map((key) => {
     const baseLinks = FOOTER_LINK_CATALOG[key] ?? [];
     const order = linkOrder?.[key];
-    const links =
-      order && order.length === baseLinks.length ? order.map((i) => baseLinks[i]).filter(Boolean) : baseLinks;
+    const indices = order && order.length === baseLinks.length ? order : baseLinks.map((_, i) => i);
+    const hiddenForGroup = hiddenLinks?.[key] ?? [];
+    const labelsForGroup = linkLabelOverrides?.[key] ?? {};
+    const links = indices
+      .filter((i) => !hiddenForGroup.includes(i))
+      .map((i) => ({ ...baseLinks[i], label: labelsForGroup[i] ?? baseLinks[i].label }))
+      .filter((l) => l.href);
     return { key, links };
   });
   const visibleColumns = columns.filter((col) => !hiddenGroups.includes(col.key));
@@ -44,7 +53,7 @@ export function Footer({
             <h3 className="mb-3 text-sm font-semibold text-background">{groupTitles[col.key]}</h3>
             <ul className="space-y-2">
               {col.links.map((link) => (
-                <li key={link.label}>
+                <li key={link.href}>
                   <Link
                     href={link.href}
                     className="text-xs text-background/60 hover:text-background hover:underline"

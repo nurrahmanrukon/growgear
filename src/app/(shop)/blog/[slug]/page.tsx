@@ -2,7 +2,8 @@ import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import Link from "next/link";
 import { Lock } from "lucide-react";
-import { blogPosts, TOPICS } from "@/lib/data/blog";
+import { blogPosts } from "@/lib/data/blog";
+import { getAllTopicsResolved } from "@/lib/server/blogTopicSettings";
 import { getBlogPostBySlugResolved, getPostsByTopicResolved } from "@/lib/server/contentText";
 import { getHiddenFormats } from "@/lib/server/blogFormats";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
@@ -42,7 +43,7 @@ export default async function BlogPostPage({
   const post = getBlogPostBySlugResolved(slug);
   if (!post) notFound();
 
-  const topicMeta = TOPICS.find((t) => t.slug === post.topicSlug);
+  const topicMeta = getAllTopicsResolved().find((t) => t.slug === post.topicSlug);
   const TopicIcon = TOPIC_ICONS[post.topicSlug];
   const related = getPostsByTopicResolved(post.topicSlug)
     .filter((p) => p.id !== post.id)

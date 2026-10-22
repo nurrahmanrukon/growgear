@@ -4,28 +4,30 @@ import { courses } from "@/lib/data/courses";
 import { formatTaka, discountPercent, toBengaliNumber } from "@/lib/format";
 import { StarRating } from "@/components/ui/StarRating";
 import { Button } from "@/components/ui/Button";
+import { getCoursePageSettings } from "@/lib/server/coursePageSettings";
 
 export const metadata: Metadata = { title: "অনলাইন কোর্স — GrowGear" };
+export const dynamic = "force-dynamic";
 
 export default function CoursePage() {
+  const text = getCoursePageSettings();
   return (
     <div className="container-page py-6">
       <div className="rounded-lg border border-border bg-surface-muted p-5 sm:p-6">
         <h1 className="flex items-center gap-2 font-display text-xl font-bold text-foreground sm:text-2xl">
-          <GraduationCap size={26} className="text-primary" /> অনলাইন কোর্স
+          <GraduationCap size={26} className="text-primary" /> {text.heading}
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-ink-soft">
-          GrowGear-এর সব কোর্স পরিচালিত ও এনরোলমেন্ট সম্পন্ন হয় আমাদের পার্টনার লার্নিং
-          প্ল্যাটফর্ম{" "}
+          {text.introBefore}{" "}
           <a
-            href="https://enrich.com.bd"
+            href={text.platformUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="font-semibold text-primary hover:underline"
           >
-            enrich.com.bd
+            {text.platformName}
           </a>{" "}
-          এ। নিচের কোনো কোর্সে &ldquo;এনরোল করুন&rdquo; চাপলে আপনি enrich.com.bd তে চলে যাবেন।
+          {text.introAfter}
         </p>
       </div>
 
@@ -78,7 +80,7 @@ export default function CoursePage() {
 
               <a href={course.enrollUrl} target="_blank" rel="noopener noreferrer" className="mt-3">
                 <Button variant="primary" fullWidth>
-                  এনরোল করুন <ExternalLink size={14} />
+                  {text.enrollCtaLabel} <ExternalLink size={14} />
                 </Button>
               </a>
             </div>
