@@ -39,6 +39,7 @@ export async function POST(req: NextRequest) {
   res.cookies.set(PROFILE_COOKIE, createProfileSessionToken(profile.email), {
     httpOnly: true,
     sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
     path: "/",
     maxAge: PROFILE_SESSION_MAX_AGE_SECONDS,
   });

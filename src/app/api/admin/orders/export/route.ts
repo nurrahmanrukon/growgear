@@ -2,8 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAllOrders, filterOrders } from "@/lib/server/orders";
 
 function csvEscape(value: string): string {
-  if (/[",\n]/.test(value)) return `"${value.replace(/"/g, '""')}"`;
-  return value;
+  // Neutralize formula-injection: a customer-supplied name/address starting with
+  // =, +, -, @, tab or CR would otherwise execute as a live formula the moment the
+  // admin opens this export in Excel/Google Sheets — prefix those with an apostrophe
+  // so spreadsheet apps always treat the cell as literal text.
+  const safe = /^[=+\-@\t\r]/.test(value) ? `'${value}` : value;
+  if (/[",\n]/.test(safe)) return `"${safe.replace(/"/g, '""')}"`;
+  return safe;
 }
 
 export async function GET(req: NextRequest) {
