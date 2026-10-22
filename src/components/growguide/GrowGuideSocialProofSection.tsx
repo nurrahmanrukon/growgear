@@ -13,15 +13,16 @@ interface SocialPost {
   likes: number;
   hoursAgo: number;
 }
+export interface SocialPostText {
+  name: string;
+  text: string;
+  likes: number;
+  hoursAgo: number;
+}
 
-const POSTS: SocialPost[] = [
-  { name: "তানভীর আহমেদ", platform: "facebook", text: "GrowGuide এর ওয়েবিনারে জয়েন করেছিলাম, একদম বিনামূল্যে এত ভালো কনটেন্ট পাব ভাবিনি! 🔥", likes: 87, hoursAgo: 3 },
-  { name: "নুসরাত জাহান", platform: "instagram", text: "নূর রহমান নিজে লাইভে প্রশ্নের উত্তর দিয়েছেন, একদমই কমার্শিয়াল মনে হয়নি ❤️", likes: 154, hoursAgo: 6 },
-  { name: "রাকিবুল হাসান", platform: "whatsapp", text: "কমিউনিটি গ্রুপে যুক্ত হয়ে অনেক নতুন মানুষের সাথে পরিচয় হয়েছে, সবাই খুব হেল্পফুল।", likes: 42, hoursAgo: 12 },
-  { name: "সাদিয়া ইসলাম", platform: "facebook", text: "পরের সেশন কবে? আগেরটা মিস করেছিলাম, এবার অবশ্যই জয়েন করবো 🙌", likes: 63, hoursAgo: 18 },
-  { name: "ইশরাত হোসেন", platform: "instagram", text: "সেশনের রেকর্ডিং কমিউনিটি গ্রুপে পেয়ে গেছি, পুরোটা দেখে ফেলেছি। সত্যিই worth it 👍", likes: 98, hoursAgo: 9 },
-  { name: "ফারহানা কবির", platform: "whatsapp", text: "টিম নিয়ে এগিয়ে যাওয়ার ব্যাপারে অনেক প্র্যাক্টিক্যাল টিপস পেয়েছি, ধন্যবাদ নূর রহমান।", likes: 71, hoursAgo: 21 },
-];
+// Which mock UI (Facebook/Instagram/WhatsApp) each post renders as is fixed by position —
+// only the admin-editable name/text/likes/hoursAgo (see growguidePageSettings.ts) vary.
+const PLATFORM_BY_POSITION: Platform[] = ["facebook", "instagram", "whatsapp", "facebook", "instagram", "whatsapp"];
 
 function initials(name: string) {
   return name.trim().charAt(0);
@@ -124,8 +125,22 @@ function SocialMock({ post, large }: { post: SocialPost; large?: boolean }) {
   return <WhatsAppMock {...post} large={large} />;
 }
 
-export function GrowGuideSocialProofSection() {
+export function GrowGuideSocialProofSection({
+  eyebrow,
+  heading,
+  subheading,
+  posts: postsText,
+}: {
+  eyebrow: string;
+  heading: string;
+  subheading: string;
+  posts: SocialPostText[];
+}) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const POSTS: SocialPost[] = postsText.map((p, i) => ({
+    ...p,
+    platform: PLATFORM_BY_POSITION[i % PLATFORM_BY_POSITION.length],
+  }));
 
   function go(delta: number) {
     setActiveIndex((i) => (i === null ? null : (i + delta + POSTS.length) % POSTS.length));
@@ -145,19 +160,15 @@ export function GrowGuideSocialProofSection() {
   return (
     <section className="container-page py-10">
       <div className="mx-auto max-w-3xl text-center">
-        <p className="text-xs font-medium uppercase tracking-wide text-primary">সামাজিক মাধ্যমে আলোচনা</p>
-        <h2 className="mt-1.5 font-display text-xl font-bold text-foreground sm:text-2xl">
-          GrowGuide নিয়ে সোশ্যাল মিডিয়ায় যা বলা হচ্ছে
-        </h2>
-        <p className="mt-1.5 text-sm text-ink-soft">
-          ফেসবুক, ইনস্টাগ্রাম ও হোয়াটসঅ্যাপে অংশগ্রহণকারীদের আসল মন্তব্যের স্ক্রিনশট
-        </p>
+        <p className="text-xs font-medium uppercase tracking-wide text-primary">{eyebrow}</p>
+        <h2 className="mt-1.5 font-display text-xl font-bold text-foreground sm:text-2xl">{heading}</h2>
+        <p className="mt-1.5 text-sm text-ink-soft">{subheading}</p>
       </div>
 
       <div className="mx-auto mt-6 grid max-w-3xl grid-cols-2 gap-4 sm:grid-cols-3">
         {POSTS.map((post, i) => (
           <button
-            key={post.name}
+            key={i}
             type="button"
             onClick={() => setActiveIndex(i)}
             aria-label="স্ক্রিনশট বড় করে দেখুন"

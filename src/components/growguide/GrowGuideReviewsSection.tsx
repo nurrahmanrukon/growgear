@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Play } from "lucide-react";
 import { StarRating } from "@/components/ui/StarRating";
 import { Modal } from "@/components/ui/Modal";
+import { fillTemplate } from "@/lib/templateFill";
 
 interface Review {
   name: string;
@@ -11,48 +12,6 @@ interface Review {
   quote: string;
   rating: number;
 }
-
-const TEXT_REVIEWS: Review[] = [
-  {
-    name: "তানভীর আহমেদ",
-    role: "শিক্ষার্থী",
-    quote: "সেশনটা এতটাই বাস্তবসম্মত ছিল যে সাথে সাথে নিজের রুটিনে প্রয়োগ করতে পেরেছি।",
-    rating: 5,
-  },
-  {
-    name: "নুসরাত জাহান",
-    role: "প্রফেশনাল",
-    quote: "নূর রহমান নিজেই প্রশ্নের উত্তর দিয়েছেন, একদমই কমার্শিয়াল মনে হয়নি।",
-    rating: 5,
-  },
-  {
-    name: "রাকিবুল হাসান",
-    role: "উদ্যোক্তা",
-    quote: "ব্যবসার সিদ্ধান্ত নেওয়ার একটা স্পষ্ট ফ্রেমওয়ার্ক পেয়েছি, একদম ফ্রি-তে।",
-    rating: 4.5,
-  },
-  {
-    name: "সাদিয়া ইসলাম",
-    role: "শিক্ষার্থী",
-    quote: "কমিউনিটি গ্রুপে যুক্ত হয়ে অনেক নতুন মানুষের সাথে পরিচয় হয়েছে।",
-    rating: 5,
-  },
-];
-
-const VIDEO_REVIEWS: Review[] = [
-  {
-    name: "ইশরাত হোসেন",
-    role: "প্রফেশনাল",
-    quote: "কর্মক্ষেত্রে সিদ্ধান্ত নেওয়ার ক্ষেত্রে এই ফ্রেমওয়ার্কটা সত্যিই কাজে লেগেছে।",
-    rating: 4.5,
-  },
-  {
-    name: "ফারহানা কবির",
-    role: "উদ্যোক্তা",
-    quote: "টিম নিয়ে এগিয়ে যাওয়ার ব্যাপারে অনেক প্র্যাক্টিক্যাল টিপস পেয়েছি।",
-    rating: 5,
-  },
-];
 
 function TextReviewCard({ r }: { r: Review }) {
   return (
@@ -74,7 +33,7 @@ function TextReviewCard({ r }: { r: Review }) {
   );
 }
 
-function VideoReviewCard({ r, onPlay }: { r: Review; onPlay: () => void }) {
+function VideoReviewCard({ r, captionTemplate, onPlay }: { r: Review; captionTemplate: string; onPlay: () => void }) {
   return (
     <div className="rounded-lg border border-border bg-surface p-4">
       <button
@@ -87,7 +46,7 @@ function VideoReviewCard({ r, onPlay }: { r: Review; onPlay: () => void }) {
           <Play size={24} className="ml-1 text-foreground" fill="currentColor" />
         </div>
         <span className="absolute bottom-3 left-4 text-xs font-medium text-white/85">
-          {r.name} — ভিডিও রিভিউ (শীঘ্রই যুক্ত হবে)
+          {fillTemplate(captionTemplate, { name: r.name })}
         </span>
       </button>
 
@@ -101,25 +60,40 @@ function VideoReviewCard({ r, onPlay }: { r: Review; onPlay: () => void }) {
   );
 }
 
-export function GrowGuideReviewsSection() {
+export function GrowGuideReviewsSection({
+  eyebrow,
+  heading,
+  textReviews,
+  videoReviews,
+  videoReviewCaptionTemplate,
+}: {
+  eyebrow: string;
+  heading: string;
+  textReviews: Review[];
+  videoReviews: Review[];
+  videoReviewCaptionTemplate: string;
+}) {
   const [playingVideo, setPlayingVideo] = useState<Review | null>(null);
 
   return (
     <section className="border-y border-border bg-surface-muted py-12">
       <div className="container-page">
         <div className="text-center">
-          <p className="text-xs font-medium uppercase tracking-wide text-primary">অংশগ্রহণকারীদের মতামত</p>
-          <h2 className="mt-1.5 font-display text-xl font-bold text-foreground sm:text-2xl">
-            যারা সেশনে যুক্ত হয়েছেন, তারা কী বলছেন
-          </h2>
+          <p className="text-xs font-medium uppercase tracking-wide text-primary">{eyebrow}</p>
+          <h2 className="mt-1.5 font-display text-xl font-bold text-foreground sm:text-2xl">{heading}</h2>
         </div>
 
         <div className="mx-auto mt-6 flex max-w-xl flex-col gap-4">
-          {TEXT_REVIEWS.map((r) => (
-            <TextReviewCard key={r.name} r={r} />
+          {textReviews.map((r, i) => (
+            <TextReviewCard key={i} r={r} />
           ))}
-          {VIDEO_REVIEWS.map((r) => (
-            <VideoReviewCard key={r.name} r={r} onPlay={() => setPlayingVideo(r)} />
+          {videoReviews.map((r, i) => (
+            <VideoReviewCard
+              key={i}
+              r={r}
+              captionTemplate={videoReviewCaptionTemplate}
+              onPlay={() => setPlayingVideo(r)}
+            />
           ))}
         </div>
       </div>
@@ -135,7 +109,7 @@ export function GrowGuideReviewsSection() {
                 <Play size={28} className="ml-1 text-foreground" fill="currentColor" />
               </div>
               <span className="absolute bottom-3 left-4 text-xs font-medium text-white/85 sm:bottom-4 sm:left-5 sm:text-sm">
-                {playingVideo.name} — ভিডিও রিভিউ (শীঘ্রই যুক্ত হবে)
+                {fillTemplate(videoReviewCaptionTemplate, { name: playingVideo.name })}
               </span>
             </div>
             <p className="mt-3 text-sm font-medium text-foreground">{playingVideo.name}</p>

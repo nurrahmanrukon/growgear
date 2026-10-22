@@ -3,11 +3,16 @@ import Link from "next/link";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { GrowGuideHeroCarousel } from "@/components/growguide/GrowGuideHeroCarousel";
 import { GrowGuideVideoSection } from "@/components/growguide/GrowGuideVideoSection";
-import { GROWGUIDE_AUDIENCE } from "@/lib/data/growguideAudience";
+import { getGrowGuideAudiencesResolved } from "@/lib/server/growguideAudienceSettings";
+import { getGrowGuidePageSettings } from "@/lib/server/growguidePageSettings";
 
 export const metadata: Metadata = { title: "GrowGuide — GrowGear" };
+export const dynamic = "force-dynamic";
 
 export default function GrowGuidePage() {
+  const audiences = getGrowGuideAudiencesResolved();
+  const text = getGrowGuidePageSettings();
+
   return (
     <>
       <div className="container-page pt-4">
@@ -27,11 +32,11 @@ export default function GrowGuidePage() {
               whiteSpace: "nowrap",
             }}
           >
-            শিক্ষার্থী, প্রফেশনাল ও উদ্যোক্তাদের গাইডেড ওয়েতে গ্রো করতে সাহায্য করি
+            {text.indexHiddenHeading}
           </h1>
 
           <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
-            {GROWGUIDE_AUDIENCE.map((a) => (
+            {audiences.map((a) => (
               <Link
                 key={a.slug}
                 href={`/growguide/${a.slug}`}
@@ -42,7 +47,7 @@ export default function GrowGuidePage() {
             ))}
           </div>
 
-          <GrowGuideHeroCarousel />
+          <GrowGuideHeroCarousel slides={text.heroSlides} />
         </div>
       </section>
 

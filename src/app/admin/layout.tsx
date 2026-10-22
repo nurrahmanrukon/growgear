@@ -31,6 +31,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin/decisionmaster" className="hover:text-white">
             ডিসিশনমাস্টার পেজ
           </Link>
+          <Link href="/admin/growguide-page" className="hover:text-white">
+            GrowGuide পেজ
+          </Link>
+          <Link href="/admin/growguide-audience" className="hover:text-white">
+            GrowGuide অডিয়েন্স
+          </Link>
+          <Link href="/admin/growguide-faq" className="hover:text-white">
+            GrowGuide FAQ
+          </Link>
           <Link href="/admin/blog" className="hover:text-white">
             ব্লগ ফরম্যাট
           </Link>

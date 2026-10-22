@@ -12,7 +12,11 @@ import { GrowGuideStepsSection } from "@/components/growguide/GrowGuideStepsSect
 import { GrowGuideAuthorBioSection } from "@/components/growguide/GrowGuideAuthorBioSection";
 import { GrowGuideCommunitySection } from "@/components/growguide/GrowGuideCommunitySection";
 import { GrowGuideJoinForm } from "@/components/growguide/GrowGuideJoinForm";
-import { GROWGUIDE_AUDIENCE, getGrowGuideAudience } from "@/lib/data/growguideAudience";
+import { GROWGUIDE_AUDIENCE } from "@/lib/data/growguideAudience";
+import { getGrowGuideAudiencesResolved, getGrowGuideAudienceResolved } from "@/lib/server/growguideAudienceSettings";
+import { getGrowGuidePageSettings } from "@/lib/server/growguidePageSettings";
+
+export const dynamic = "force-dynamic";
 
 export function generateStaticParams() {
   return GROWGUIDE_AUDIENCE.map((a) => ({ audience: a.slug }));
@@ -24,7 +28,7 @@ export async function generateMetadata({
   params: Promise<{ audience: string }>;
 }): Promise<Metadata> {
   const { audience } = await params;
-  const a = getGrowGuideAudience(audience);
+  const a = getGrowGuideAudienceResolved(audience);
   return { title: a ? `${a.label} — GrowGuide — GrowGear` : "GrowGuide — GrowGear" };
 }
 
@@ -34,9 +38,11 @@ export default async function GrowGuideAudiencePage({
   params: Promise<{ audience: string }>;
 }) {
   const { audience } = await params;
-  const a = getGrowGuideAudience(audience);
+  const a = getGrowGuideAudienceResolved(audience);
   if (!a) notFound();
 
+  const audiences = getGrowGuideAudiencesResolved();
+  const text = getGrowGuidePageSettings();
   const Icon = a.icon;
 
   return (
@@ -47,6 +53,26 @@ export default async function GrowGuideAudiencePage({
 
       <GrowGuideJoinForm
         audience={{ heroHeading: a.heroHeading, heroSubtitle: a.heroSubtitle, benefits: a.benefits }}
+        text={{
+          eyebrow: text.joinFormEyebrow,
+          whatsIncludedLabel: text.joinFormWhatsIncludedLabel,
+          nextSessionTemplate: text.joinFormNextSessionTemplate,
+          nextSessionDate: text.joinFormNextSessionDate,
+          nextSessionTime: text.joinFormNextSessionTime,
+          segmentLabel: text.joinFormSegmentLabel,
+          segmentTarget: text.joinFormSegmentTarget,
+          segmentJoined: text.joinFormSegmentJoined,
+          joinedCountTemplate: text.joinFormJoinedCountTemplate,
+          targetCountTemplate: text.joinFormTargetCountTemplate,
+          progressCaptionTemplate: text.joinFormProgressCaptionTemplate,
+          emailPlaceholder: text.joinFormEmailPlaceholder,
+          emailErrorText: text.joinFormEmailErrorText,
+          phonePlaceholder: text.joinFormPhonePlaceholder,
+          phoneErrorText: text.joinFormPhoneErrorText,
+          submitButtonLabel: text.joinFormSubmitButtonLabel,
+          joinedConfirmationTemplate: text.joinFormJoinedConfirmationTemplate,
+          footerNote: text.joinFormFooterNote,
+        }}
       />
 
       <section className="border-b border-border bg-surface-muted">
@@ -58,36 +84,31 @@ export default async function GrowGuideAudiencePage({
           <p className="mx-auto mt-3 max-w-xl text-sm text-ink-soft sm:text-base">{a.heroSubtitle}</p>
 
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-            {GROWGUIDE_AUDIENCE.map((audience) => (
+            {audiences.map((audienceItem) => (
               <Link
-                key={audience.slug}
-                href={`/growguide/${audience.slug}`}
+                key={audienceItem.slug}
+                href={`/growguide/${audienceItem.slug}`}
                 className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition ${
-                  audience.slug === a.slug
+                  audienceItem.slug === a.slug
                     ? "border-primary bg-primary-light text-primary"
                     : "border-border bg-surface text-foreground hover:border-primary hover:text-primary"
                 }`}
               >
-                <audience.icon size={14} className={audience.slug === a.slug ? "text-primary" : "text-primary"} />{" "}
-                {audience.label}
+                <audienceItem.icon size={14} className={audienceItem.slug === a.slug ? "text-primary" : "text-primary"} />{" "}
+                {audienceItem.label}
               </Link>
             ))}
           </div>
 
-          <GrowGuideHeroCarousel />
+          <GrowGuideHeroCarousel slides={text.heroSlides} />
         </div>
       </section>
 
       <section className="container-page py-10">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="text-xs font-medium uppercase tracking-wide text-primary">মূল বার্তা</p>
-          <h2 className="mt-1.5 font-display text-xl font-bold text-foreground sm:text-2xl">
-            নূর রহমানের কাছ থেকে সরাসরি শুনুন
-          </h2>
-          <p className="mt-2 text-sm leading-relaxed text-ink-soft">
-            প্রতি মাসে একটি নির্দিষ্ট সময়ে সম্পূর্ণ ফ্রি লাইভ ওয়েবিনার — শিক্ষার্থী, প্রফেশনাল ও উদ্যোক্তাদের জন্য। এটা
-            আমার কমিউনিটি গড়ে তোলা এবং সমাজে অবদান রাখার একটা প্রচেষ্টা।
-          </p>
+          <p className="text-xs font-medium uppercase tracking-wide text-primary">{text.mainMessageEyebrow}</p>
+          <h2 className="mt-1.5 font-display text-xl font-bold text-foreground sm:text-2xl">{text.mainMessageHeading}</h2>
+          <p className="mt-2 text-sm leading-relaxed text-ink-soft">{text.mainMessageParagraph}</p>
         </div>
 
         <div className="mx-auto mt-6 max-w-3xl">
@@ -99,20 +120,23 @@ export default async function GrowGuideAudiencePage({
               <Play size={28} className="ml-1 text-foreground" fill="currentColor" />
             </div>
             <span className="absolute bottom-3 left-4 text-xs font-medium text-white/85 sm:bottom-4 sm:left-5 sm:text-sm">
-              {a.videoCaption} (শীঘ্রই যুক্ত হবে)
+              {a.videoCaption} {text.videoComingSoonSuffix}
             </span>
           </div>
         </div>
       </section>
 
-      <GrowGuideSocialProofSection />
+      <GrowGuideSocialProofSection
+        eyebrow={text.socialProofEyebrow}
+        heading={text.socialProofHeading}
+        subheading={text.socialProofSubheading}
+        posts={text.socialPosts}
+      />
 
       <section className="container-page py-10">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="text-xs font-medium uppercase tracking-wide text-primary">কেন যোগ দেবেন</p>
-          <h2 className="mt-1.5 font-display text-xl font-bold text-foreground sm:text-2xl">
-            এই ওয়েবিনারে অংশ নিলে আপনার জীবনে যা বদলাবে
-          </h2>
+          <p className="text-xs font-medium uppercase tracking-wide text-primary">{text.whyJoinEyebrow}</p>
+          <h2 className="mt-1.5 font-display text-xl font-bold text-foreground sm:text-2xl">{text.whyJoinHeading}</h2>
         </div>
 
         <div className="mx-auto mt-6 grid max-w-3xl gap-4 sm:grid-cols-3">
@@ -131,7 +155,7 @@ export default async function GrowGuideAudiencePage({
       <section className="border-y border-border bg-surface-muted py-12">
         <div className="container-page">
           <h2 className="text-center font-display text-lg font-bold text-foreground sm:text-xl">
-            {a.label} রা যা বলছেন
+            {a.label}{text.testimonialsHeadingSuffix}
           </h2>
           <div className="mx-auto mt-6 grid max-w-2xl gap-4 sm:grid-cols-2">
             {a.testimonials.map((t) => (
@@ -152,7 +176,13 @@ export default async function GrowGuideAudiencePage({
         </div>
       </section>
 
-      <GrowGuideReviewsSection />
+      <GrowGuideReviewsSection
+        eyebrow={text.reviewsEyebrow}
+        heading={text.reviewsHeading}
+        textReviews={text.textReviews}
+        videoReviews={text.videoReviews}
+        videoReviewCaptionTemplate={text.videoReviewCaptionTemplate}
+      />
       <GrowGuideFaqSection />
       <GrowGuideStepsSection />
       <GrowGuideAuthorBioSection />
