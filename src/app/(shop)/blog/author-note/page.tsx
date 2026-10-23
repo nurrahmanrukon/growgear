@@ -47,7 +47,7 @@ export default function AuthorNotePage() {
 
         <div className="mx-auto mt-7 max-w-3xl">
           <div
-            className="group relative flex aspect-video w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-border"
+            className="group relative flex aspect-[4/5] w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-border"
             style={{ background: "linear-gradient(135deg, #3f6653, #2e4b3d)" }}
           >
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-surface/90 shadow-sm transition group-hover:scale-105 sm:h-20 sm:w-20">

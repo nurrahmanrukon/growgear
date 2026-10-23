@@ -39,7 +39,7 @@ function VideoReviewCard({ r, captionTemplate, onPlay }: { r: Review; captionTem
       <button
         onClick={onPlay}
         aria-label={`${r.name} এর ভিডিও রিভিউ চালু করুন`}
-        className="group relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-lg"
+        className="group relative flex aspect-[4/5] w-full items-center justify-center overflow-hidden rounded-lg"
         style={{ background: "linear-gradient(135deg, #2a4570, #16294a)" }}
       >
         <div className="flex h-14 w-14 items-center justify-center rounded-full bg-surface/90 shadow-sm transition group-hover:scale-105">
@@ -102,7 +102,7 @@ export function GrowGuideReviewsSection({
         {playingVideo && (
           <>
             <div
-              className="group relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-lg border border-border"
+              className="group relative flex aspect-[4/5] w-full items-center justify-center overflow-hidden rounded-lg border border-border"
               style={{ background: "linear-gradient(135deg, #2a4570, #16294a)" }}
             >
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-surface/90 shadow-sm">

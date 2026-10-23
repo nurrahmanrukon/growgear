@@ -23,7 +23,7 @@ function VideoPlaceholder({
 }) {
   return (
     <div
-      className="relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-lg"
+      className="relative flex aspect-[4/5] w-full items-center justify-center overflow-hidden rounded-lg"
       style={{ background: `linear-gradient(135deg, ${product.colorFrom}, ${product.colorTo})` }}
     >
       <div className={`flex items-center justify-center rounded-full bg-surface/90 shadow-sm transition group-hover:scale-105 ${iconWrapClassName}`}>
@@ -52,7 +52,7 @@ function VideoThumb({
       className="group flex w-28 shrink-0 flex-col gap-1.5 sm:w-32"
     >
       <div
-        className="relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-lg"
+        className="relative flex aspect-[4/5] w-full items-center justify-center overflow-hidden rounded-lg"
         style={{ background: `linear-gradient(135deg, ${product.colorFrom}, ${product.colorTo})` }}
       >
         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface/90 shadow-sm transition group-hover:scale-105 sm:h-9 sm:w-9">
@@ -106,7 +106,7 @@ export function VideoSection({ product, order }: { product: Product; order?: num
               src={product.videoUrl}
               controls
               preload="metadata"
-              className="aspect-video w-full rounded-lg bg-black"
+              className="aspect-[4/5] w-full rounded-lg bg-black"
             />
           ) : (
             <button
@@ -146,7 +146,7 @@ export function VideoSection({ product, order }: { product: Product; order?: num
                 controls
                 autoPlay
                 preload="metadata"
-                className="aspect-video w-full rounded-lg bg-black"
+                className="aspect-[4/5] w-full rounded-lg bg-black"
               />
             ) : (
               <VideoPlaceholder

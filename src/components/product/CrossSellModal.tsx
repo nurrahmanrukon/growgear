@@ -589,7 +589,7 @@ export function CrossSellModal({
                 ← ফিরে যান
               </button>
               <div
-                className="mt-3 flex aspect-video w-full items-center justify-center overflow-hidden rounded-lg"
+                className="mt-3 flex aspect-[4/5] w-full items-center justify-center overflow-hidden rounded-lg"
                 style={{ background: `linear-gradient(135deg, ${product.colorFrom}, ${product.colorTo})` }}
               >
                 <div className="flex h-16 w-16 items-center justify-center rounded-full bg-surface/90 shadow-sm">
@@ -618,7 +618,7 @@ export function CrossSellModal({
                       className="group flex w-16 shrink-0 flex-col gap-1 text-left"
                     >
                       <div
-                        className="flex aspect-video w-full items-center justify-center overflow-hidden rounded-md"
+                        className="flex aspect-[4/5] w-full items-center justify-center overflow-hidden rounded-md"
                         style={{ background: `linear-gradient(135deg, ${product.colorFrom}, ${product.colorTo})` }}
                       >
                         <div className="flex h-6 w-6 items-center justify-center rounded-full bg-surface/90 shadow-sm transition group-hover:scale-105">
@@ -655,7 +655,7 @@ export function CrossSellModal({
             {expandedVideoReview ? (
               <div className="mt-3">
                 <div
-                  className="flex aspect-video w-full items-center justify-center overflow-hidden rounded-lg"
+                  className="flex aspect-[4/5] w-full items-center justify-center overflow-hidden rounded-lg"
                   style={{ background: `linear-gradient(135deg, ${product.colorFrom}, ${product.colorTo})` }}
                 >
                   <div className="flex h-16 w-16 items-center justify-center rounded-full bg-surface/90 shadow-sm">
@@ -1029,7 +1029,7 @@ export function CrossSellModal({
             {secondExpandedVideoReview ? (
               <div className="mt-3">
                 <div
-                  className="flex aspect-video w-full items-center justify-center overflow-hidden rounded-lg"
+                  className="flex aspect-[4/5] w-full items-center justify-center overflow-hidden rounded-lg"
                   style={{ background: `linear-gradient(135deg, ${secondOffer.product.colorFrom}, ${secondOffer.product.colorTo})` }}
                 >
                   <div className="flex h-16 w-16 items-center justify-center rounded-full bg-surface/90 shadow-sm">
@@ -1139,7 +1139,7 @@ export function CrossSellModal({
                 ← ফিরে যান
               </button>
               <div
-                className="mt-3 flex aspect-video w-full items-center justify-center overflow-hidden rounded-lg"
+                className="mt-3 flex aspect-[4/5] w-full items-center justify-center overflow-hidden rounded-lg"
                 style={{ background: `linear-gradient(135deg, ${secondOffer.product.colorFrom}, ${secondOffer.product.colorTo})` }}
               >
                 <div className="flex h-16 w-16 items-center justify-center rounded-full bg-surface/90 shadow-sm">
@@ -1168,7 +1168,7 @@ export function CrossSellModal({
                       className="group flex w-16 shrink-0 flex-col gap-1 text-left"
                     >
                       <div
-                        className="flex aspect-video w-full items-center justify-center overflow-hidden rounded-md"
+                        className="flex aspect-[4/5] w-full items-center justify-center overflow-hidden rounded-md"
                         style={{ background: `linear-gradient(135deg, ${secondOffer.product.colorFrom}, ${secondOffer.product.colorTo})` }}
                       >
                         <div className="flex h-6 w-6 items-center justify-center rounded-full bg-surface/90 shadow-sm transition group-hover:scale-105">
